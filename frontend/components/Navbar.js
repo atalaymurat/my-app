@@ -18,9 +18,9 @@ export default function Navbar() {
 
 
   return (
-    <nav className="bg-black p-4 text-white flex justify-between items-center">
+    <nav className="bg-black p-4 text-white flex justify-between items-center select-none">
       <div
-        className="text-xl font-semibold hover:cursor-pointer"
+        className="text-xl font-semibold hover:cursor-pointer select-none"
         onClick={() => router.push("/")}
       >
         Postiva
