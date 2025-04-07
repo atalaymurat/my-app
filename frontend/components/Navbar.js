@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { auth } from "@/lib/firebase";
 import { signOut } from "firebase/auth";
+import Link from "next/link";
 
 export default function Navbar() {
   const router = useRouter();
@@ -25,14 +26,21 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="bg-red-400 p-4 text-white flex justify-between items-center">
-      <div className="text-xl font-semibold hover:cursor-pointer" onClick={() => router.push("/")}>
+    <nav className="bg-black p-4 text-white flex justify-between items-center">
+      <div
+        className="text-xl font-semibold hover:cursor-pointer"
+        onClick={() => router.push("/")}
+      >
         Postiva
       </div>
 
       {user ? (
         <div className="flex items-center space-x-4">
-          <span>Welcome, {user.displayName || user.email || ""}</span>
+          <Link href="/profile">
+            <div className="px-2 py-1">
+              Welcome, {user.displayName || user.email || ""}
+            </div>
+          </Link>
           <button
             onClick={handleLogout}
             className="bg-red-500 px-2 py-2 rounded-md hover:bg-red-600"

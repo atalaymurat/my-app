@@ -11,6 +11,7 @@ import {
 } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import GoogleAuth from "../../components/GoogleAuth";
+import Link from "next/link";
 
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
@@ -114,26 +115,37 @@ export default function AuthPage() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 hover:cursor-pointer"
+                className={`w-full text-white py-2 rounded-md hover:cursor-pointer ${
+                  isSubmitting ? "bg-red-500" : "bg-blue-600"
+                }`}
               >
-                {isLogin ? "Login" : "Sign Up"}
+                {isSubmitting ? "Submitting..." : isLogin ? "Login" : "Sign Up"}
               </button>
             </Form>
           )}
         </Formik>
 
         {/* Google login button */}
-        <GoogleAuth setAuthError={setAuthError}/>
+        <GoogleAuth setAuthError={setAuthError} />
 
         <p className="text-center text-sm text-gray-600">
           {isLogin ? "Don't have an account?" : "Already have an account?"}{" "}
           <button
             onClick={() => setIsLogin(!isLogin)}
-            className="text-blue-600 underline hover:cursor-pointer"
+            className="text-blue-600 hover:cursor-pointer font-semibold"
           >
             {isLogin ? "Sign up" : "Login"}
           </button>
         </p>
+        <div className="text-sm flex flex-row space-x-2 w-full justify-center">
+          <div className="text-gray-500">Do you forget your password?</div>
+          <Link
+            href="/auth/reset-password"
+            className="text-blue-600 font-semibold"
+          >
+            Reset Password
+          </Link>
+        </div>
       </div>
     </div>
   );
