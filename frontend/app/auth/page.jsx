@@ -10,6 +10,7 @@ import {
   signInWithEmailAndPassword,
 } from "firebase/auth";
 import { useRouter } from "next/navigation";
+import GoogleAuth from "../../components/GoogleAuth";
 
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
@@ -64,14 +65,16 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="flex items-center justify-center bg-gray-100 p-4 rounded-2xl w-full">
-      <div className="bg-white rounded-2xl shadow-xl p-8 max-w-xl space-y-4">
+    <div className="w-full flex items-center justify-center bg-gray-100 p-2 rounded-2xl">
+      <div className="bg-white p-4 rounded-2xl shadow-xl w-md lg:w-md space-y-4">
         <h1 className="text-2xl font-bold text-center">
           {isLogin ? "Login" : "Sign Up"}
         </h1>
 
         {/* Display error message if there is one */}
-        {authError && <div className="text-red-500 text-center mb-4">{authError}</div>}
+        {authError && (
+          <div className="text-red-500 text-center mb-4">{authError}</div>
+        )}
 
         <Formik
           initialValues={{ email: "", password: "" }}
@@ -118,6 +121,9 @@ export default function AuthPage() {
             </Form>
           )}
         </Formik>
+
+        {/* Google login button */}
+        <GoogleAuth setAuthError={setAuthError}/>
 
         <p className="text-center text-sm text-gray-600">
           {isLogin ? "Don't have an account?" : "Already have an account?"}{" "}

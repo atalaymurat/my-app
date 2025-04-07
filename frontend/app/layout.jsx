@@ -13,7 +13,7 @@ export default function RootLayout({ children }) {
     <html lang="tr">
       <body>
         <Navbar />
-        <div className="flex justify-center p-8">{children}</div>
+        <div className="p-8">{children}</div>
       </body>
     </html>
   );
