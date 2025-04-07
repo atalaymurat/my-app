@@ -1,29 +1,21 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { auth } from "@/lib/firebase";
 import { signOut } from "firebase/auth";
 import Link from "next/link";
+import { useAuth } from "../context/AuthContext";
 
 export default function Navbar() {
+  const { user, loading } = useAuth();
+
   const router = useRouter();
-  const [user, setUser] = useState(null);
-
-  // Check user authentication status
-  useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      setUser(user);
-    });
-
-    return () => unsubscribe();
-  }, []);
 
   const handleLogout = async () => {
     await signOut(auth);
-    setUser(null);
     router.push("/auth"); // Redirect to login/signup page after logout
   };
+
 
   return (
     <nav className="bg-black p-4 text-white flex justify-between items-center">
@@ -34,11 +26,11 @@ export default function Navbar() {
         Postiva
       </div>
 
-      {user ? (
+      {user && !loading ? (
         <div className="flex items-center space-x-4">
           <Link href="/profile">
             <div className="px-2 py-1">
-              Welcome, {user.displayName || user.email || ""}
+              {user.displayName || user.email || "Profile"}
             </div>
           </Link>
           <button

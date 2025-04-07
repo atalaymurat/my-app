@@ -18,6 +18,7 @@ export default function AuthPage() {
   const [authError, setAuthError] = useState(""); // State to store error message
   const router = useRouter(); // Initialize router
 
+
   const validationSchema = Yup.object({
     email: Yup.string()
       .email("Invalid email address")
