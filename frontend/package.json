@@ -6,10 +6,15 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "cookies-next": "^5.1.0",
     "firebase": "^11.6.0",
     "firebase-admin": "^13.2.0",
     "formik": "^2.4.6",
     "next": "^15.2.4",
+    "next-transpile-modules": "^10.0.1",
+    "node-polyfill-webpack-plugin": "^4.1.0",
+    "path-browserify": "^1.0.1",
+    "process": "^0.11.10",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "yup": "^1.6.1"

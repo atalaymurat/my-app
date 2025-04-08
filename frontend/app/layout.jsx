@@ -1,12 +1,11 @@
 // These styles apply to every route in the application
 import "./globals.css";
 import Navbar from "@/components/Navbar";
-import { AuthProvider } from "@/context/AuthContext";
-import { Geist } from 'next/font/google'
+import { Geist } from "next/font/google";
 
 const geist = Geist({
-  subsets: ['latin'],
-})
+  subsets: ["latin"],
+});
 
 export const metadata = {
   title: "Postiva by MATA",
@@ -17,10 +16,8 @@ export default function RootLayout({ children }) {
   return (
     <html lang="tr" className={geist.className}>
       <body>
-        <AuthProvider>
-          <Navbar />
-          <div>{children}</div>
-        </AuthProvider>
+        <Navbar />
+        <div>{children}</div>
       </body>
     </html>
   );

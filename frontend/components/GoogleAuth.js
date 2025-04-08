@@ -4,6 +4,7 @@ import { GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { setCookie } from "cookies-next"; // Cookie yönetimi için
 
 const GoogleAuth = ({ setAuthError }) => {
   const router = useRouter(); // Initialize router
@@ -14,9 +15,13 @@ const GoogleAuth = ({ setAuthError }) => {
     setIsSubmitting(true); // Set loading state to true when login starts
 
     try {
-      // İlk önce çıkış yapalım
-      await signOut(auth);
       await signInWithPopup(auth, provider);
+      // Kullanıcı başarıyla giriş yaptıktan sonra token alalım
+      const userToken = await auth.currentUser.getIdToken();
+
+      // Token'ı cookie'ye kaydediyoruz
+      setCookie("token", userToken, { maxAge: 60 * 60 * 24 * 7 }); // 1 hafta geçerlilik
+
       router.push("/"); // Redirect after successful Google login
     } catch (err) {
       console.error("Error with Google login:", err);

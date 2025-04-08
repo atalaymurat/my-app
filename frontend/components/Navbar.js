@@ -1,21 +1,28 @@
 "use client";
-
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { auth } from "@/lib/firebase";
-import { signOut } from "firebase/auth";
+import { signOut, onAuthStateChanged } from "firebase/auth";
 import Link from "next/link";
-import { useAuth } from "../context/AuthContext";
 
 export default function Navbar() {
-  const { user, loading } = useAuth();
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   const router = useRouter();
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setUser(user);
+      setLoading(false);
+    });
+    return () => unsubscribe();
+  }, []);
 
   const handleLogout = async () => {
     await signOut(auth);
     router.push("/auth"); // Redirect to login/signup page after logout
   };
-
 
   return (
     <nav className="bg-black p-4 text-white flex justify-between items-center select-none">
@@ -41,14 +48,16 @@ export default function Navbar() {
           </button>
         </div>
       ) : (
-        <div className="flex space-x-4">
-          <button
-            onClick={() => router.push("/auth")}
-            className="bg-blue-500 px-2 py-2 rounded-md hover:bg-blue-700"
-          >
-            Login
-          </button>
-        </div>
+        !loading && (
+          <div className="flex space-x-4">
+            <button
+              onClick={() => router.push("/auth")}
+              className="bg-blue-500 px-2 py-2 rounded-md hover:bg-blue-700"
+            >
+              Login
+            </button>
+          </div>
+        )
       )}
     </nav>
   );

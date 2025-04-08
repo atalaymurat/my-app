@@ -12,12 +12,12 @@ import {
 import { useRouter } from "next/navigation";
 import GoogleAuth from "../../components/GoogleAuth";
 import Link from "next/link";
+import { setCookie } from "cookies-next"; // Cookie yönetimi için
 
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
   const [authError, setAuthError] = useState(""); // State to store error message
   const router = useRouter(); // Initialize router
-
 
   const validationSchema = Yup.object({
     email: Yup.string()
@@ -32,6 +32,8 @@ export default function AuthPage() {
     try {
       if (isLogin) {
         await signInWithEmailAndPassword(auth, values.email, values.password);
+        const userToken = await auth.currentUser.getIdToken();
+        setCookie("token", userToken, { maxAge: 60 * 60 * 24 * 7 }); // 1 hafta geçerlilik
       } else {
         await createUserWithEmailAndPassword(
           auth,
