@@ -12,13 +12,13 @@ import {
 import { useRouter } from "next/navigation";
 import GoogleAuth from "../../components/GoogleAuth";
 import Link from "next/link";
-// Remove this import as we won't set cookies directly
-// import { setCookie } from "cookies-next";
+import { useAuth } from "@/context/AuthContext";
 
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
   const [authError, setAuthError] = useState("");
   const router = useRouter();
+  const { login } = useAuth();
 
   const validationSchema = Yup.object({
     email: Yup.string()
@@ -32,9 +32,13 @@ export default function AuthPage() {
   const handleAuth = async (values) => {
     try {
       let userCredential;
-      
+
       if (isLogin) {
-        userCredential = await signInWithEmailAndPassword(auth, values.email, values.password);
+        userCredential = await signInWithEmailAndPassword(
+          auth,
+          values.email,
+          values.password
+        );
       } else {
         userCredential = await createUserWithEmailAndPassword(
           auth,
@@ -42,26 +46,19 @@ export default function AuthPage() {
           values.password
         );
       }
-      
+
       // Get the ID token
       const idToken = await userCredential.user.getIdToken();
-      
-      // Send the ID token to your backend to create a session cookie
-      const response = await fetch('http://localhost:5000/api/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include', // Important for cookies
-        body: JSON.stringify({ idToken }) ,
-      });
-      
-      if (!response.ok) {
-        throw new Error('Failed to create session');
+
+      // Use the login function from AuthContext
+      const success = await login(idToken);
+
+      if (success) {
+        // Redirect to homepage after successful login/signup
+        router.push("/");
+      } else {
+        throw new Error("Login failed");
       }
-      
-      // Redirect to homepage after successful login/signup
-      router.push("/");
     } catch (err) {
       console.error("Error signing in:", err);
 
@@ -80,7 +77,9 @@ export default function AuthPage() {
           setAuthError("The email format is invalid.");
           break;
         default:
-          setAuthError(err.message || "An unexpected error occurred. Please try again.");
+          setAuthError(
+            err.message || "An unexpected error occurred. Please try again."
+          );
           break;
       }
     }
