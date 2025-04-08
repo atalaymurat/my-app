@@ -2,6 +2,7 @@
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import { Geist } from "next/font/google";
+import { AuthProvider } from "@/context/AuthContext";
 
 const geist = Geist({
   subsets: ["latin"],
@@ -16,8 +17,10 @@ export default function RootLayout({ children }) {
   return (
     <html lang="tr" className={geist.className}>
       <body>
-        <Navbar />
-        <div>{children}</div>
+        <AuthProvider>
+          <Navbar />
+          <div>{children}</div>
+        </AuthProvider>
       </body>
     </html>
   );

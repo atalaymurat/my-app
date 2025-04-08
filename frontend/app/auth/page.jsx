@@ -12,12 +12,13 @@ import {
 import { useRouter } from "next/navigation";
 import GoogleAuth from "../../components/GoogleAuth";
 import Link from "next/link";
-import { setCookie } from "cookies-next"; // Cookie yönetimi için
+// Remove this import as we won't set cookies directly
+// import { setCookie } from "cookies-next";
 
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
-  const [authError, setAuthError] = useState(""); // State to store error message
-  const router = useRouter(); // Initialize router
+  const [authError, setAuthError] = useState("");
+  const router = useRouter();
 
   const validationSchema = Yup.object({
     email: Yup.string()
@@ -30,19 +31,36 @@ export default function AuthPage() {
 
   const handleAuth = async (values) => {
     try {
+      let userCredential;
+      
       if (isLogin) {
-        await signInWithEmailAndPassword(auth, values.email, values.password);
-        const userToken = await auth.currentUser.getIdToken();
-        setCookie("token", userToken, { maxAge: 60 * 60 * 24 * 7 }); // 1 hafta geçerlilik
+        userCredential = await signInWithEmailAndPassword(auth, values.email, values.password);
       } else {
-        await createUserWithEmailAndPassword(
+        userCredential = await createUserWithEmailAndPassword(
           auth,
           values.email,
           values.password
         );
       }
-
-      // Redirect to homepage ("/") after successful login/signup
+      
+      // Get the ID token
+      const idToken = await userCredential.user.getIdToken();
+      
+      // Send the ID token to your backend to create a session cookie
+      const response = await fetch('http://localhost:5000/api/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include', // Important for cookies
+        body: JSON.stringify({ idToken }) ,
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to create session');
+      }
+      
+      // Redirect to homepage after successful login/signup
       router.push("/");
     } catch (err) {
       console.error("Error signing in:", err);
@@ -62,20 +80,21 @@ export default function AuthPage() {
           setAuthError("The email format is invalid.");
           break;
         default:
-          setAuthError("An unexpected error occurred. Please try again.");
+          setAuthError(err.message || "An unexpected error occurred. Please try again.");
           break;
       }
     }
   };
 
+  // Rest of your component remains the same
   return (
     <div className="w-full flex items-center justify-center bg-gray-100 p-2 rounded-2xl">
+      {/* Your existing UI code */}
       <div className="bg-white p-4 rounded-2xl shadow-xl w-md lg:w-md space-y-4">
         <h1 className="text-2xl font-bold text-center">
           {isLogin ? "Login" : "Sign Up"}
         </h1>
 
-        {/* Display error message if there is one */}
         {authError && (
           <div className="text-red-500 text-center mb-4">{authError}</div>
         )}

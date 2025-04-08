@@ -1,28 +1,25 @@
 "use client";
-import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { auth } from "@/lib/firebase";
-import { signOut, onAuthStateChanged } from "firebase/auth";
 import Link from "next/link";
+import { useAuth } from "@/context/AuthContext"; // Import the auth context
 
 export default function Navbar() {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-
+  const { user, loading, signOut, authChecked } = useAuth(); // Use the auth context
   const router = useRouter();
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
-      setLoading(false);
-    });
-    return () => unsubscribe();
-  }, []);
+  // Add debugging to see what's happening
+  console.log("Navbar user state:", user, loading, authChecked );
 
-  const handleLogout = async () => {
-    await signOut(auth);
-    router.push("/auth"); // Redirect to login/signup page after logout
-  };
+
+   // Show a minimal navbar during initial loading
+  if (loading && !authChecked) {
+    return (
+      <nav className="bg-black p-4 text-white flex justify-between items-center">
+        <div className="text-xl font-semibold">Postiva</div>
+        <div className="w-6 h-6 border-t-2 border-b-2 border-white rounded-full animate-spin"></div>
+      </nav>
+    );
+  }
 
   return (
     <nav className="bg-black p-4 text-white flex justify-between items-center select-none">
@@ -41,7 +38,7 @@ export default function Navbar() {
             </div>
           </Link>
           <button
-            onClick={handleLogout}
+            onClick={signOut} // Use the signOut function from context
             className="bg-red-500 px-2 py-2 rounded-md hover:bg-red-600"
           >
             Logout

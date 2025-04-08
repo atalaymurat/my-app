@@ -1,33 +1,41 @@
 "use client";
 
-import { GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
+import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { setCookie } from "cookies-next"; // Cookie yönetimi için
+import { useAuth } from "@/context/AuthContext";
 
 const GoogleAuth = ({ setAuthError }) => {
-  const router = useRouter(); // Initialize router
-  const [isSubmitting, setIsSubmitting] = useState(false); // Track login submission state
+  const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { login } = useAuth();
 
   const handleGoogleLogin = async () => {
     const provider = new GoogleAuthProvider();
-    setIsSubmitting(true); // Set loading state to true when login starts
+    setIsSubmitting(true);
 
     try {
-      await signInWithPopup(auth, provider);
-      // Kullanıcı başarıyla giriş yaptıktan sonra token alalım
-      const userToken = await auth.currentUser.getIdToken();
-
-      // Token'ı cookie'ye kaydediyoruz
-      setCookie("token", userToken, { maxAge: 60 * 60 * 24 * 7 }); // 1 hafta geçerlilik
-
-      router.push("/"); // Redirect after successful Google login
+      // Get authentication result from Firebase
+      const result = await signInWithPopup(auth, provider);
+      
+      // Get the ID token
+      const idToken = await result.user.getIdToken();
+      
+      // Use the login function from AuthContext
+      const success = await login(idToken);
+      
+      if (success) {
+        // If successful, redirect
+        router.push("/");
+      } else {
+        throw new Error('Login failed');
+      }
     } catch (err) {
       console.error("Error with Google login:", err);
       setAuthError("Failed to login with Google.");
     } finally {
-      setIsSubmitting(false); // Reset loading state after the login process
+      setIsSubmitting(false);
     }
   };
 
@@ -45,9 +53,9 @@ const GoogleAuth = ({ setAuthError }) => {
               className="w-5 h-5 mr-2"
               alt="Google Icon"
             />
-            <span className="">Loging in to Google...</span>
+            <span className="">Logging in to Google...</span>
           </>
-        ) : (
+        )  : (
           <>
             <img
               src="https://www.svgrepo.com/show/355037/google.svg"
@@ -56,7 +64,7 @@ const GoogleAuth = ({ setAuthError }) => {
             />
             <span className="">Login with Google</span>
           </>
-        )}
+        ) }
       </button>
     </div>
   );
