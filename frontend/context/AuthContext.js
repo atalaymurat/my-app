@@ -1,11 +1,27 @@
 // context/AuthContext.js - Updated with better loading state handling
-
 "use client";
-
 import { createContext, useContext, useState, useEffect } from "react";
 import { auth } from "@/lib/firebase";
-import { onAuthStateChanged, signOut as firebaseSignOut } from "firebase/auth";
+import {
+  onAuthStateChanged,
+  signOut as firebaseSignOut,
+  linkWithCredential,
+} from "firebase/auth";
 import { useRouter } from "next/navigation";
+import axios from "axios";
+
+console.log("-------------ENV------------------ ", process.env.NODE_ENV);
+
+const apiClient = axios.create({
+  baseURL:
+    process.env.NODE_ENV === "development"
+      ? "http://localhost:5000"
+      : process.env.NEXT_PUBLIC_BACKEND_URL,
+  withCredentials: true,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
 
 // Create context
 const AuthContext = createContext();
@@ -20,21 +36,20 @@ export function AuthProvider({ children }) {
   // Check session status on mount
   useEffect(() => {
     let isMounted = true;
-    
+
     const checkSession = async () => {
       try {
         console.log("Checking session with backend...");
         // Call your backend API to check session status
-        const response = await fetch('http://localhost:5000/api/user-profile', {
-          credentials: 'include',
-        }) ;
+        const response = await apiClient.get("/api/user-profile", {
+          withCredentials: true,
+        });
 
         // Only update state if component is still mounted
         if (!isMounted) return;
 
-        if (response.ok) {
-          const data = await response.json();
-          console.log("User data received:", data.user);
+        if (response.status === 200) {
+          const data = await response.data;
           setUser(data.user);
         } else {
           console.log("No valid session found");
@@ -53,8 +68,11 @@ export function AuthProvider({ children }) {
 
     // Listen to Firebase auth state
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
-      console.log("Firebase auth state changed:", firebaseUser ? "logged in" : "logged out");
-      
+      console.log(
+        "Firebase auth state changed:",
+        firebaseUser ? "logged in" : "logged out"
+      );
+
       if (!firebaseUser) {
         if (isMounted) {
           setUser(null);
@@ -82,29 +100,28 @@ export function AuthProvider({ children }) {
     setLoading(true);
     try {
       // Send the ID token to your backend to create a session cookie
-      const response = await fetch('http://localhost:5000/api/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({ idToken }) ,
-      });
-      
-      if (!response.ok) {
-        throw new Error('Failed to create session');
+      const response = await apiClient.post(
+        "/api/login",
+        { idToken },
+        {
+          withCredentials: true,
+        }
+      );
+
+      if (!response.status === 200) {
+        throw new Error("Failed to create session");
       }
-      
+
       // Get user profile after successful login
-      const profileResponse = await fetch('http://localhost:5000/api/user-profile', {
-        credentials: 'include',
-      }) ;
-      
-      if (profileResponse.ok) {
-        const data = await profileResponse.json();
+      const profileResponse = await apiClient.get("/api/user-profile", {
+        withCredentials: true,
+      });
+
+      if (profileResponse.status === 200) {
+        const data = await profileResponse.data;
         setUser(data.user);
       }
-      
+
       return true;
     } catch (error) {
       console.error("Login error:", error);
@@ -121,15 +138,14 @@ export function AuthProvider({ children }) {
     try {
       // Sign out from Firebase
       await firebaseSignOut(auth);
-      
+
       // Call backend to clear session cookie
-      await fetch('http://localhost:5000/api/logout', {
-        method: 'POST',
-        credentials: 'include',
-      }) ;
-      
+      await apiClient.post("/api/logout", {
+        withCredentials: true,
+      });
+
       setUser(null);
-      router.push('/auth');
+      router.push("/auth");
     } catch (error) {
       console.error("Logout error:", error);
     } finally {

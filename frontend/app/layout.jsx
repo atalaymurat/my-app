@@ -3,10 +3,12 @@ import "./globals.css";
 import Navbar from "@/components/Navbar";
 import { Geist } from "next/font/google";
 import { AuthProvider } from "@/context/AuthContext";
+import axios from "axios"
 
 const geist = Geist({
   subsets: ["latin"],
 });
+
 
 export const metadata = {
   title: "Postiva by MATA",
