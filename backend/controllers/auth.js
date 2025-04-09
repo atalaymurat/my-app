@@ -3,7 +3,7 @@ const { createSessionCookie, verifyIdToken } = require("../firebaseAdmin");
 module.exports = {
   login: async (req, res, next) => {
     try {
-      console.log("LOFIN REQ::: ", req.body)
+      console.log("LOFIN REQ::: ", req.body);
       const { idToken } = req.body;
 
       if (!idToken) {
@@ -19,7 +19,7 @@ module.exports = {
         maxAge: expiresIn,
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        sameSite: "lax", // Changed from 'strict' to 'lax' for better compatibility
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
         path: "/",
       };
 
@@ -31,11 +31,13 @@ module.exports = {
         displayName: decodedToken.name || decodedToken.email,
       };
 
-      res.cookie("session", sessionCookie, options);
+      res.setHeader("Access-Control-Allow-Credentials", "true");
+      res.cookie("__Host-session", sessionCookie, options);
+
       res.status(200).json({ success: true, user: userData });
     } catch (error) {
       console.error("Login error:", error);
-      res.status(401).json({ error: "Unauthorized" });
+      res.status(401).json({ error: "Error Login Control  - - Unauthorized" });
     }
   },
 
