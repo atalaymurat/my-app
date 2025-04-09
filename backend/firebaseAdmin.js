@@ -41,28 +41,53 @@ async function createSessionCookie(
   }
 }
 
-// Add this middleware function
-function authMiddleware(req, res, next) {
-  const sessionCookie = req.cookies.session || "";
+async function authMiddleware(req, res, next) {
+  // Check for session cookie in both possible locations
+  const sessionCookie = req.cookies["__Host-session"] || req.cookies.session;
 
   if (!sessionCookie) {
-    return res.status(401).json({ error: "Unauthorized" });
+    console.log("No session cookie found");
+    return res.status(401).json({
+      error: "Unauthorized",
+      details: "No authentication token provided",
+    });
   }
 
-  adminAuth
-    .verifySessionCookie(sessionCookie, true)
-    .then((decodedClaims) => {
-      if (decodedClaims) {
-        req.user = decodedClaims;
-        next();
-      } else {
-        res.status(401).json({ error: "Invalid session" });
-      }
-    })
-    .catch((error) => {
-      console.error("Session verification error:", error);
-      res.status(401).json({ error: "Session verification failed" });
+  try {
+    // Verify the session cookie
+    const decodedClaims = await adminAuth.verifySessionCookie(
+      sessionCookie,
+      true // check revoked
+    );
+
+    if (!decodedClaims) {
+      return res.status(401).json({
+        error: "Invalid session",
+        details: "Token verification failed",
+      });
+    }
+
+    // Attach user data to request
+    req.user = {
+      uid: decodedClaims.uid,
+      email: decodedClaims.email,
+      emailVerified: decodedClaims.email_verified || false,
+      displayName: decodedClaims.name || decodedClaims.email.split("@")[0],
+    };
+
+    next();
+  } catch (error) {
+    console.error("Session verification error:", error);
+
+    // Clear invalid cookie
+    res.clearCookie("session");
+    res.clearCookie("__Host-session");
+
+    return res.status(401).json({
+      error: "Session expired",
+      details: "Please login again",
     });
+  }
 }
 
 async function verifyIdToken(token) {
