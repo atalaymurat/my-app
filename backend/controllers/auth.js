@@ -3,6 +3,7 @@ const { createSessionCookie, verifyIdToken } = require("../firebaseAdmin");
 module.exports = {
   login: async (req, res, next) => {
     try {
+      console.log("LOFIN REQ::: ", req.body)
       const { idToken } = req.body;
 
       if (!idToken) {
