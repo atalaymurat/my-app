@@ -31,7 +31,7 @@ export default function ProfilePage() {
           withCredentials: true, // Important for cookies
         });
 
-        if (!response.status === 2000) {
+        if (!response.status === 200) {
           // If not authenticated, redirect to auth page
           router.push("/auth");
           return;

@@ -108,6 +108,8 @@ export function AuthProvider({ children }) {
         }
       );
 
+      console.log("RESPONSE FROM LOGIN ::", response)
+
       if (!response.status === 200) {
         throw new Error("Failed to create session");
       }
