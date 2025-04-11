@@ -64,10 +64,11 @@ module.exports = {
         sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
         maxAge: 5 * 24 * 60 * 60 * 1000, // 5 days
         path: "/",
-        domain:
-          process.env.NODE_ENV === "production"
-            ? process.env.FRONTEND_URL // Replace with your production domain
-            : undefined, // Omit domain for localhost
+
+        ...(process.env.NODE_ENV === "production" &&
+          process.env.FRONTEND_URL && {
+            domain: process.env.FRONTEND_URL,
+          }),
       };
 
       res.cookie(
