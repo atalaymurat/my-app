@@ -23,6 +23,8 @@ const AuthContext = createContext();
 
 // Create the provider component
 export function AuthProvider({ children }) {
+  console.log("AUTH PROVIDER NODE ENV", process.env.NODE_ENV)
+  console.log("AUTH PROVIDER BACKEND URL", process.env.NEXT_PUBLIC_BACKEND_URL)
   const [user, setUser] = useState(null); // Holds the user profile from *your backend*
   const [loading, setLoading] = useState(true); // Indicates if initial session check is running
   const router = useRouter();
