@@ -61,12 +61,13 @@ module.exports = {
       const cookieOptions = {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
         maxAge: 5 * 24 * 60 * 60 * 1000, // 5 days
         path: "/",
-        ...(process.env.NODE_ENV === "production" && {
-          domain: process.env.COOKIE_DOMAIN,
-        }),
+        domain:
+          process.env.NODE_ENV === "production"
+            ? process.env.FRONTEND_URL // Replace with your production domain
+            : undefined, // Omit domain for localhost
       };
 
       res.cookie(
@@ -113,8 +114,8 @@ module.exports = {
 
         // Include domain only if it was set during login (typically only in production)
         ...(process.env.NODE_ENV === "production" &&
-          process.env.COOKIE_DOMAIN && {
-            domain: process.env.COOKIE_DOMAIN,
+          process.env.FRONTEND_URL && {
+            domain: process.env.FRONTEND_URL,
           }),
       };
 
