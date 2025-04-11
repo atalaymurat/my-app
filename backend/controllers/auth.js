@@ -178,8 +178,8 @@ module.exports = {
           sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
           path: "/",
           ...(process.env.NODE_ENV === "production" &&
-            process.env.COOKIE_DOMAIN && {
-              domain: process.env.COOKIE_DOMAIN,
+            process.env.FRONTEND_URL && {
+              domain: process.env.FRONTEND_URL,
             }),
         };
         res.clearCookie(cookieName, cookieOptions);
@@ -211,8 +211,8 @@ module.exports = {
           sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
           path: "/",
           ...(process.env.NODE_ENV === "production" &&
-            process.env.COOKIE_DOMAIN && {
-              domain: process.env.COOKIE_DOMAIN,
+            process.env.FRONTEND_URL && {
+              domain: process.env.FRONTEND_URL,
             }),
         };
         res.clearCookie(cookieName, cookieOptions);
