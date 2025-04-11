@@ -30,12 +30,10 @@ const userSchema = new mongoose.Schema(
   {
     // Schema Options
     timestamps: true, // Automatically add createdAt and updatedAt fields
-    autoIndex: false,
   }
 );
 
 // Create indexes manually after schema definition
-userSchema.index({ firebaseUid: 1 }, { unique: true, sparse: true });
 
 // Add the findOrCreate static method
 userSchema.statics.findOrCreate = async function (userData) {
