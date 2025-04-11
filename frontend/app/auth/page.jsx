@@ -51,6 +51,7 @@ export default function AuthPage() {
       const idToken = await userCredential.user.getIdToken();
 
       // Use the login function from AuthContext
+      console.log("LOGIN IDTOKEN FROM FIREBASE", idToken)
       const success = await login(idToken);
 
       if (success) {
@@ -85,7 +86,6 @@ export default function AuthPage() {
     }
   };
 
-  // Rest of your component remains the same
   return (
     <div className="w-full flex items-center justify-center bg-gray-100 p-2 rounded-2xl">
       {/* Your existing UI code */}

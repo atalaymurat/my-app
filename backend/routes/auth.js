@@ -1,10 +1,10 @@
 const express = require("express");
 const router = express.Router();
 const authController = require("../controllers/auth");
-const { authMiddleware } = require("../firebaseAdmin");
+const { authenticate } = require('../middleware/auth');
 
-router.post("/api/login", authController.login);
-router.post("/api/logout", authController.logout);
-router.get("/api/user-profile", authMiddleware, authController.userProfile);
+router.post("/login", authController.login);
+router.post("/logout", authController.logout);
+router.get("/user",authController.user);
 
 module.exports = router;
