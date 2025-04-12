@@ -3,7 +3,8 @@
 // Define the list of allowed origins
 const allowedOrigins = [
     process.env.FRONTEND_URL,
-    "http://localhost:3000"
+    "http://localhost:3000",
+    "*",
 ].filter(Boolean); // Use filter(Boolean) to remove potential undefined/null entries if FRONTEND_URL isn't set
 
 // Configure CORS options
