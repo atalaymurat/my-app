@@ -63,7 +63,7 @@ module.exports = {
         secure: process.env.NODE_ENV === "production",
         sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
         maxAge: 5 * 24 * 60 * 60 * 1000, // 5 days
-        domain: ""
+        domain: "",
       };
 
       res.cookie(
@@ -105,10 +105,9 @@ module.exports = {
       const cookieOptions = {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production", // Should match login setting
-        sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax", // Should match login setting
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax", // Should match login setting
         path: "/", // Must match the path used in login ('/' is common)
         domain: "",
-
       };
 
       // 3. Clear the cookie
@@ -171,7 +170,6 @@ module.exports = {
           sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
           path: "/",
           domain: "",
-            
         };
         res.clearCookie(cookieName, cookieOptions);
         return res.status(401).json({
@@ -187,7 +185,7 @@ module.exports = {
         "_id email name profilePicture roles isActive createdAt preferences firebaseUid emailVerified" // Added firebaseUid just in case
       );
 
-      console.log("USER CHECK SESSION FIND IN DB::", user);
+      console.log("USER CHECK SESSION FIND IN DB::", user?.email);
 
       // 6. If user not found in DB (edge case, token might be valid but user deleted)
       if (!user) {
@@ -218,8 +216,12 @@ module.exports = {
         );
         // Clear the cookie for inactive user
         const cookieOptions = {
-          /* ... same options ... */
-        }; // Define options again
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+          path: "/",
+          domain: "",
+        };
         res.clearCookie(cookieName, cookieOptions);
         return res.status(403).json({
           success: false,
