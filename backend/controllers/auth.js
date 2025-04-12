@@ -12,6 +12,9 @@ const getCookieOptions = () => {
     path: "/",
     maxAge: 5 * 24 * 60 * 60 * 1000, // 5 days
     // NO domain attribute for __Host- cookies
+    ...(process.env.NODE_ENV === "production" && { 
+    domain: ".postiva-atalaymurats-projects.vercel.app/" // Note the leading dot
+  })
   };
 
   return options;
