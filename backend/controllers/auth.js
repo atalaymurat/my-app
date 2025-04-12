@@ -63,12 +63,7 @@ module.exports = {
         secure: process.env.NODE_ENV === "production",
         sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
         maxAge: 5 * 24 * 60 * 60 * 1000, // 5 days
-        path: "/",
-
-        ...(process.env.NODE_ENV === "production" &&
-          process.env.FRONTEND_URL && {
-            domain: process.env.FRONTEND_URL,
-          }),
+        domain: ""
       };
 
       res.cookie(
@@ -112,12 +107,8 @@ module.exports = {
         secure: process.env.NODE_ENV === "production", // Should match login setting
         sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax", // Should match login setting
         path: "/", // Must match the path used in login ('/' is common)
+        domain: "",
 
-        // Include domain only if it was set during login (typically only in production)
-        ...(process.env.NODE_ENV === "production" &&
-          process.env.FRONTEND_URL && {
-            domain: process.env.FRONTEND_URL,
-          }),
       };
 
       // 3. Clear the cookie
@@ -177,12 +168,10 @@ module.exports = {
           // Define options for clearing
           httpOnly: true,
           secure: process.env.NODE_ENV === "production",
-          sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
+          sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
           path: "/",
-          ...(process.env.NODE_ENV === "production" &&
-            process.env.FRONTEND_URL && {
-              domain: process.env.FRONTEND_URL,
-            }),
+          domain: "",
+            
         };
         res.clearCookie(cookieName, cookieOptions);
         return res.status(401).json({
@@ -210,12 +199,9 @@ module.exports = {
           // Define options for clearing
           httpOnly: true,
           secure: process.env.NODE_ENV === "production",
-          sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
+          sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
           path: "/",
-          ...(process.env.NODE_ENV === "production" &&
-            process.env.FRONTEND_URL && {
-              domain: process.env.FRONTEND_URL,
-            }),
+          domain: "",
         };
         res.clearCookie(cookieName, cookieOptions);
         return res.status(404).json({
