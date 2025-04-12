@@ -46,8 +46,6 @@ export function AuthProvider({ children }) {
         return response.data.user;
       }
 
-      // Handle cases where success is false or user data missing
-      console.warn("Session exists but no user data:", response.data);
       setUser(null);
       return null;
     } catch (error) {
@@ -93,13 +91,6 @@ export function AuthProvider({ children }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Empty dependency array ensures this runs only once on mount
 
-  /**
-   * Logs the user in by sending the Firebase ID token to the backend.
-   * The backend verifies the token, creates/finds the user, sets the session cookie,
-   * and returns the user profile.
-   * @param {string} idToken - The Firebase ID token obtained after Firebase login.
-   * @returns {Promise<boolean>} True if login succeeded, false otherwise.
-   */
   const login = async (idToken) => {
     if (!idToken) {
       console.error("Login function called without an idToken.");

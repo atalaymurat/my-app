@@ -137,11 +137,9 @@ module.exports = {
   user: async (req, res) => {
     let cookieName; // Declare here to be accessible in catch block if needed
     try {
-      // 1. Determine the correct cookie name
       cookieName =
         process.env.NODE_ENV === "production" ? "__Host-session" : "session";
 
-      // 2. Get the token from the request cookies
       const token = req.cookies[cookieName];
 
       // 3. If no token is found, the user is not authenticated
@@ -164,7 +162,6 @@ module.exports = {
         console.error("JWT Verification Error:", jwtError.message);
         // Clear the invalid cookie
         const cookieOptions = {
-          // Define options for clearing
           httpOnly: true,
           secure: process.env.NODE_ENV === "production",
           sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
@@ -194,7 +191,6 @@ module.exports = {
         );
         // Clear the cookie as it references a non-existent user
         const cookieOptions = {
-          // Define options for clearing
           httpOnly: true,
           secure: process.env.NODE_ENV === "production",
           sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
