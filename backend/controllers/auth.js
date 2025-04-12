@@ -8,9 +8,9 @@ const getCookieOptions = () => {
   const options = {
     httpOnly: true,
     secure: isProduction,
-    sameSite: isProduction ? "none" : "lax",
+    sameSite: isProduction ? "lax" : "lax",
     path: "/",
-    domain: ".vercel.app",
+    domain: ".postiva-atalaymurats-projects.vercel.app",
     maxAge: 5 * 24 * 60 * 60 * 1000, // 5 days
     // NO domain attribute for __Host- cookies
   };
