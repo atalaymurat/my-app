@@ -20,7 +20,7 @@ export function middleware(request) {
   console.log("Path is protected, checking authentication");
 
   // Get session cookie - using __Host- prefix in production for added security
-  const cookieName = isProduction ? "__Host-session" : "session";
+  const cookieName = "session";
   const sessionCookie = request.cookies.get(cookieName);
 
   console.log("Cookie check:", { cookieName, exists: !!sessionCookie });
