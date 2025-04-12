@@ -2,6 +2,24 @@ const admin = require("../config/firebaseAdmin");
 const User = require("../models/User");
 const jwt = require("jsonwebtoken");
 
+// Improved cookie configuration
+const getCookieOptions = () => {
+  const isProduction = process.env.NODE_ENV === "production";
+  const options = {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: isProduction ? "none" : "lax",
+    path: "/",
+    maxAge: 5 * 24 * 60 * 60 * 1000, // 5 days
+    // NO domain attribute for __Host- cookies
+  };
+
+  return options;
+};
+
+const getCookieName = () =>
+  process.env.NODE_ENV === "production" ? "__Host-session" : "session";
+
 module.exports = {
   login: async (req, res) => {
     try {
@@ -58,19 +76,8 @@ module.exports = {
       );
 
       // 5. Set secure HTTP-only cookie
-      const cookieOptions = {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-        maxAge: 5 * 24 * 60 * 60 * 1000, // 5 days
-        domain: "",
-      };
 
-      res.cookie(
-        process.env.NODE_ENV === "production" ? "__Host-session" : "session",
-        jwtToken,
-        cookieOptions
-      );
+      res.cookie(getCookieName(), jwtToken, getCookieOptions());
 
       console.log(`Successful login for ${user.email}`);
       return res.status(200).json({
@@ -80,8 +87,8 @@ module.exports = {
     } catch (error) {
       console.error("Login error:", error);
       // Clear cookie if something went wrong
-      res.clearCookie("session");
-      res.clearCookie("__Host-session");
+      res.clearCookie("session", getCookieOptions());
+      res.clearCookie("__Host-session", getCookieOptions());
 
       res.status(401).json({
         success: false,
@@ -94,30 +101,13 @@ module.exports = {
 
   logout: (req, res) => {
     try {
-      // 1. Determine the correct cookie name based on environment
-      //    This MUST exactly match the name used in the login function.
-      const cookieName =
-        process.env.NODE_ENV === "production" ? "__Host-session" : "session";
+      const options = getCookieOptions();
+      res.clearCookie(getCookieName(), options);
+      res.clearCookie(
+        getCookieName() === "__Host-session" ? "session" : "__Host-session",
+        options
+      );
 
-      // 2. Define cookie options used for clearing
-      //    These attributes (path, domain, secure, httpOnly, sameSite) MUST precisely match
-      //    the ones used when the cookie was SET during login for the browser to clear it.
-      const cookieOptions = {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production", // Should match login setting
-        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax", // Should match login setting
-        path: "/", // Must match the path used in login ('/' is common)
-        domain: "",
-      };
-
-      // 3. Clear the cookie
-      //    Express's res.clearCookie() method sets the cookie's expiration date to the past,
-      //    prompting the browser to remove it.
-      res.clearCookie(cookieName, cookieOptions);
-
-      console.log(`Logout successful: Cleared cookie '${cookieName}'`);
-
-      // 4. Send success response
       //    It's good practice to confirm logout was processed.
       return res.status(200).json({
         success: true,
@@ -135,11 +125,8 @@ module.exports = {
 
   // --- Function to get current user profile based on session cookie ---
   user: async (req, res) => {
-    let cookieName; // Declare here to be accessible in catch block if needed
+    const cookieName = getCookieName();
     try {
-      cookieName =
-        process.env.NODE_ENV === "production" ? "__Host-session" : "session";
-
       const token = req.cookies[cookieName];
 
       // 3. If no token is found, the user is not authenticated
@@ -161,14 +148,7 @@ module.exports = {
         // Handle errors like expired token, invalid signature, etc.
         console.error("JWT Verification Error:", jwtError.message);
         // Clear the invalid cookie
-        const cookieOptions = {
-          httpOnly: true,
-          secure: process.env.NODE_ENV === "production",
-          sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-          path: "/",
-          domain: "",
-        };
-        res.clearCookie(cookieName, cookieOptions);
+        res.clearCookie(cookieName, getCookieOptions());
         return res.status(401).json({
           success: false,
           error: "Not authenticated",
@@ -190,14 +170,7 @@ module.exports = {
           `User not found in DB for valid token userId: ${decodedPayload.userId}`
         );
         // Clear the cookie as it references a non-existent user
-        const cookieOptions = {
-          httpOnly: true,
-          secure: process.env.NODE_ENV === "production",
-          sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-          path: "/",
-          domain: "",
-        };
-        res.clearCookie(cookieName, cookieOptions);
+        res.clearCookie(getCookieName(), getCookieOptions());
         return res.status(404).json({
           success: false,
           error: "User not found",
@@ -211,14 +184,7 @@ module.exports = {
           `Inactive user attempted to access profile: ${user.email} (ID: ${user._id})`
         );
         // Clear the cookie for inactive user
-        const cookieOptions = {
-          httpOnly: true,
-          secure: process.env.NODE_ENV === "production",
-          sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-          path: "/",
-          domain: "",
-        };
-        res.clearCookie(cookieName, cookieOptions);
+        res.clearCookie(getCookieName(), getCookieOptions());
         return res.status(403).json({
           success: false,
           error: "Forbidden",
