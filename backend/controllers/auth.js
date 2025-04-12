@@ -8,7 +8,7 @@ const getCookieOptions = () => {
   const options = {
     httpOnly: true,
     secure: isProduction,
-    sameSite: isProduction ? "lax" : "lax",
+    sameSite: isProduction ? "strict" : "lax",
     path: "/",
     domain: ".postiva-atalaymurats-projects.vercel.app",
     maxAge: 5 * 24 * 60 * 60 * 1000, // 5 days
@@ -19,7 +19,7 @@ const getCookieOptions = () => {
 };
 
 const getCookieName = () =>
-  process.env.NODE_ENV === "production" ? "session" : "session";
+  process.env.NODE_ENV === "production" ? "__Host-session" : "session";
 
 module.exports = {
   login: async (req, res) => {
