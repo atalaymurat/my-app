@@ -18,7 +18,7 @@ const getCookieOptions = () => {
 };
 
 const getCookieName = () =>
-  process.env.NODE_ENV === "production" ? "__Host-session" : "session";
+  process.env.NODE_ENV === "production" ? "session" : "session";
 
 module.exports = {
   login: async (req, res) => {
