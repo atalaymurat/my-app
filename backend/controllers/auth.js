@@ -10,6 +10,7 @@ const getCookieOptions = () => {
     secure: isProduction,
     sameSite: isProduction ? "none" : "lax",
     path: "/",
+    domain: ".vercel.app",
     maxAge: 5 * 24 * 60 * 60 * 1000, // 5 days
     // NO domain attribute for __Host- cookies
   };
@@ -103,11 +104,6 @@ module.exports = {
     try {
       const options = getCookieOptions();
       res.clearCookie(getCookieName(), options);
-      res.clearCookie(
-        getCookieName() === "__Host-session" ? "session" : "__Host-session",
-        options
-      );
-
       //    It's good practice to confirm logout was processed.
       return res.status(200).json({
         success: true,
