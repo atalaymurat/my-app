@@ -29,16 +29,12 @@ export function middleware(request) {
 
     // Security headers for the redirect response
     const response = NextResponse.redirect(loginUrl);
-    response.headers.set("X-Content-Type-Options", "nosniff");
-    response.headers.set("X-Frame-Options", "DENY");
 
     return response;
   }
 
   // Add security headers to all responses
   const response = NextResponse.next();
-  response.headers.set("X-XSS-Protection", "1; mode=block");
-  response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
 
   return response;
 }
