@@ -7,6 +7,7 @@ import EmailVerification from "../../components/EmailVerification";
 
 export default function ProfilePage() {
   const { user, loading, authChecked } = useAuth();
+  console.log("PROFILE:USER:", user)
 
 
   if (loading) {

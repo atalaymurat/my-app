@@ -9,7 +9,6 @@ export default function Navbar() {
   const router = useRouter();
 
   // Add debugging to see what's happening
-  console.log("Navbar user state:", user, loading, authChecked);
 
   // Show a minimal navbar during initial loading
   if (loading && !authChecked) {
