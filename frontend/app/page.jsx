@@ -15,11 +15,24 @@ export default function Home() {
           ? process.env.NEXT_PUBLIC_BACKEND_URL 
           : "http://localhost:5000";
 
+        console.log("Checking token with backend URL:", backendUrl);
+        
+        // Get all cookies
+        const cookies = document.cookie;
+        console.log("Available cookies:", cookies);
+
         const response = await fetch(`${backendUrl}/api/user`, {
           credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+          }
         });
 
+        console.log("Response status:", response.status);
+        console.log("Response headers:", Object.fromEntries(response.headers.entries()));
+        
         const data = await response.json();
+        console.log("Response data:", data);
         
         if (data.success && data.user) {
           setTokenStatus(`Token valid! Welcome ${data.user.name || data.user.email}`);
