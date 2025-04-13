@@ -16,9 +16,6 @@ const getCookieOptions = () => {
     httpOnly: true,
     secure: true,
     sameSite: "none",
-    path: "/",
-    maxAge: 5 * 24 * 60 * 60 * 1000, // 5 days
-    partitioned: true,
   };
 
   const options = isProduction ? optionsServer : optionsLocal;
