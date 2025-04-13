@@ -10,6 +10,7 @@ const allowedOrigins = [
   /\.vercel\.app$/,
   /\.vercel\.sh$/,
   /\.now\.sh$/,
+  /postiva-.*-atalaymurats-projects\.vercel\.app$/, // Vercel preview deployments
 ].filter(Boolean);
 
 const corsOptions = {
@@ -48,7 +49,25 @@ const corsOptions = {
     "Access-Control-Allow-Credentials",
     "Access-Control-Allow-Origin",
     "Access-Control-Allow-Methods",
-    "Access-Control-Allow-Headers"
+    "Access-Control-Allow-Headers",
+    // Vercel specific headers
+    "x-forwarded-for",
+    "x-forwarded-host",
+    "x-forwarded-proto",
+    "x-real-ip",
+    "x-vercel-deployment-url",
+    "x-vercel-id",
+    "x-vercel-ip-as-number",
+    "x-vercel-ip-city",
+    "x-vercel-ip-continent",
+    "x-vercel-ip-country",
+    "x-vercel-ip-country-region",
+    "x-vercel-ip-latitude",
+    "x-vercel-ip-longitude",
+    "x-vercel-ip-postal-code",
+    "x-vercel-ip-timezone",
+    "x-vercel-ja4-digest",
+    "x-vercel-proxied-for"
   ],
 };
 
