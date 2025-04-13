@@ -3,10 +3,15 @@ const jwt = require('jsonwebtoken');
 
 const authMiddleware = async (req, res, next) => {
    try {
+    // Debug logging
+    console.log('Auth Middleware - Request Headers:', req.headers);
+    console.log('Auth Middleware - All Cookies:', req.cookies);
+    
     // 1. Get token from cookies
     const token = req.cookies.token;
     
     if (!token) {
+      console.log('Auth Middleware - No token found in cookies');
       return res.status(401).json({ error: 'Not authenticated' });
     }
 

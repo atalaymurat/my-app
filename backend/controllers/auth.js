@@ -11,6 +11,7 @@ const getCookieOptions = () => {
     httpOnly: true,
     path: "/",
     maxAge: 5 * 24 * 60 * 60 * 1000, // 5 days
+    sameSite: "lax", // Changed from 'none' to 'lax' for better security
   };
 
   // Environment-specific options
@@ -18,13 +19,11 @@ const getCookieOptions = () => {
     ? {
         ...commonOptions,
         secure: true,
-        sameSite: "none",
-        domain: "postiva-server.onrender.com",
+        domain: process.env.COOKIE_DOMAIN || "postiva-server.onrender.com",
       }
     : {
         ...commonOptions,
         secure: false,
-        sameSite: "lax",
         // No domain for localhost
       };
 };

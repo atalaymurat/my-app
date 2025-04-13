@@ -34,7 +34,7 @@ const corsOptions = {
     callback(new Error("Not allowed by CORS"));
   },
   credentials: true,
-  exposedHeaders: ["set-cookie", "Cookie"],
+  exposedHeaders: ["set-cookie"],
   optionsSuccessStatus: 200,
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   allowedHeaders: [
