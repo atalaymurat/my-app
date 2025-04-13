@@ -7,25 +7,36 @@ const getCookieOptions = () => {
   const isProduction = process.env.NODE_ENV === "production";
 
   // Common options for both environments
-  return {
+  const options = {
     httpOnly: true,
     path: "/",
     maxAge: 5 * 24 * 60 * 60 * 1000, // 5 days
-    secure: isProduction, // true in production, false in development
-    sameSite: isProduction ? "none" : "lax", // none in production, lax in development
-    domain: isProduction ? ".onrender.com" : undefined // Set domain only in production
+    secure: true, // Always use secure cookies
+    sameSite: "none", // Required for cross-origin
   };
+
+  console.log('Cookie options:', options);
+  return options;
 };
 
-const getCookieName = () => "token"; // Simple cookie name for both environments
+const getCookieName = () => "token";
 
-// Add debug logging for cookie setting
 const setCookieWithDebug = (res, name, value, options) => {
-  console.log('Setting cookie with options:', {
+  // Set CORS headers explicitly
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.header('Access-Control-Allow-Origin', process.env.FRONTEND_URL || 'https://postiva-atalaymurats-projects.vercel.app');
+  
+  // Log cookie setting attempt
+  console.log('Setting cookie:', {
     name,
-    value: value ? '[REDACTED]' : undefined,
-    options
+    options,
+    headers: {
+      'Access-Control-Allow-Credentials': res.getHeader('Access-Control-Allow-Credentials'),
+      'Access-Control-Allow-Origin': res.getHeader('Access-Control-Allow-Origin')
+    }
   });
+
+  // Set the cookie
   res.cookie(name, value, options);
 };
 
