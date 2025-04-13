@@ -15,14 +15,7 @@ export function middleware(request) {
   const cookieHeader = request.headers.get('cookie');
   console.log("Cookie Header:", cookieHeader);
 
-  // Parse cookies
-  const cookies = cookieHeader ? cookieHeader.split(';').reduce((acc, cookie) => {
-    const [name, value] = cookie.trim().split('=');
-    acc[name] = value;
-    return acc;
-  }, {}) : {};
 
-  console.log("Parsed cookies:", cookies);
 
   return NextResponse.next();
 }

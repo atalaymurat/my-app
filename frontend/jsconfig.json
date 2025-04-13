@@ -4,5 +4,15 @@
     "paths": {
       "@/*": ["./*"]
     }
-  }
+  },
+  "exclude": ["node_modules", ".next"],
+  "include": [
+    "app/**/*",
+    "components/**/*",
+    "context/**/*",
+    "hooks/**/*",
+    "lib/**/*",
+    "middleware.js",
+    "utils/**/*"
+  ]
 }
