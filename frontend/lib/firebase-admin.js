@@ -35,3 +35,15 @@ export async function verifyIdToken(token) {
     return null;
   }
 }
+
+export const getFirebaseToken = async () => {
+  try {
+    const auth = getAuth();
+    const user = auth.currentUser;
+    if (!user) return null;
+    return await user.getIdToken();
+  } catch (error) {
+    console.error("Error getting Firebase token:", error);
+    return null;
+  }
+};

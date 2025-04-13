@@ -5,22 +5,28 @@ const jwt = require("jsonwebtoken");
 // Improved cookie configuration
 const getCookieOptions = () => {
   const isProduction = process.env.NODE_ENV === "production";
-  const optionsLocal = {
+
+  // Common options
+  const commonOptions = {
     httpOnly: true,
-    secure: false,
-    sameSite: "lax",
     path: "/",
     maxAge: 5 * 24 * 60 * 60 * 1000, // 5 days
   };
-  const optionsServer = {
-    httpOnly: true,
-    secure: true,
-    sameSite: "None",
-    maxAge: 24 * 60 * 60 * 1000,
-  };
 
-  const options = isProduction ? optionsServer : optionsLocal;
-  return options;
+  // Environment-specific options
+  return isProduction
+    ? {
+        ...commonOptions,
+        secure: true,
+        sameSite: "none",
+        domain: "postiva-server.onrender.com",
+      }
+    : {
+        ...commonOptions,
+        secure: false,
+        sameSite: "lax",
+        // No domain for localhost
+      };
 };
 
 const getCookieName = () =>
@@ -208,6 +214,33 @@ module.exports = {
         error: "Internal server error",
         details: "Failed to fetch user profile due to a server issue.",
       });
+    }
+  },
+  verify: async (req, res) => {
+    try {
+      const authHeader = req.headers.authorization;
+      if (!authHeader) {
+        return res.status(401).json({ success: false });
+      }
+
+      const token = authHeader.split(" ")[1];
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+      // Optionally verify with Firebase
+      await admin.auth().verifyIdToken(decoded.firebaseToken);
+
+      // Refresh the cookie
+      const newToken = jwt.sign(
+        { userId: decoded.userId },
+        process.env.JWT_SECRET,
+        { expiresIn: "1d" }
+      );
+
+      res.cookie(getCookieName(), newToken, getCookieOptions());
+      return res.status(200).json({ success: true });
+    } catch (error) {
+      console.error("Verification error:", error);
+      return res.status(401).json({ success: false });
     }
   },
 };
