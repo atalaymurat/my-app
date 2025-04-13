@@ -11,24 +11,23 @@ const getCookieOptions = () => {
     sameSite: "lax",
     path: "/",
     maxAge: 5 * 24 * 60 * 60 * 1000, // 5 days
-
   };
   const optionsServer = {
     httpOnly: true,
     secure: true,
     sameSite: "none",
     path: "/",
+    domain: "postiva-server.onrender.com", // backend domaini
     maxAge: 5 * 24 * 60 * 60 * 1000, // 5 days
-    domain: "postiva-server.onrender.com" // backend domaini
-
+    partitioned: true,
   };
 
-  const options = isProduction ? optionsServer : optionsLocal ;
-  return options
+  const options = isProduction ? optionsServer : optionsLocal;
+  return options;
 };
 
 const getCookieName = () =>
-  process.env.NODE_ENV === "production" ? "session" : "session";
+  process.env.NODE_ENV === "production" ? "token" : "token";
 
 module.exports = {
   login: async (req, res) => {
