@@ -8,7 +8,7 @@ const getCookieOptions = () => {
   const options = {
     httpOnly: true,
     secure: isProduction,
-    sameSite: isProduction ? "strict" : "lax",
+    sameSite: isProduction ? "None" : "lax",
     path: "/",
     maxAge: 5 * 24 * 60 * 60 * 1000, // 5 days
     // NO domain attribute for __Host- cookies
