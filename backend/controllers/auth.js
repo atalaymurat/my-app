@@ -8,10 +8,10 @@ const getCookieOptions = () => {
 
   return {
     httpOnly: true,
-    secure: true,
+    secure: isProduction,
     path: "/",
-    sameSite: "none",
-    domain: domain,
+    sameSite: isProduction ? "none" : "lax",
+    domain: isProduction ? domain : undefined,
     maxAge: 5 * 24 * 60 * 60 * 1000, // 5 days
   };
 };
@@ -104,6 +104,7 @@ module.exports = {
   user: async (req, res) => {
     try {
       const token = req.cookies._api_token;
+      console.log("Controller User Is Called");
 
       if (!token) {
         return res.status(401).json({

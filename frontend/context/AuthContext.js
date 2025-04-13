@@ -23,64 +23,90 @@ const AuthContext = createContext();
 
 // Create the provider component
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null); // Holds the user profile from *your backend*
-  const [loading, setLoading] = useState(true); // Indicates if initial session check is running
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [authChecked, setAuthChecked] = useState(false);
   const router = useRouter();
 
-  /**
-   * Checks the backend session status by calling the /api/user endpoint.
-   * Updates the local user state based on the response.
-   * @returns {Promise<object|null>} The user object from backend or null.
-   */
   const checkSession = async () => {
-    setLoading(true); // Indicate loading state during check
+    if (authChecked) return user;
+    
+    setLoading(true);
     try {
       const response = await apiClient.get("/api/user", {
-        validateStatus: (status) => status < 500, // Don't throw for 401/403
+        validateStatus: (status) => status < 500,
       });
 
-      console.log("Session check response:", response); // Debug log
+      // Log response for debugging
+      console.log("Session check response:", {
+        status: response.status,
+        data: response.data,
+      });
 
-      if (response.data?.success && response.data.user) {
-        setUser(response.data.user);
-        return response.data.user;
+      // Handle successful authentication
+      if (response.status === 200 && response.data?.success && response.data.user) {
+        const userData = response.data.user;
+        setUser(userData);
+        setAuthChecked(true);
+        return userData;
       }
 
+      // Handle unauthorized access
+      if (response.status === 401 || response.status === 403) {
+        console.log("Session invalid or expired");
+        await handleInvalidSession();
+        setAuthChecked(true);
+        return null;
+      }
+
+      // Handle other error cases
+      if (response.status >= 400) {
+        console.error("Session check failed with status:", response.status);
+        setUser(null);
+        setAuthChecked(true);
+        return null;
+      }
+
+      // Default case - no user data
       setUser(null);
+      setAuthChecked(true);
       return null;
     } catch (error) {
-      console.error("Session check failed:", {
+      console.error("Session check error:", {
         message: error.message,
         response: error.response?.data,
         stack: error.stack,
       });
 
-      // Clear user state on any error
-      setUser(null);
-
-      // Specific handling for network vs server errors
-      if (error.response) {
-        // Server responded with error status
-        if (error.response.status === 401) {
-          console.log("Attempting to clear invalid session...");
-          try {
-            await apiClient.post("/api/logout");
-            console.log("Session cleared successfully");
-          } catch (logoutError) {
-            console.error("Logout failed:", logoutError);
-          }
-        }
-      } else if (error.request) {
-        // Request was made but no response
-        console.warn("No response from server - network issue?");
-      } else {
-        // Something else happened
-        console.error("Configuration error:", error.message);
+      // Handle network errors
+      if (!error.response) {
+        console.warn("Network error during session check");
+        return user;
       }
 
+      // Handle server errors
+      if (error.response.status >= 500) {
+        console.error("Server error during session check");
+        return user;
+      }
+
+      // Handle other errors
+      setUser(null);
+      setAuthChecked(true);
       return null;
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Helper function to handle invalid sessions
+  const handleInvalidSession = async () => {
+    try {
+      await apiClient.post("/api/logout");
+      setUser(null);
+      console.log("Session cleared successfully");
+    } catch (logoutError) {
+      console.error("Failed to clear session:", logoutError);
     }
   };
 
@@ -150,11 +176,12 @@ export function AuthProvider({ children }) {
 
   // The value provided to consuming components
   const value = {
-    user, // The current user object (from backend) or null
-    loading, // Boolean indicating if initial auth check is in progress
-    login, // Function to log in via backend
-    signOut, // Function to log out
-    checkSession, // Expose if manual re-check is needed elsewhere
+    user,
+    loading,
+    login,
+    signOut,
+    checkSession,
+    authChecked,
   };
 
   // Provide the context value to children components
