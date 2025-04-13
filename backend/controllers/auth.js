@@ -15,7 +15,7 @@ const getCookieOptions = () => {
     maxAge: 5 * 24 * 60 * 60 * 1000, // 5 days
     secure: isProduction,
     sameSite: isProduction ? "none" : "lax",
-    domain: formattedDomain,
+    domain: ".vercel.app",
   };
 };
 
@@ -25,7 +25,7 @@ const setCookie = (res, token) => {
   res.header("Access-Control-Allow-Credentials", "true");
   res.header(
     "Access-Control-Allow-Origin",
-    isProduction ? process.env.FRONTEND_URL : "http://localhost:3000"
+    isProduction ? "https://postiva-atalaymurats-projects.vercel.app" : "http://localhost:3000"
   );
 
   res.cookie("_api_token", token, getCookieOptions());
