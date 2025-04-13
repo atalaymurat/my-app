@@ -11,7 +11,7 @@ const getCookieOptions = () => {
     httpOnly: true,
     path: "/",
     maxAge: 5 * 24 * 60 * 60 * 1000, // 5 days
-    sameSite: "lax", // Changed from 'none' to 'lax' for better security
+    sameSite: "none", // Production için none, development için lax
   };
 
   // Environment-specific options
@@ -19,12 +19,12 @@ const getCookieOptions = () => {
     ? {
         ...commonOptions,
         secure: true,
-        domain: process.env.COOKIE_DOMAIN || "postiva-server.onrender.com",
+        domain: ".onrender.com", // Render.com için domain
       }
     : {
         ...commonOptions,
         secure: false,
-        // No domain for localhost
+        sameSite: "lax", // Development için lax
       };
 };
 
