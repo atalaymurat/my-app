@@ -6,30 +6,18 @@ const jwt = require("jsonwebtoken");
 const getCookieOptions = () => {
   const isProduction = process.env.NODE_ENV === "production";
 
-  // Common options
-  const commonOptions = {
+  // Common options for both environments
+  return {
     httpOnly: true,
     path: "/",
     maxAge: 5 * 24 * 60 * 60 * 1000, // 5 days
-    sameSite: "none", // Production için none, development için lax
+    secure: isProduction, // true in production, false in development
+    sameSite: isProduction ? "none" : "lax", // none in production, lax in development
+    // No domain setting - let the browser handle it
   };
-
-  // Environment-specific options
-  return isProduction
-    ? {
-        ...commonOptions,
-        secure: true,
-        domain: ".onrender.com", // Render.com için domain
-      }
-    : {
-        ...commonOptions,
-        secure: false,
-        sameSite: "lax", // Development için lax
-      };
 };
 
-const getCookieName = () =>
-  process.env.NODE_ENV === "production" ? "token" : "token";
+const getCookieName = () => "token"; // Simple cookie name for both environments
 
 module.exports = {
   login: async (req, res) => {
