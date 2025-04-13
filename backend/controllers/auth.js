@@ -10,9 +10,7 @@ const getCookieOptions = () => {
     maxAge: 5 * 24 * 60 * 60 * 1000, // 5 days
     secure: isProduction,
     sameSite: isProduction ? "none" : "lax",
-    domain: isProduction
-      ? "https://postiva-atalaymurats-projects.vercel.app"
-      : undefined,
+    domain: isProduction ? process.env.COOKIE_DOMAIN : undefined,
   };
 };
 
