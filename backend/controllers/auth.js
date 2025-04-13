@@ -4,13 +4,18 @@ const jwt = require("jsonwebtoken");
 
 const getCookieOptions = () => {
   const isProduction = process.env.NODE_ENV === "production";
+  const domain = isProduction ? process.env.COOKIE_DOMAIN : undefined;
+  
+  // Ensure domain starts with a dot if it's set
+  const formattedDomain = domain && !domain.startsWith('.') ? `.${domain}` : domain;
+
   return {
     httpOnly: true,
     path: "/",
     maxAge: 5 * 24 * 60 * 60 * 1000, // 5 days
     secure: isProduction,
     sameSite: isProduction ? "none" : "lax",
-    domain: isProduction ? process.env.COOKIE_DOMAIN : undefined,
+    domain: formattedDomain,
   };
 };
 
