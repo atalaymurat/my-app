@@ -86,7 +86,6 @@ export function AuthProvider({ children }) {
 
   // Run checkSession once when the AuthProvider mounts to determine initial state
   useEffect(() => {
-    console.log("AuthProvider mounted, checking initial session...");
     checkSession();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Empty dependency array ensures this runs only once on mount

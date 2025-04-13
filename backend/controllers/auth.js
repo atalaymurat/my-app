@@ -6,12 +6,12 @@ const jwt = require("jsonwebtoken");
 const getCookieOptions = () => {
   const isProduction = process.env.NODE_ENV === "production";
   const options = {
-    httpOnly: false,
+    httpOnly: true,
     secure: isProduction,
-    sameSite: isProduction ? "None" : "None",
+    sameSite: "none",
     path: "/",
+    domain: isProduction ? ".postiva-atalaymurats-projects.vercel.app" : "/",
     maxAge: 5 * 24 * 60 * 60 * 1000, // 5 days
-    // NO domain attribute for __Host- cookies
   };
 
   return options;
