@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { cookies } from 'next/headers';
 
 export function middleware(request) {
   console.log("\n--- Middleware Execution Started ---");
@@ -11,11 +12,14 @@ export function middleware(request) {
   });
   console.log("Request Headers:", JSON.stringify(headers, null, 2));
 
-  // Get cookies from headers
-  const cookieHeader = request.headers.get('cookie');
-  console.log("Cookie Header:", cookieHeader);
+  // Get cookies using cookies() function
+  const cookieStore = cookies();
+  const allCookies = cookieStore.getAll();
+  console.log("All Cookies:", allCookies);
 
-
+  // Get specific cookie
+  const token = cookieStore.get('_api_token');
+  console.log("Token Cookie:", token);
 
   return NextResponse.next();
 }
