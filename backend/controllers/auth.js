@@ -10,18 +10,18 @@ const getCookieOptions = () => {
     maxAge: 5 * 24 * 60 * 60 * 1000, // 5 days
     secure: isProduction,
     sameSite: isProduction ? "none" : "lax",
-    domain: isProduction ? process.env.COOKIE_DOMAIN : undefined,
+    domain: isProduction ? new URL(process.env.FRONTEND_URL).hostname : undefined,
   };
 };
 
 const setCookie = (res, token) => {
   const isProduction = process.env.NODE_ENV === "production";
+  const frontendUrl = isProduction ? process.env.FRONTEND_URL : "http://localhost:3000";
 
   res.header("Access-Control-Allow-Credentials", "true");
-  res.header(
-    "Access-Control-Allow-Origin",
-    isProduction ? process.env.FRONTEND_URL : "http://localhost:3000"
-  );
+  res.header("Access-Control-Allow-Origin", frontendUrl);
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
 
   res.cookie("token", token, getCookieOptions());
 };
