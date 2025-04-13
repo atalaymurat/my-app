@@ -13,11 +13,21 @@ const getCookieOptions = () => {
     maxAge: 5 * 24 * 60 * 60 * 1000, // 5 days
     secure: isProduction, // true in production, false in development
     sameSite: isProduction ? "none" : "lax", // none in production, lax in development
-    // No domain setting - let the browser handle it
+    domain: isProduction ? ".onrender.com" : undefined // Set domain only in production
   };
 };
 
 const getCookieName = () => "token"; // Simple cookie name for both environments
+
+// Add debug logging for cookie setting
+const setCookieWithDebug = (res, name, value, options) => {
+  console.log('Setting cookie with options:', {
+    name,
+    value: value ? '[REDACTED]' : undefined,
+    options
+  });
+  res.cookie(name, value, options);
+};
 
 module.exports = {
   login: async (req, res) => {
@@ -75,8 +85,7 @@ module.exports = {
       );
 
       // 5. Set secure HTTP-only cookie
-
-      res.cookie(getCookieName(), jwtToken, getCookieOptions());
+      setCookieWithDebug(res, getCookieName(), jwtToken, getCookieOptions());
 
       console.log(`Successful login for ${user.email}`);
       return res.status(200).json({

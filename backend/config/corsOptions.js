@@ -69,6 +69,8 @@ const corsOptions = {
     "x-vercel-ja4-digest",
     "x-vercel-proxied-for"
   ],
+  preflightContinue: false,
+  maxAge: 86400 // 24 hours
 };
 
 module.exports = { corsOptions, allowedOrigins };
