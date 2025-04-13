@@ -5,17 +5,17 @@ const jwt = require("jsonwebtoken");
 const getCookieOptions = () => {
   const isProduction = process.env.NODE_ENV === "production";
   const domain = isProduction ? process.env.COOKIE_DOMAIN : undefined;
-  
+
   // Ensure domain starts with a dot if it's set
-  const formattedDomain = domain && !domain.startsWith('.') ? `.${domain}` : domain;
+  const formattedDomain =
+    domain && !domain.startsWith(".") ? `.${domain}` : domain;
 
   return {
     httpOnly: true,
-    path: "/",
-    maxAge: 5 * 24 * 60 * 60 * 1000, // 5 days
     secure: isProduction,
     sameSite: isProduction ? "none" : "lax",
     domain: ".vercel.app",
+    maxAge: 5 * 24 * 60 * 60 * 1000, // 5 days
   };
 };
 
@@ -25,7 +25,9 @@ const setCookie = (res, token) => {
   res.header("Access-Control-Allow-Credentials", "true");
   res.header(
     "Access-Control-Allow-Origin",
-    isProduction ? "https://postiva-atalaymurats-projects.vercel.app" : "http://localhost:3000"
+    isProduction
+      ? "https://postiva-atalaymurats-projects.vercel.app"
+      : "http://localhost:3000"
   );
 
   res.cookie("_api_token", token, getCookieOptions());
