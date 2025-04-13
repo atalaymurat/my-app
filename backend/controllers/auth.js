@@ -11,7 +11,7 @@ const getCookieOptions = () => {
     secure: isProduction,
     sameSite: isProduction ? "none" : "lax",
     domain: isProduction
-      ? new URL("postiva-atalaymurats-projects.vercel.app").hostname
+      ? ".postiva-atalaymurats-projects.vercel.app"
       : undefined,
   };
 };
