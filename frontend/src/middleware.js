@@ -14,9 +14,6 @@ export function middleware(request) {
 
 export const config = {
   matcher: [
-    "/dashboard/:path*",
     "/profile/:path*",
-    "/settings/:path*",
-    "/api/protected/:path*",
   ],
 }; 
