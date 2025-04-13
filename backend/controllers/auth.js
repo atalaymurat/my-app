@@ -10,9 +10,6 @@ const getCookieOptions = () => {
     maxAge: 5 * 24 * 60 * 60 * 1000, // 5 days
     secure: isProduction,
     sameSite: isProduction ? "none" : "lax",
-    domain: isProduction
-      ? ".vercel.app"
-      : undefined,
   };
 };
 
