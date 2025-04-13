@@ -8,7 +8,7 @@ export function middleware(request) {
   const path = request.nextUrl.pathname;
   const protectedPaths = ["/profile"];
   const isProduction = process.env.NODE_ENV === "production";
-  const cookieName = isProduction ? "token" : "token"
+  const cookieName = isProduction ? "token" : "token";
 
   // Debug all available cookies
   const allCookies = request.cookies.getAll();
@@ -16,7 +16,13 @@ export function middleware(request) {
 
   // Skip middleware for non-protected paths
   if (!protectedPaths.some((p) => path.startsWith(p))) {
-    return NextResponse.next();
+    const response = NextResponse.next();
+    // Add CORS headers to all responses
+    response.headers.set("Access-Control-Allow-Credentials", "true");
+    response.headers.set("Access-Control-Allow-Origin", "*");
+    response.headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+    response.headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization, Cookie");
+    return response;
   }
 
   // Check for session cookie
@@ -34,14 +40,21 @@ export function middleware(request) {
     
     const response = NextResponse.redirect(loginUrl);
     
-    // Ensure CORS headers if needed
+    // Ensure CORS headers
     response.headers.set("Access-Control-Allow-Credentials", "true");
+    response.headers.set("Access-Control-Allow-Origin", "*");
+    response.headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+    response.headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization, Cookie");
     return response;
   }
 
   const response = NextResponse.next();
   
-  // Add security headers
+  // Add security and CORS headers
+  response.headers.set("Access-Control-Allow-Credentials", "true");
+  response.headers.set("Access-Control-Allow-Origin", "*");
+  response.headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  response.headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization, Cookie");
   response.headers.set("X-Content-Type-Options", "nosniff");
   response.headers.set("X-Frame-Options", "DENY");
   
@@ -49,5 +62,5 @@ export function middleware(request) {
 }
 
 export const config = {
-  matcher: ["/profile/:path*"],
+  matcher: ["/profile/:path*", "/api/:path*"],
 };

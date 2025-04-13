@@ -4,6 +4,7 @@ const allowedOrigins = [
   process.env.FRONTEND_URL,
   process.env.BACKEND_URL,
   "http://localhost:3000",
+  "https://postiva-atalaymurats-projects.vercel.app",
   // Vercel deployment patterns
   /\.vercel\.app$/,
   /\.vercel\.sh$/,
@@ -42,7 +43,11 @@ const corsOptions = {
     "X-Requested-With",
     "Accept",
     "Origin",
-    "Cookie"
+    "Cookie",
+    "Access-Control-Allow-Credentials",
+    "Access-Control-Allow-Origin",
+    "Access-Control-Allow-Methods",
+    "Access-Control-Allow-Headers"
   ],
 };
 
