@@ -5,16 +5,26 @@ const jwt = require("jsonwebtoken");
 // Improved cookie configuration
 const getCookieOptions = () => {
   const isProduction = process.env.NODE_ENV === "production";
-  const options = {
+  const optionsLocal = {
     httpOnly: true,
-    secure: isProduction,
+    secure: false,
+    sameSite: "lax",
+    path: "/",
+    maxAge: 5 * 24 * 60 * 60 * 1000, // 5 days
+
+  };
+  const optionsServer = {
+    httpOnly: true,
+    secure: true,
     sameSite: "none",
     path: "/",
-    domain: isProduction ? ".postiva-atalaymurats-projects.vercel.app" : "/",
     maxAge: 5 * 24 * 60 * 60 * 1000, // 5 days
+    domain: ".postiva-server.onrender.com" // backend domaini
+
   };
 
-  return options;
+  const options = isProduction ? optionsServer : optionsLocal ;
+  return options
 };
 
 const getCookieName = () =>
