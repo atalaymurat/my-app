@@ -4,7 +4,7 @@ const jwt = require("jsonwebtoken");
 
 const getCookieOptions = () => {
   const isProduction = process.env.NODE_ENV === "production";
-  const domain = isProduction ? ".postiva-atalaymurats-projects.vercel.app" : undefined;
+  const domain = isProduction ? ".postiva-server.onrender.com" : undefined;
 
   return {
     httpOnly: true,
