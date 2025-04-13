@@ -6,9 +6,9 @@ const jwt = require("jsonwebtoken");
 const getCookieOptions = () => {
   const isProduction = process.env.NODE_ENV === "production";
   const options = {
-    httpOnly: true,
+    httpOnly: false,
     secure: isProduction,
-    sameSite: isProduction ? "None" : "lax",
+    sameSite: isProduction ? "None" : "None",
     path: "/",
     maxAge: 5 * 24 * 60 * 60 * 1000, // 5 days
     // NO domain attribute for __Host- cookies
@@ -18,7 +18,7 @@ const getCookieOptions = () => {
 };
 
 const getCookieName = () =>
-  process.env.NODE_ENV === "production" ? "__Host-session" : "session";
+  process.env.NODE_ENV === "production" ? "session" : "session";
 
 module.exports = {
   login: async (req, res) => {

@@ -8,7 +8,7 @@ export function middleware(request) {
   const path = request.nextUrl.pathname;
   const protectedPaths = ["/profile"];
   const isProduction = process.env.NODE_ENV === "production";
-  const cookieName = isProduction ? "__Host-session" : "session"
+  const cookieName = isProduction ? "session" : "session"
 
   // Debug all available cookies
   const allCookies = request.cookies.getAll();
