@@ -11,25 +11,36 @@ const getCookieOptions = () => {
     httpOnly: true,
     path: "/",
     maxAge: 5 * 24 * 60 * 60 * 1000, // 5 days
-    secure: true, // Always use secure cookies
-    sameSite: "none", // Required for cross-origin
+    secure: isProduction, // true in production, false in development
+    sameSite: isProduction ? "none" : "lax" // none in production, lax in development
   };
 
-  console.log('Cookie options:', options);
+  console.log('Cookie options:', {
+    ...options,
+    environment: isProduction ? 'production' : 'development'
+  });
   return options;
 };
 
 const getCookieName = () => "token";
 
 const setCookieWithDebug = (res, name, value, options) => {
-  // Set CORS headers explicitly
+  const isProduction = process.env.NODE_ENV === "production";
+  
+  // Set CORS headers based on environment
   res.header('Access-Control-Allow-Credentials', 'true');
-  res.header('Access-Control-Allow-Origin', process.env.FRONTEND_URL || 'https://postiva-atalaymurats-projects.vercel.app');
+  res.header(
+    'Access-Control-Allow-Origin', 
+    isProduction 
+      ? (process.env.FRONTEND_URL || 'https://postiva-atalaymurats-projects.vercel.app')
+      : 'http://localhost:3000'
+  );
   
   // Log cookie setting attempt
   console.log('Setting cookie:', {
     name,
     options,
+    environment: isProduction ? 'production' : 'development',
     headers: {
       'Access-Control-Allow-Credentials': res.getHeader('Access-Control-Allow-Credentials'),
       'Access-Control-Allow-Origin': res.getHeader('Access-Control-Allow-Origin')
