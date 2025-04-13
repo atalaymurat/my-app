@@ -4,24 +4,28 @@ const jwt = require("jsonwebtoken");
 
 const getCookieOptions = () => {
   const isProduction = process.env.NODE_ENV === "production";
-  const domain = isProduction ? process.env.COOKIE_DOMAIN : undefined;
-
-  // Ensure domain starts with a dot if it's set
-  const formattedDomain =
-    domain && !domain.startsWith(".") ? `.${domain}` : domain;
+  const domain = isProduction ? ".postiva-atalaymurats-projects.vercel.app" : undefined;
 
   return {
     httpOnly: true,
-    secure: isProduction,
-    sameSite: isProduction ? "none" : "lax",
-    domain: ".vercel.app",
+    secure: true,
+    path: "/",
+    sameSite: "none",
+    domain: domain,
     maxAge: 5 * 24 * 60 * 60 * 1000, // 5 days
   };
 };
 
 const setCookie = (res, token) => {
   const isProduction = process.env.NODE_ENV === "production";
+  const origin = isProduction
+    ? "https://postiva-atalaymurats-projects.vercel.app"
+    : "http://localhost:3000";
 
+  res.header("Access-Control-Allow-Credentials", "true");
+  res.header("Access-Control-Allow-Origin", origin);
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With");
 
   res.cookie("_api_token", token, getCookieOptions());
 };
