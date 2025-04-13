@@ -12,7 +12,10 @@ const getCookieOptions = () => {
     path: "/",
     maxAge: 5 * 24 * 60 * 60 * 1000, // 5 days
     secure: isProduction, // true in production, false in development
-    sameSite: isProduction ? "none" : "lax" // none in production, lax in development
+    sameSite: isProduction ? "none" : "lax", // none in production, lax in development
+    domain: isProduction 
+      ? new URL(process.env.FRONTEND_URL || 'https://postiva-atalaymurats-projects.vercel.app').hostname
+      : undefined
   };
 
   console.log('Cookie options:', {
