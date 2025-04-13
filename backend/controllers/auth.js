@@ -11,7 +11,7 @@ const getCookieOptions = () => {
     secure: isProduction,
     sameSite: isProduction ? "none" : "lax",
     domain: isProduction
-      ? ""
+      ? ".vercel.app"
       : undefined,
   };
 };
