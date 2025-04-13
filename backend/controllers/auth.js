@@ -17,7 +17,6 @@ const getCookieOptions = () => {
     secure: true,
     sameSite: "none",
     path: "/",
-    domain: "postiva-server.onrender.com", // backend domaini
     maxAge: 5 * 24 * 60 * 60 * 1000, // 5 days
     partitioned: true,
   };
