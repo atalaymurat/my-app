@@ -21,19 +21,16 @@ export default function ResetPassword() {
 
   const handleResetPassword = async (values) => {
     try {
-      // Send reset password email
       await sendPasswordResetEmail(auth, values.email);
       setResetStatus("Password reset email sent successfully.");
-      setAuthError(""); // Clear any previous error
-      // Redirect to login page after successful reset
+      setAuthError("");
       setTimeout(() => {
         router.push("/auth");
-      }, 4000); // Redirect after 2 seconds
+      }, 4000);
     } catch (err) {
       console.error("Error sending reset password email:", err);
-      // Handle Firebase errors
       setAuthError("Failed to send reset email. Please try again.");
-      setResetStatus(""); // Clear any previous success message
+      setResetStatus("");
     }
   };
 

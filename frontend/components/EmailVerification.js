@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
-import { sendEmailVerification, reload } from "firebase/auth";
+import { sendEmailVerification } from "firebase/auth";
+import { auth } from "@/lib/firebase";
 
 const EmailVerification = ({ user, isVerified }) => {
   const [emailSent, setEmailSent] = useState(false);
@@ -27,7 +28,7 @@ const EmailVerification = ({ user, isVerified }) => {
     setSuccessMessage("");
     
     try {
-      await sendEmailVerification(user, {
+      await sendEmailVerification(auth.currentUser, {
         handleCodeInApp: true,
         url: `${window.location.origin}/auth?verified=true`,
       });
@@ -47,9 +48,7 @@ const EmailVerification = ({ user, isVerified }) => {
     setIsLoading(true);
     setError("");
     try {
-      await reload(user);
-      // Small delay to ensure Firebase updates
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await auth.currentUser.reload();
       setSuccessMessage("Status updated successfully!");
     } catch (err) {
       console.error("Error refreshing user data:", err);

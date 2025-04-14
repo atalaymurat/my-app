@@ -25,13 +25,14 @@ export default function ProfilePage() {
   if (loading) {
     return <div className="p-8">Loading authentication status...</div>;
   }
-
-  if (!user) {
-    return <div className="p-8">Redirecting to login...</div>;
+  if (!user) { 
+    router.push("/auth");
+    return null;
   }
 
   return (
-    <div className="p-8">
+    <div className="p-8 flex flex-col gap-4">
+
       <ProfileInfo user={user} />
       <EmailVerification 
         user={user} 

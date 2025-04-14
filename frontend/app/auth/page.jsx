@@ -72,10 +72,13 @@ export default function AuthPage() {
           setAuthError("Incorrect password.");
           break;
         case "auth/email-already-in-use":
-          setAuthError("This email is already in use.");
+          setAuthError("This email is already in use. Please login.");
           break;
         case "auth/invalid-email":
           setAuthError("The email format is invalid.");
+          break;
+        case "auth/invalid-credential":
+          setAuthError("The email or password is invalid.");
           break;
         default:
           setAuthError(
