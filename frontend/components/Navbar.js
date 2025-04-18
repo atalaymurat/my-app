@@ -14,7 +14,7 @@ export default function Navbar() {
   if (loading && !authChecked) {
     return (
       <nav className="bg-black p-4 text-white flex justify-between items-center">
-        <div className="text-xl font-semibold">Postiva</div>
+        <div className="text-3xl font-semibold">Postiva</div>
         <div className="w-6 h-6 border-t-2 border-b-2 border-white rounded-full animate-spin"></div>
       </nav>
     );
@@ -23,7 +23,7 @@ export default function Navbar() {
   return (
     <nav className="bg-black p-4 text-white flex justify-between items-center select-none">
       <div
-        className="text-xl font-semibold hover:cursor-pointer select-none"
+        className="text-3xl font-semibold hover:cursor-pointer select-none"
         onClick={() => router.push("/")}
       >
         Postiva
