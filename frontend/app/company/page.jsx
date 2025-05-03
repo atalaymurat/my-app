@@ -1,4 +1,5 @@
 "use client";
+import { Suspense } from 'react';
 import { useAuth } from "../../context/AuthContext";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -6,7 +7,16 @@ import axios from "axios";
 import { localeDate } from "@/lib/helpers";
 import Link from "next/link";
 
+// Wrap the main component in Suspense
 export default function CompanyIndex() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <CompanyIndexContent />
+    </Suspense>
+  );
+}
+
+function CompanyIndexContent() {
   const { user, loading, checkSession, authChecked } = useAuth();
   const [companies, setCompanies] = useState(null);
   const [totalPages, setTotalPages] = useState(1);
