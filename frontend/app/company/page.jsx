@@ -77,16 +77,16 @@ function CompanyIndexContent() {
   }
 
   return (
-    <div className="p-8 flex flex-col gap-4 w-full">
-      <div className="grid grid-cols-4 gap-2">
+    <div className="p-1 md:p-4 flex flex-col gap-4 w-full">
+      <div className="grid md:grid-cols-3 gap-2">
         <Link href="/company/new">
-          <div className="btn-purple">Firma Oluştur</div>
+          <div className="btn-purple mt-2">Firma +</div>
         </Link>
       </div>
       <div className="border rounded-xl p-2">
         <div className="text-2xl font-bold py-4">Firmalar</div>
         {/* Table Header */}
-        <div className="grid grid-cols-4 gap-2 bg-black text-white border-b py-2 px-2 rounded-t-xl font-semibold">
+        <div className="grid grid-cols-3 gap-2 bg-black text-white border-b py-2 px-2 rounded-t-xl font-semibold">
           <div>Firma / No</div>
           <div>Web / Email</div>
           <div>Şehir / Ülke</div>
@@ -95,7 +95,7 @@ function CompanyIndexContent() {
         <div>
           {companies.map((co, index) => (
             <div
-              className="grid grid-cols-4 gap-2 border-b py-2 px-2"
+              className="grid grid-cols-3 gap-2 border-b py-2 px-2"
               key={index}
             >
               <div>
@@ -123,7 +123,6 @@ function CompanyIndexContent() {
                 <div>{co.addresses[0].city}</div>
                 <div className="text-xs">{co.addresses[0].country}</div>
               </div>
-              <div>edit</div>
             </div>
           ))}
         </div>
