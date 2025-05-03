@@ -5,6 +5,7 @@ import ProfileInfo from "../../components/ProfileInfo";
 import EmailVerification from "../../components/EmailVerification";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import Link from "next/link";
 
 export default function ProfilePage() {
   const { user, loading, checkSession, authChecked } = useAuth();
@@ -25,19 +26,18 @@ export default function ProfilePage() {
   if (loading) {
     return <div className="p-8">Loading authentication status...</div>;
   }
-  if (!user) { 
+  if (!user) {
     router.push("/auth");
     return null;
   }
 
   return (
     <div className="p-8 flex flex-col gap-4">
-
       <ProfileInfo user={user} />
-      <EmailVerification 
-        user={user} 
-        isVerified={user.emailVerified} 
-      />
+      <EmailVerification user={user} isVerified={user.emailVerified} />
+      <Link href="/company">
+        <div className="btn-purple"> Firmalar</div>
+      </Link>
     </div>
   );
 }
