@@ -86,16 +86,16 @@ function CompanyIndexContent() {
       <div className="border rounded-xl p-2">
         <div className="text-2xl font-bold py-4">Firmalar</div>
         {/* Table Header */}
-        <div className="grid grid-cols-3 gap-2 bg-black text-white border-b py-2 px-2 rounded-t-xl font-semibold">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-2 bg-black text-white border-b py-2 px-2 rounded-t-xl font-semibold">
           <div>Firma / No</div>
-          <div>Web / Email</div>
-          <div>Şehir / Ülke</div>
+          <div className='hidden md:block'>Web / Email</div>
+          <div className='block'>Şehir / Ülke</div>
         </div>
         {/* Table Content */}
         <div>
           {companies.map((co, index) => (
             <div
-              className="grid grid-cols-3 gap-2 border-b py-2 px-2"
+              className="grid grid-cols-2 md:grid-cols-3 gap-2 border-b py-2 px-2"
               key={index}
             >
               <div>
@@ -115,11 +115,13 @@ function CompanyIndexContent() {
                   </div>
                 </div>
               </div>
-              <div>
+
+              <div className='hidden md:block'>
                 <div>{co.web}</div>
                 <div className="text-xs">{co.email}</div>
               </div>
-              <div>
+
+              <div className=''>
                 <div>{co.addresses[0].city}</div>
                 <div className="text-xs">{co.addresses[0].country}</div>
               </div>
