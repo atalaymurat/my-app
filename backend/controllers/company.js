@@ -15,7 +15,7 @@ module.exports = {
         .sort({ createdAt: -1 });
 
       res.json({
-        message:"success",
+        message: "success",
         companies,
         totalPages: Math.ceil(totalCompanies / limit),
         currentPage: page,
@@ -33,15 +33,27 @@ module.exports = {
       }
       // Normalize web URL before processing
       if (data.web) {
-        data.web = data.web
-          .replace(/^https?:\/\//i, '')  // Remove http:// or https://
-          .replace(/\/+$/, '')           // Remove trailing slashes
-          .split('/')[0];                // Get only domain (remove paths)
+        try {
+          const rawUrl = data.web.trim();
+          const normalizedUrl =
+            rawUrl.startsWith("http://") || rawUrl.startsWith("https://")
+              ? rawUrl
+              : `http://${rawUrl}`;
+          data.web = new URL(normalizedUrl).hostname;
+          console.log(data.web);
+        } catch (e) {
+          console.error("Invalid URL:", data.web);
+        }
       }
+
+
 
       const normalizedData = normalizeFields(data);
       const normalizedDataWithUser = { ...normalizedData, owner: user._id };
       const company = await Company.findOrCreate(normalizedDataWithUser);
+      if (!company) {
+        res.status(200).json({message: "This Company Already Exist, Nothing Updated or Saved try Update"})
+      }
       res.status(200).json({ message: "success", company });
     } catch (err) {
       console.error(err);

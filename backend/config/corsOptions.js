@@ -3,6 +3,7 @@
 const allowedOrigins = [
   process.env.FRONTEND_URL,
   process.env.BACKEND_URL,
+  "*",
   "http://localhost:3000",
   "https://postiva-atalaymurats-projects.vercel.app",
   "https://postiva-server.onrender.com",

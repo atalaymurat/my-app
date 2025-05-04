@@ -1,10 +1,86 @@
 const axios = require("axios");
 const cheerio = require("cheerio");
+const {
+  findContactPage,
+  extractPhone,
+  extractEmail,
+  extractAddresses,
+  extractFromBlocksScript,
+} = require("../utils/contactExtractor");
+
+const contactPageKeywords = [
+  "iletisim",
+  "contact",
+  "contact_us",
+  "contact-us",
+  "bize-ulasin",
+  "bize_ulasin",
+];
 
 module.exports = {
+  contacts: async (req, res) => {
+  console.log("Controller Contacts Entered");
+
+  const { url } = req.body;
+  if (!url) return res.status(400).json({ error: "URL gerekli" });
+
+  let siteUrl = url;
+  if (!/^https?:\/\//i.test(siteUrl)) {
+    siteUrl = "http://" + siteUrl;
+  }
+
+  try {
+    const { data: mainHtml } = await axios.get(siteUrl);
+    const $ = cheerio.load(mainHtml);
+
+    const contactPageUrl = findContactPage($, siteUrl, contactPageKeywords);
+    if (!contactPageUrl) {
+      return res.status(404).json({ error: "İletişim sayfası bulunamadı" });
+    }
+
+    const { data: contactHtml } = await axios.get(contactPageUrl);
+    const $$ = cheerio.load(contactHtml);
+
+    // 👇 Hem HTML içinden hem de BLOCKS verisinden adres çıkar
+    const phone = extractPhone($$);
+    const email = extractEmail($$);
+    const htmlAddresses = extractAddresses($$);
+    const jsonAddresses = extractFromBlocksScript(contactHtml);
+
+    // 👇 Adresleri birleştirip tekrar edenleri filtrele
+    const normalize = (addr) =>
+      addr.raw.replace(/\s+/g, " ").trim().toLowerCase();
+
+    const addresses = [...jsonAddresses];
+
+    htmlAddresses.forEach((a) => {
+      if (!addresses.some((b) => normalize(b) === normalize(a))) {
+        addresses.push(a);
+      }
+    });
+
+    return res.json({
+      site: url,
+      contactPage: contactPageUrl,
+      phone: phone || "",
+      email: email || "",
+      address: addresses.length > 0 ? addresses : [],
+    });
+  } catch (err) {
+    console.error(err.message);
+    return res
+      .status(500)
+      .json({ error: "Hata oluştu", details: err.message });
+  }
+},
+
+
+
+
   meta: async (req, res) => {
     try {
       const { url } = req.body;
+      console.log("URL ::", new URL(url).hostname);
       if (!url) {
         return res.status(400).json({ error: "URL is required" });
       }

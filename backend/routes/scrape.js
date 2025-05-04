@@ -8,5 +8,6 @@ const { authenticate } = require("../middleware/auth");
 
 // Protected routes
 router.post("/meta", authenticate, scrapeController.meta);
+router.post("/contacts",  scrapeController.contacts)
 
 module.exports = router;

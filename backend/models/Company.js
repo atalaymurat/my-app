@@ -27,6 +27,7 @@ const companySchema = new Schema({
       country: String,
       normalizedCountry: String,
       zip: String,
+      raw: String,
     },
   ],
   owner: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
@@ -71,9 +72,10 @@ companySchema.statics.findOrCreate = async function (data) {
       company = await this.create({
         ...data,
       });
+     return company
     }
 
-    return company;
+    return null;
   } catch (error) {
     console.error("Company.findOrCreate error:", error);
     throw error;
