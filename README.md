@@ -30,8 +30,21 @@ Yapı bu sisteme uyumlu hale getirilecek
 
   [Yapılacaklar]
 
-- Firma Modeli 
+- Firma Modeli
+  - detaylandırıldı
+  - servises eklendi
+  - user özel model yapıldı
+  - testler bazıları yapıldı
+  [] - scraping özelliklerini güncelle ve ilave et
+  
+
 - Person Modeli
+  [] - user person modeli yapılacak
+  [] - servisler ve utiller yapılacak
+  
+
 - Base Modeli
+  [] - yapılacak
 - Option Modeli
+
 - Teklif Modeli
