@@ -37,11 +37,12 @@ function normalizeCompanyData(data = {}) {
       ? data.addresses.map(normalizeAddress)
       : [],
 
-    vatNo: !isMaskedEmpty(data.vatNo) ? data.vatNo.trim() : "",
-    tcNo: !isMaskedEmpty(data.tcNo) ? data.tcNo.trim() : "",
+    vatNo: !isMaskedEmpty(data.vatNo) ? data.vatNo.trim() : null,
+    tcNo: !isMaskedEmpty(data.tcNo) ? data.tcNo.trim() : null,
     tags: data.tags || [],
     notes: data.notes || "",
   };
+  console.log("NORMALIZED DATA", normalized)
 
   return normalized;
 }

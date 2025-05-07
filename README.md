@@ -10,7 +10,7 @@ nextjs front end
 firebase authentication service for users
 
 
-## Yapılacakllar
+## Yapılacaklar
 
 Yapı bu sisteme uyumlu hale getirilecek
 
@@ -28,7 +28,7 @@ Yapı bu sisteme uyumlu hale getirilecek
   → Yetki verirse işlemi yapar
 
 
-  [Yapılacaklar]
+  [Yapılacaklarar]
 
 - Firma Modeli
   - detaylandırıldı

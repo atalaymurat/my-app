@@ -1,17 +1,18 @@
-const UserCompany = require("../models/company/UserCompany");
 const normalizeCompanyData = require("./utils/normalizeCompanyData");
 const {
   handleCompanyCreateOrUpdate,
   linkCompany,
   updateUserCompanyLink,
 } = require("./services/companyServices");
+const UserCompany = require("../models/company/UserCompany")
 
 module.exports = {
-  index: async (req, res, next) => {
+  index: async (req, res ) => {
     try {
       const page = parseInt(req.query.page) || 1;
       const limit = parseInt(req.query.limit) || 10;
       const skip = (page - 1) * limit;
+      console.log("CTRL INDEX")
 
       const filter = { user: req.user._id };
 
