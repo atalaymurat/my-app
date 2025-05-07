@@ -42,6 +42,7 @@ app.use(cookieParser());
 app.use("/api", require("./routes/auth"));
 app.use("/api/company", require("./routes/company"));
 app.use("/api/scrape", require("./routes/scrape"));
+app.use("/api/contact", require("./routes/contact"));
 
 // --- Basic Root Route (Optional) ---
 app.get('/', (req, res) => {

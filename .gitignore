@@ -12,8 +12,13 @@ lerna-debug.log*
 /frontend/build/Release
 /backend/.node_modules
 /backend/.env
+/backend/.env*
+/backend/.env.test
 /frontend/.node_modules
 /frontend/.env.local
+/frontend/.env*
+/frontend/.*
+/backend/.*
 
 # Dependency directories
 node_modules/

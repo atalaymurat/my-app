@@ -13,3 +13,15 @@ export const formPrice = (number) => {
         minimumFractionDigits: 0,
     })
 }
+
+// Türkçe toLowerCase
+export const toLowerCaseTR = (str) =>
+  str.replace(/I/g, "ı").replace(/İ/g, "i").toLowerCase();
+
+// Türkçe toUpperCase
+export const toUpperCaseTR = (str) =>
+  str.replace(/i/g, "İ").replace(/ı/g, "I").toUpperCase();
+
+// Türkçe capitalize (her kelimenin ilk harfi büyük)
+export const capitalizeTR = (str) =>
+  toLowerCaseTR(str).replace(/\b\w/g, (char) => toUpperCaseTR(char));

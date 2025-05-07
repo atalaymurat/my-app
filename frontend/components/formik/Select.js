@@ -14,7 +14,7 @@ function Select(props) {
         id={name}
         name={name}
         {...rest}
-        className={`px-1 py-[6px] border border-gray-300 rounded`}
+        className={`px-1 py-[9px] border border-gray-300 rounded font-bold`}
       >
         {options.map((op) => {
           return (

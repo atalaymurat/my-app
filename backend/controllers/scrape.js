@@ -17,65 +17,54 @@ const contactPageKeywords = [
   "bize_ulasin",
 ];
 
+axios.defaults.timeout = 5000; // Set timeout
+axios.defaults.maxRedirects = 5; // Limit redirects
+
 module.exports = {
   contacts: async (req, res) => {
-  console.log("Controller Contacts Entered");
+    try {
+      const { url } = req.body;
+      if (!url) return res.status(400).json({ error: "URL is required" });
 
-  const { url } = req.body;
-  if (!url) return res.status(400).json({ error: "URL gerekli" });
+      // Normalize URL format
+      const siteUrl = url.startsWith("http") ? url : `http://${url}`;
 
-  let siteUrl = url;
-  if (!/^https?:\/\//i.test(siteUrl)) {
-    siteUrl = "http://" + siteUrl;
-  }
+      console.log(`Scraping: ${siteUrl}`);
+      const { data: mainHtml } = await axios.get(siteUrl);
+      const $ = cheerio.load(mainHtml);
 
-  try {
-    const { data: mainHtml } = await axios.get(siteUrl);
-    const $ = cheerio.load(mainHtml);
-
-    const contactPageUrl = findContactPage($, siteUrl, contactPageKeywords);
-    if (!contactPageUrl) {
-      return res.status(404).json({ error: "İletişim sayfası bulunamadı" });
-    }
-
-    const { data: contactHtml } = await axios.get(contactPageUrl);
-    const $$ = cheerio.load(contactHtml);
-
-    // 👇 Hem HTML içinden hem de BLOCKS verisinden adres çıkar
-    const phone = extractPhone($$);
-    const email = extractEmail($$);
-    const htmlAddresses = extractAddresses($$);
-    const jsonAddresses = extractFromBlocksScript(contactHtml);
-
-    // 👇 Adresleri birleştirip tekrar edenleri filtrele
-    const normalize = (addr) =>
-      addr.raw.replace(/\s+/g, " ").trim().toLowerCase();
-
-    const addresses = [...jsonAddresses];
-
-    htmlAddresses.forEach((a) => {
-      if (!addresses.some((b) => normalize(b) === normalize(a))) {
-        addresses.push(a);
+      // Find contact page
+      const contactPageUrl = findContactPage($, siteUrl, contactPageKeywords);
+      if (!contactPageUrl) {
+        return res.status(404).json({ error: "Contact page not found" });
       }
-    });
 
-    return res.json({
-      site: url,
-      contactPage: contactPageUrl,
-      phone: phone || "",
-      email: email || "",
-      address: addresses.length > 0 ? addresses : [],
-    });
-  } catch (err) {
-    console.error(err.message);
-    return res
-      .status(500)
-      .json({ error: "Hata oluştu", details: err.message });
-  }
-},
+      // Get contact page content
+      const { data: contactHtml } = await axios.get(contactPageUrl);
+      const $$ = cheerio.load(contactHtml);
 
+      // Extract contact info
+      const phone = extractPhone($$) || "";
+      const email = extractEmail($$) || "";
+      const htmlAddresses = extractAddresses($$);
 
+      // Combine and deduplicate addresses
 
+      return res.json({
+        site: url,
+        contactPage: contactPageUrl,
+        phone,
+        email,
+        address: htmlAddresses,
+      });
+    } catch (err) {
+      console.error("Scraping Error:", err.message);
+      return res.status(500).json({
+        error: "Scraping failed",
+        details: err.message,
+      });
+    }
+  },
 
   meta: async (req, res) => {
     try {

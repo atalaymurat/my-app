@@ -4,6 +4,8 @@ import Checkbox from "./Checkbox";
 import Select from "./Select"
 import TextArea from "./TextArea";
 import MaskInput from "./MaskInput";
+import CheckBoxGroup from "./CheckBoxGroup";
+import SingleCheckBoxGroup from "./CheckboxSingle";
 
 function FormikControl(props) {
   const { control, inputRef,  ...rest } = props;
@@ -15,6 +17,10 @@ function FormikControl(props) {
       return <MaskInput {...rest} />;
     case "checkbox":
       return <Checkbox {...rest} />;
+    case "checkboxGroup":
+      return <CheckBoxGroup {...rest} />;
+    case "checkboxSingle":
+      return <SingleCheckBoxGroup {...rest} />;
     case "select":
       return <Select {...rest} />;
     case 'textArea':

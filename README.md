@@ -26,3 +26,12 @@ Yapı bu sisteme uyumlu hale getirilecek
   → Tarayıcı cookie'yi otomatik gönderir → 
   → Backend cookie'yi kontrol eder → 
   → Yetki verirse işlemi yapar
+
+
+  [Yapılacaklar]
+
+- Firma Modeli 
+- Person Modeli
+- Base Modeli
+- Option Modeli
+- Teklif Modeli

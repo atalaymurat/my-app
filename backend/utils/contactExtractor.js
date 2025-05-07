@@ -165,7 +165,6 @@ const extractAddresses = ($$) => {
 
   lines.forEach((line, i) => {
     const normalizedLine = normalizeString(line); // Normalize for searching, not for final address
-    console.log(line); // See the original line with Turkish characters
 
     // Anahtar kelime eşleşmesi
     const hasKeyword = keywords.some((kw) =>
@@ -218,66 +217,10 @@ const extractAddresses = ($$) => {
   return addresses.filter((a) => a.raw !== "Yanlış: Adres çok uzun");
 };
 
-const extractFromBlocksScript = (html) => {
-  const addresses = [];
-
-  const match = html.match(/const\s+BLOCKS\s*=\s*(\[[\s\S]*?\]);/);
-  if (!match) return addresses;
-
-  try {
-    const blocks = JSON.parse(match[1]);
-
-    blocks.forEach((block) => {
-      const setting = block.SETTING || {};
-      const city = setting.FIRM_CITY || null;
-      let raw = setting.FIRM_ADDRESS || null;
-
-      // Adresi temizle: HTML etiketlerini temizle
-      if (raw) {
-        raw = raw.replace(/<[^>]*>/g, "").trim(); // HTML etiketlerini temizle
-      }
-
-      // JSON içerikse, sadece gerçek adresi al
-      if (raw && raw.startsWith("{")) {
-        try {
-          const parsedJson = JSON.parse(raw);
-          if (parsedJson.address && parsedJson.address.streetAddress) {
-            raw = parsedJson.address.streetAddress;
-          }
-        } catch (e) {
-          console.warn("JSON parse hatası:", e.message);
-        }
-      }
-
-      // Adresin uzunluğunu kontrol et
-      if (raw && raw.length > 100) {
-        raw = "Yanlış: Adres çok uzun";
-      }
-
-      if (raw && city) {
-        addresses.push({
-          title: "merkez",
-          line1: "",
-          line2: "",
-          district: "",
-          city,
-          country: "Tr",
-          zip: "",
-          raw: raw.replace(/\s+/g, " ").trim(),
-        });
-      }
-    });
-  } catch (e) {
-    console.warn("BLOCKS parse edilemedi:", e.message);
-  }
-
-  return addresses;
-};
 
 module.exports = {
   findContactPage,
   extractPhone,
   extractEmail,
   extractAddresses,
-  extractFromBlocksScript,
 };

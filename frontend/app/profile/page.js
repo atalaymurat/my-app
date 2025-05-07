@@ -36,7 +36,10 @@ export default function ProfilePage() {
       <ProfileInfo user={user} />
       <EmailVerification user={user} isVerified={user.emailVerified} />
       <Link href="/company">
-        <div className="btn-purple"> Firmalar</div>
+        <div className="btn-purple">Firmalar</div>
+      </Link>
+      <Link href="/contact">
+        <div className="btn-purple">Kişiler</div>
       </Link>
     </div>
   );
