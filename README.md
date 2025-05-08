@@ -27,8 +27,7 @@ Yapı bu sisteme uyumlu hale getirilecek
   → Backend cookie'yi kontrol eder → 
   → Yetki verirse işlemi yapar
 
-
-  [Yapılacaklarar]
+[Yapılacaklarar]
 
 - Firma Modeli
   - detaylandırıldı

@@ -1,5 +1,5 @@
-const formatDomain = require("./formatDomain")
-const normalizeAddress = require("./normalizeAddress")
+const formatDomain = require("../formatDomain")
+const normalizeAddress = require("../normalizeAddress")
 
 function normalizeCompanyData(data = {}) {
   function isMaskedEmpty(value) {

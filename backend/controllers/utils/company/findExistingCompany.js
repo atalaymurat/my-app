@@ -1,4 +1,4 @@
-const { Company } = require("../../models/company/Company");
+const { Company } = require("../../../models/company/Company");
 
 const findExistingCompany = async (vatNo, domains) => {
   if (domains?.length > 0) {

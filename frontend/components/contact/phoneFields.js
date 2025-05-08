@@ -13,30 +13,14 @@ export default function PhoneFields() {
             {phones?.map((ph, index) => (
               <div key={index} className="grid grid-cols-5 gap-1">
                 <FormikControl
-                  control="select"
-                  label="Tür"
-                  name={`phones.${index}.type`}
-                  options={[
-                    { label: "Seçiniz", value: "other" },
-                    { label: "Mobil", value: "mobile" },
-                    { label: "Ev", value: "home" },
-                    { label: "İş", value: "bussiness" },
-                  ]}
-                />
-                <FormikControl
                   control="mask"
-                  className="col-span-2"
+                  className="col-span-4"
                   type="text"
-                  label="Telefon No"
-                  name={`phones.${index}.number`}
+                  label="No"
+                  name={`phones.${index}`}
                   mask="+__ (___) ___ __ __"
                   replacement={{ _: /\d/ }} // Only numbers allowed
                   placeholder="+90 (5__) ___ __ __"
-                />
-                <FormikControl
-                  control="checkbox"
-                  label="Öncelikli"
-                  name={`phones.${index}.isPrimary`}
                 />
                 <div className="flex items-center">
                   <button
@@ -53,11 +37,7 @@ export default function PhoneFields() {
               type="button"
               className="btn-submit my-2 w-full"
               onClick={() =>
-                push({
-                  type: "mobile",
-                  number: "",
-                  isPrimary: false,
-                })
+                push("")
               }
             >
               Telefon Ekle

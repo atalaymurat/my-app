@@ -1,4 +1,4 @@
-const normalizeCompanyData = require("./utils/normalizeCompanyData");
+const normalizeCompanyData = require("./utils/company/normalizeCompanyData");
 const {
   handleCompanyCreateOrUpdate,
   linkCompany,
@@ -37,7 +37,7 @@ module.exports = {
     }
   },
 
-  create: async (req, res, next) => {
+  create: async (req, res ) => {
     try {
       if (!req.user || !req.body) {
         return res

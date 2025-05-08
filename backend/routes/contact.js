@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const contactsController = require("../controllers/contacts");
+const contactsController = require("../controllers/contactsControl");
 const { authenticate } = require("../middleware/auth");
 
 // 🔓 Public routes

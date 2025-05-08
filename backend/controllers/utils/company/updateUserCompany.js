@@ -2,8 +2,8 @@ const {
   getFieldUpdates,
   mergeArrays,
   mergeObjectArrays,
-} = require("./helperFunctions");
-const UserCompany = require("../../models/company/UserCompany");
+} = require("../helperFunctions");
+const UserCompany = require("../../../models/company/UserCompany");
 
 const updateUserCompany = async (user, company, userData) => {
   const userCompany = await UserCompany.findOne({

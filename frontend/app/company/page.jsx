@@ -7,6 +7,7 @@ import { localeDate } from "@/lib/helpers";
 import Link from "next/link";
 import apiClient from "@/lib/apiClient";
 import Pagination from "@/components/Pagination";
+import CompanyListSkeleton from "@/components/skeleton/CompanyListSkeleton";
 // Wrap the main component in Suspense
 export default function CompanyIndex() {
   return (
@@ -59,7 +60,7 @@ function CompanyIndexContent() {
     return <div className="p-8 h-full">Loading authentication status...</div>;
   }
   if (!companies) {
-    return <div className="p-8 h-full">Loading data from server...</div>;
+    return <CompanyListSkeleton />;
   }
   if (!user) {
     router.push("/auth");
@@ -67,16 +68,16 @@ function CompanyIndexContent() {
   }
 
   return (
-    <div className="p-1 md:p-4 flex flex-col gap-4 w-full bg-gray-300 h-full min-h-screen">
+    <div className="p-1 md:p-4 flex flex-col gap-4 w-full bg-black h-full min-h-screen">
       <div className="grid md:grid-cols-3 gap-2">
         <Link href="/company/new">
           <div className="btn-purple mt-2">Add ++</div>
         </Link>
       </div>
-      <div className="border rounded-xl p-2 bg-black text-white">
+      <div className="border rounded-xl p-2 bg-zinc-900 text-white">
         <div className="text-2xl font-bold py-4 px-1">Companies</div>
         {/* Table Header */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-2 bg-black text-gray-400 border-b py-2 px-1 text-sm rounded-t-xl font-semibold">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-gray-400 border-b py-2 px-1 text-sm rounded-t-xl font-semibold">
           <div>Title / Date</div>
           <div className="hidden md:block">Domains / Email</div>
           <div className="block">City / Country</div>

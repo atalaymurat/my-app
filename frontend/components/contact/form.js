@@ -12,15 +12,6 @@ import FormSaveButton from "../formSaveButton";
 const validationSchema = Yup.object({
   name: Yup.string().required("Gerekli"),
   gender: Yup.string().required("Gerekli"),
-  phones: Yup.array()
-    .of(
-      Yup.object().shape({
-        type: Yup.string(),
-        number: Yup.string(),
-        isPrimary: Yup.boolean(),
-      })
-    )
-    .min(1, "En az bir telefon numarası gereklidir"),
 });
 
 const apiClient = axios.create({
@@ -44,8 +35,8 @@ const NewForm = () => {
           initialValues={{
             name: "",
             gender: "none",
-            emails: [{ address: "", isPrimary: false }],
-            phones: [{ type: "other", number: "", isPrimary: false }],
+            emails: [""],
+            phones: [""],
           }}
           validationSchema={validationSchema}
           onSubmit={async (values, { setSubmitting, resetForm }) => {
@@ -61,7 +52,7 @@ const NewForm = () => {
                   text: response.data.message || "Başarıyla Kaydedildi",
                   type: "success",
                 });
-                resetForm();
+                // resetForm();
               } else {
                 setMessage({
                   text: response.data.message + "Bir hata oluştu.",

@@ -1,4 +1,4 @@
-const UserCompany = require("../../models/company/UserCompany");
+const UserCompany = require("../../../models/company/UserCompany");
 // check if userCompany exists and if not create a new one
 // userCompany check if it exists and if not create a new one
 const linkCompanyToUser = async (user, company, userData) => {

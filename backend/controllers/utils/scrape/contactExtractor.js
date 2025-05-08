@@ -1,6 +1,6 @@
 // utils/contactExtractor.js
 
-const { cities } = require("../helpers/cities");
+const cities = require("../../../data/cities"); // Assuming you have a JSON file with city names
 
 const findContactPage = ($, siteUrl, keywords) => {
   const normalizeUrl = (base, href) => {
@@ -17,12 +17,7 @@ const findContactPage = ($, siteUrl, keywords) => {
     const href = $(el).attr("href");
     const text = $(el).text().toLowerCase();
 
-    if (
-      href &&
-      keywords.some(
-        (kw) => href.toLowerCase().includes(kw) || text.includes(kw)
-      )
-    ) {
+    if (href && keywords.some((kw) => href.toLowerCase().includes(kw) || text.includes(kw))) {
       contactPageUrl = normalizeUrl(siteUrl, href);
       return false; // break
     }
@@ -69,9 +64,7 @@ const extractEmail = ($$, priorityEmails = ["info", "bilgi", "imalat"]) => {
 
   // Öncelikli e-posta adreslerini filtrele
   const prioritizedEmails = emails.filter((email) =>
-    priorityEmails.some((keyword) =>
-      email.toLowerCase().includes(keyword.toLowerCase())
-    )
+    priorityEmails.some((keyword) => email.toLowerCase().includes(keyword.toLowerCase()))
   );
 
   // Eğer öncelikli e-posta adresi varsa, bunları döndür
@@ -149,8 +142,7 @@ const extractAddresses = ($$) => {
   const cityRegex = new RegExp(`\\b(${normalizedCities.join("|")})\\b`, "i");
 
   const isCode = (line) => {
-    const codePattern =
-      /\b(var|let|const|function|return|if|for|while|try|catch)\b|[\(\)\{\};=]/;
+    const codePattern = /\b(var|let|const|function|return|if|for|while|try|catch)\b|[\(\)\{\};=]/;
     return codePattern.test(line);
   };
 
@@ -174,9 +166,7 @@ const extractAddresses = ($$) => {
     // Şehir eşleşmesi
     const cityMatch = normalizedLine.match(cityRegex);
     const matchedCity = cityMatch
-      ? cities.find(
-          (c) => normalizeString(c).toLowerCase() === cityMatch[0].toLowerCase()
-        )
+      ? cities.find((c) => normalizeString(c).toLowerCase() === cityMatch[0].toLowerCase())
       : null;
 
     // Gereksiz verileri atmak için kontrol (JSON, script gibi)
@@ -216,7 +206,6 @@ const extractAddresses = ($$) => {
 
   return addresses.filter((a) => a.raw !== "Yanlış: Adres çok uzun");
 };
-
 
 module.exports = {
   findContactPage,

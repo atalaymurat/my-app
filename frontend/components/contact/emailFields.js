@@ -12,19 +12,14 @@ export default function EmailFields({ }) {
             <div>E-Postalar</div>
             {emails?.map((em, index) => (
               <div key={index} className="grid grid-cols-5 gap-1">
-                <div className="col-span-3">
+                <div className="col-span-4">
                   <FormikControl
                     control="input"
                     type="text"
                     label="Eposta"
-                    name={`emails.${index}.address`}
+                    name={`emails.${index}`}
                   />
                 </div>
-                <FormikControl
-                  control="checkbox"
-                  label="Öncelikli"
-                  name={`emails.${index}.isPrimary`}
-                />
                 <div className="flex items-end">
                   <button
                     type="button"
@@ -40,10 +35,7 @@ export default function EmailFields({ }) {
               type="button"
               className="btn-submit my-2 w-full"
               onClick={() =>
-                push({
-                  address: "",
-                  isPrimary: false,
-                })
+                push("")
               }
             >
               Email Ekle

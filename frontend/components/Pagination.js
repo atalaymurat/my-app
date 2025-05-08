@@ -4,6 +4,8 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
     onPageChange(page);
   };
 
+  if ( totalPages === 1) return null
+
   return (
     <div className="flex justify-center mt-4 gap-2">
       <button
@@ -13,6 +15,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
       >
         Önceki
       </button>
+    
 
       {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
         <button
@@ -23,6 +26,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
           }`}
         >
           {page}
+          
         </button>
       ))}
 

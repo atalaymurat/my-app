@@ -5,8 +5,7 @@ const {
   extractPhone,
   extractEmail,
   extractAddresses,
-  extractFromBlocksScript,
-} = require("../utils/contactExtractor");
+} = require("./utils/scrape/contactExtractor");
 
 const contactPageKeywords = [
   "iletisim",

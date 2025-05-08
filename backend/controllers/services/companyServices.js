@@ -1,9 +1,9 @@
-const normalizeCompanyData = require("../utils/normalizeCompanyData");
-const findExistingCompany = require("../utils/findExistingCompany");
-const createNewCompany = require("../utils/createNewCompany");
-const updateCompany = require("../utils/updateCompany");
-const linkCompanyToUser = require("../utils/linkCompanyToUser");
-const updateUserCompany = require("../utils/updateUserCompany");
+const normalizeCompanyData = require("../utils/company/normalizeCompanyData");
+const findExistingCompany = require("../utils/company/findExistingCompany");
+const createNewCompany = require("../utils/company/createNewCompany");
+const updateCompany = require("../utils/company/updateCompany");
+const linkCompanyToUser = require("../utils/company/linkCompanyToUser");
+const updateUserCompany = require("../utils/company/updateUserCompany");
 
 const handleCompanyCreateOrUpdate = async (normalizedData, rawData) => {
   let company = await findExistingCompany(

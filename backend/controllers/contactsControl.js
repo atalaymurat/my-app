@@ -1,4 +1,6 @@
 const Contact = require("../models/contact/contact.model");
+const normalizeData = require("./utils/contacts/normalizeData")
+const { handleContactCreateOrUpdate } = require("./services/contactServices")
 
 module.exports = {
   index: async (req, res) => {
@@ -28,44 +30,35 @@ module.exports = {
     }
   },
   create: async (req, res) => {
-    const user = req.user;
     // create contact via method findOrCreate on model
     try {
-      const data = req.body;
-      const dataWithUser = { ...data, owner: user._id };
-      // data remove empty fields in array
-      if (dataWithUser.phones) {
-        dataWithUser.phones = dataWithUser.phones.filter(
-          (phone) => phone.number !== ""
-        );
-      }
-      if (dataWithUser.emails) {
-        dataWithUser.emails = dataWithUser.emails.filter(
-          (email) => email.address !== ""
-        );
-      }
-      console.log("CONTACTS DATA ::", dataWithUser);
-
-      const response = await Contact.findOrCreate(dataWithUser, {});
-
-      console.log("CONTACTS CONTRL FIND OR CREATE RESPONSE ::", response);
-      if (!response.success) {
+      if (!req.user || !req.body) {
         return res
           .status(400)
-          .json({ message: response.message, success: false });
+          .json({ message: "No valid user or data found." });
       }
-      if (response.success) {
-        return res.status(200).json({
-          message: response.message,
-          contact: response.contact,
-          success: true,
-        });
-      }
+      const data = req.body;
+      const user = req.user;
+      // normalize data
+      const normalized = normalizeData(data, user)
+      console.log("Normalized Data", normalized)
+      // check find if existing and update otherwise create new contact
+      const contact = await handleContactCreateOrUpdate(normalized)
+      console.log("Contact", contact)
+
+
+
+      return res.status(200).json({
+        success: true,
+        message: "Data proceed successfully",
+      })
+
+
     } catch (err) {
-      console.error("CONTACTS CONTRL ERROR", err);
+      console.error("Error on ContactsControl.create", err);
       res
-        .status(400)
-        .json({ message: "Failed to create contact", error: err.message });
+        .status(500)
+        .json({ success: false,  message: "Failed to create contact", error: err.message });
     }
   },
   update: async (req, res) => {
