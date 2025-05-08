@@ -1,5 +1,6 @@
 import { localeDate } from "@/lib/helpers";
 import UserAvatar from "../UserAvatar";
+import PhoneNumber from "../PhoneNumber";
 
 const ContactTable = ({ contacts }) => {
   return (
@@ -25,7 +26,6 @@ const ContactTable = ({ contacts }) => {
                 </div>
                 <div className="flex flex-col">
                   <div>{item.name}</div>
-                  <div className="text-xs">{localeDate(item.createdAt)}</div>
                 </div>
               </div>
             </div>
@@ -34,9 +34,8 @@ const ContactTable = ({ contacts }) => {
               {item.emails.map((email, index) => (
                 <div key={index} className="border-b border-gray-300">
                   <div>
-                    {email.address} {email.isPrimary && <span>(*)</span>}
+                    {email} 
                   </div>
-                  <div className="text-xs">caption</div>
                 </div>
               ))}
             </div>
@@ -44,8 +43,7 @@ const ContactTable = ({ contacts }) => {
             <div className="">
               {item.phones.map((phone, index) => (
                 <div key={index} className="border-b border-gray-300">
-                  <a href={`tel:${phone.number}`}>{phone.number}</a>
-                  <div className="text-xs">{phone.type}</div>
+                  <PhoneNumber number={phone} />
                 </div>
               ))}
             </div>
