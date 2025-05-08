@@ -1,4 +1,4 @@
-const Contact = require("../models/contact/contact.model");
+const { Contact } = require("../models/contact/contact.model");
 const normalizeData = require("./utils/contacts/normalizeData")
 const { handleContactCreateOrUpdate } = require("./services/contactServices")
 
@@ -9,7 +9,7 @@ module.exports = {
       const page = parseInt(req.query.page) || 1;
       const limit = parseInt(req.query.limit) || 10;
       const skip = (page - 1) * limit;
-      const filter = { owner: req.user._id };
+      const filter = { createdBy: req.user._id };
 
       const totalContacts = await Contact.countDocuments(filter);
       const contacts = await Contact.find(filter)
@@ -45,6 +45,8 @@ module.exports = {
       // check find if existing and update otherwise create new contact
       const contact = await handleContactCreateOrUpdate(normalized)
       console.log("Contact", contact)
+
+      // Create userContact record if not exists, otherwise update it if there are changes
 
 
 
