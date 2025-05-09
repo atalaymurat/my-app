@@ -57,7 +57,7 @@ function CompanyIndexContent() {
   };
 
   if (loading || !authChecked) {
-    return <div className="p-8 h-full">Loading authentication status...</div>;
+    return <CompanyListSkeleton />;
   }
   if (!companies) {
     return <CompanyListSkeleton />;
@@ -66,82 +66,83 @@ function CompanyIndexContent() {
     router.push("/auth");
     return null;
   }
-
-  return (
-    <div className="p-1 md:p-4 flex flex-col gap-4 w-full bg-black h-full min-h-screen">
-      <div className="grid md:grid-cols-3 gap-2">
-        <Link href="/company/new">
-          <div className="btn-purple mt-2">Add ++</div>
-        </Link>
-      </div>
-      <div className="border rounded-xl p-2 bg-zinc-900 text-white">
-        <div className="text-2xl font-bold py-4 px-1">Companies</div>
-        {/* Table Header */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-gray-400 border-b py-2 px-1 text-sm rounded-t-xl font-semibold">
-          <div>Title / Date</div>
-          <div className="hidden md:block">Domains / Email</div>
-          <div className="block">City / Country</div>
+  if (companies.length > 0) {
+    return (
+      <div className="p-1 md:p-4 flex flex-col gap-4 w-full bg-black h-full min-h-screen">
+        <div className="grid md:grid-cols-3 gap-2">
+          <Link href="/company/new">
+            <div className="btn-purple mt-2">Add ++</div>
+          </Link>
         </div>
-        {/* Table Content */}
-        <div className="">
-          {companies.map((co, index) => (
-            <div
-              className="grid grid-cols-2 md:grid-cols-3 gap-2 border-b py-2 px-2"
-              key={index}
-            >
-              <div>
-                <div className="flex flex-row items-center">
-                  {co.favicon ? (
-                    <img
-                      src={company.favicon}
-                      alt="logo"
-                      className="w-5 h-5 object-contain mr-2"
-                    />
-                  ) : (
-                    <div className="w-5 h-5 mr-2"> </div>
-                  )}
-                  <div className="flex flex-col">
-                    <div>{co.customTitle}</div>
-                    <div className="text-xs">{localeDate(co.createdAt)}</div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="hidden md:block">
+        <div className="border rounded-xl p-2 bg-zinc-900 text-white">
+          <div className="text-2xl font-bold py-4 px-1">Companies</div>
+          {/* Table Header */}
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-gray-400 border-b py-2 px-1 text-sm rounded-t-xl font-semibold">
+            <div>Title / Date</div>
+            <div className="hidden md:block">Domains / Email</div>
+            <div className="block">City / Country</div>
+          </div>
+          {/* Table Content */}
+          <div className="">
+            {companies.map((co, index) => (
+              <div
+                className="grid grid-cols-2 md:grid-cols-3 gap-2 border-b py-2 px-2"
+                key={index}
+              >
                 <div>
-                  {co.userDomains?.slice(0, 5).map((d, i) => (
-                    <div key={i} className="text-xs">
-                      {d}
+                  <div className="flex flex-row items-center">
+                    {co.favicon ? (
+                      <img
+                        src={company.favicon}
+                        alt="logo"
+                        className="w-5 h-5 object-contain mr-2"
+                      />
+                    ) : (
+                      <div className="w-5 h-5 mr-2"> </div>
+                    )}
+                    <div className="flex flex-col">
+                      <div>{co.customTitle}</div>
+                      <div className="text-xs">{localeDate(co.createdAt)}</div>
                     </div>
-                  ))}
-                </div>
-                <div className="text-xs">
-                  {co.userEmails?.slice(0,5).map((e, i) => (
-                    <div key={i}>
-                      <div className="text-xs">{e}</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="">
-                {co.addresses?.map((a, i) => (
-                  <div key={i} className="text-xs">
-                    {a.city} {a.country}
                   </div>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
+                </div>
 
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={handlePageChange}
-        />
+                <div className="hidden md:block">
+                  <div>
+                    {co.userDomains?.slice(0, 5).map((d, i) => (
+                      <div key={i} className="text-xs">
+                        {d}
+                      </div>
+                    ))}
+                  </div>
+                  <div className="text-xs">
+                    {co.userEmails?.slice(0, 5).map((e, i) => (
+                      <div key={i}>
+                        <div className="text-xs">{e}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="">
+                  {co.addresses?.map((a, i) => (
+                    <div key={i} className="text-xs">
+                      {a.city} {a.country}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+          />
+        </div>
+        <pre>{/* JSON.stringify(companies[0], null, 2) */}</pre>
       </div>
-      <pre>{/* JSON.stringify(companies[0], null, 2) */}</pre>
-    </div>
-  );
+    );
+  }
 }

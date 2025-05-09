@@ -3,8 +3,8 @@ import * as Yup from "yup";
 import axios from "axios";
 
 import { useState } from "react";
-import EmailFields from "./emailFields";
-import PhoneFields from "./phoneFields";
+import EmailFields from "../formik/emailFields";
+import PhoneFields from "../formik/phoneFields";
 import FormFields from "./formFields";
 import MessageBlock from "../messageBlock";
 import FormSaveButton from "../formSaveButton";
@@ -12,6 +12,12 @@ import FormSaveButton from "../formSaveButton";
 const validationSchema = Yup.object({
   name: Yup.string().required("Gerekli"),
   gender: Yup.string().required("Gerekli"),
+  phones: Yup.array()
+    .of(Yup.string().required("Telefon numarası gerekli"))
+    .max(3, "En fazla 3 telefon numarası ekleyebilirsiniz"),
+  emails: Yup.array()
+    .of(Yup.string().email("Geçersiz email").required("Email gerekli"))
+    .max(3, "En fazla 3 email adresi ekleyebilirsiniz"),
 });
 
 const apiClient = axios.create({

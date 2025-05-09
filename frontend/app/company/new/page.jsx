@@ -6,8 +6,7 @@ import { Formik, Form, FieldArray } from "formik";
 import FormSaveButton from "@/components/formSaveButton";
 import MessageBlock from "@/components/messageBlock";
 import apiClient from "@/lib/apiClient";
-import Phones from "@/components/company/phones";
-import EmailFields from "@/components/company/EmailFields";
+import EmailFields from "@/components/formik/emailFields";
 import DomainFields from "@/components/company/DomainFields";
 
 import WebUrlWithMeta from "@/components/company/WebUrlWithMeta";

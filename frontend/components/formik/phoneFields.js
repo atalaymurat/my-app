@@ -36,8 +36,8 @@ export default function PhoneFields() {
   return (
     <FieldArray name="phones">
       {({ push, remove }) => (
-        <div className="border border-gray-300 rounded-lg py-4 px-2 mb-2">
-          <div className="text-lg font-medium mb-2">Telefonlar</div>
+        <div className="border border-blue-800 rounded-lg py-4 px-2 mb-2">
+          <div className="text-xl font-semibold mb-2 text-blue-800">Telefonlar</div>
           {phones.map((ph, index) => (
             <PhoneRow
               key={index}
@@ -48,14 +48,15 @@ export default function PhoneFields() {
               onRemove={(i) => handleRemove(remove, i)}
             />
           ))}
-
-          <button
-            type="button"
-            className="btn-submit w-full"
-            onClick={() => push("")}
-          >
-            Telefon Ekle
-          </button>
+          {values.phones.length < 3 && (
+            <button
+              type="button"
+              className="btn-submit w-full"
+              onClick={values.phones.length > 2 ? null : () => push("")}
+            >
+              Telefon Ekle
+            </button>
+          )}
         </div>
       )}
     </FieldArray>

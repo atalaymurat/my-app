@@ -1,4 +1,4 @@
-import PhoneFields from "../contact/phoneFields";
+import PhoneFields from "../formik/phoneFields";
 import FormikControl from "../formik/FormikControl";
 
 const FormFields = () => {
