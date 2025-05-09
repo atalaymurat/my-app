@@ -2,27 +2,45 @@
 import React from "react";
 
 const formatPhoneNumber = (phone) => {
-  const cleaned = phone.toString().replace(/\D/g, "");
+  let cleaned = phone.toString().replace(/\D/g, "");
 
-  // Türkiye formatı (90 532 111 22 22)
-  if (cleaned.length === 11 && cleaned.startsWith("90")) {
-    return cleaned.replace(
-      /(\d{2})(\d{3})(\d{3})(\d{2})(\d{2})/,
-      "$1 $2 $3 $4 $5"
-    );
+  // 2 sıfır başta varsa kaldır
+  if (cleaned.startsWith("00")) {
+    cleaned = cleaned.slice(2);
+  } else if (cleaned.startsWith("0")) {
+    cleaned = cleaned.slice(1);
   }
 
-  // Türkiye formatı (532 111 22 22)
-  if (cleaned.length === 10 && cleaned.startsWith("5")) {
-    return cleaned.replace(/(\d{3})(\d{3})(\d{2})(\d{2})/, "$1 $2 $3 $4");
+  // Şimdi cleaned 13 haneli, örnek: 905325323232
+
+  // Dinamik ülke kodu çözümü
+  let countryCode = "";
+  let numberBody = "";
+
+  // En yaygın 3 haneli kodları tanı
+  const knownThreeDigitCodes = ["212", "213", "216", "218", "234", "233"];
+  const knownOneDigitCodes = ["1"];
+
+  if (knownThreeDigitCodes.includes(cleaned.slice(0, 3))) {
+    countryCode = cleaned.slice(0, 3);
+    numberBody = cleaned.slice(3);
+  } else if (knownOneDigitCodes.includes(cleaned.slice(0, 1))) {
+    countryCode = cleaned.slice(0, 1);
+    numberBody = cleaned.slice(1);
+  } else {
+    countryCode = cleaned.slice(0, 2);
+    numberBody = cleaned.slice(2);
   }
 
-  // Diğer formatlar (XX XXX XXX XX XX)
-  return cleaned.replace(
-    /(\d{2})(\d{3})(\d{3})(\d{2})(\d{2})/,
-    "$1 $2 $3 $4 $5"
-  );
+  const areaCode = numberBody.slice(0, 3);
+  const part1 = numberBody.slice(3, 6);
+  const part2 = numberBody.slice(6, 8);
+  const part3 = numberBody.slice(8, 10);
+
+  return `+${countryCode} (${areaCode}) ${part1} ${part2} ${part3}`;
 };
+
+
 
 export default function PhoneNumber({
   number,

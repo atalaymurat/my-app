@@ -10,8 +10,8 @@ function normalizeData(data = {}, user) {
   const normalized = {
     gender: data.gender?.trim()?.toLowerCase() || "none",
     name: data.name ? transliterate(data.name.toLowerCase().trim()) : "",
-    phones: Array.isArray(data.phones)
-      ? [...new Set(data.phones.map((p) => normalizePhone(p)).filter(Boolean))]
+    phones: Array.isArray(data.formattedPhones)
+      ? [...new Set(data.formattedPhones.map((p) => normalizePhone(p)).filter(Boolean))]
       : [],
 
     emails: Array.isArray(data.emails)

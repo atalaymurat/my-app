@@ -1,3 +1,4 @@
+import PhoneFields from "../contact/phoneFields";
 import FormikControl from "../formik/FormikControl";
 
 const FormFields = () => {
@@ -37,6 +38,7 @@ const FormFields = () => {
         mask="___ ___ ___ __"
         replacement={{ _: /\d/ }} // Only numbers allowed
       />
+      <PhoneFields />
     </>
   );
 };
