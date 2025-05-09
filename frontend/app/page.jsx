@@ -7,7 +7,7 @@ export default function Home() {
   const { user, loading, checkSession, authChecked } = useAuth();
 
   return (
-    <div className="min-h-screen bg-stone-50">
+    <div className="bg-stone-50">
       {/* Hero Section */}
       <div className="bg-gradient-to-r from-zinc-100 via-neutral-100 to-stone-100 text-zinc-900 py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

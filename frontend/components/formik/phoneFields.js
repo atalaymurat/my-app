@@ -46,6 +46,7 @@ export default function PhoneFields() {
               countryCode={countryCodes[index] || "90"}
               onCountryChange={handleCountryChange}
               onRemove={(i) => handleRemove(remove, i)}
+              phones={phones}
             />
           ))}
           {values.phones.length < 3 && (

@@ -68,7 +68,7 @@ function CompanyIndexContent() {
   }
   if (companies.length > 0) {
     return (
-      <div className="p-1 md:p-4 flex flex-col gap-4 w-full bg-black h-full min-h-screen">
+      <div className="p-1 md:p-4 flex flex-col gap-4 w-full bg-black">
         <div className="grid md:grid-cols-3 gap-2">
           <Link href="/company/new">
             <div className="btn-purple mt-2">Add ++</div>
