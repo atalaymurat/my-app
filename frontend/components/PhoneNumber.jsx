@@ -46,8 +46,8 @@ export default function PhoneNumber({
   number,
   className = "",
   textSize = "text-base",
-  textColor = "text-gray-800",
-  hoverColor = "hover:text-blue-600",
+  textColor = "text-stone-400",
+  hoverColor = "hover:text-blue-800",
 }) {
   const formattedNumber = formatPhoneNumber(number);
 

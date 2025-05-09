@@ -64,6 +64,7 @@ const ContactPage = () => {
           </Link>
         </div>
         <ContactTable contacts={contacts} />
+
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}
