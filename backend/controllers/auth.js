@@ -11,8 +11,8 @@ const getCookieOptions = () => {
     secure: isProduction,
     path: "/",
     sameSite: isProduction ? "none" : "lax",
-    // domain: isProduction ? domain : undefined,
-    maxAge: 5 * 24 * 60 * 60 * 1000, // 5 days
+    domain: isProduction ? domain : undefined,
+    maxAge: 1 * 24 * 60 * 60 * 1000, // 1 days
   };
 };
 
