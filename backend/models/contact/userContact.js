@@ -14,7 +14,12 @@ const userContactSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
   },
+  contact: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Contact",
+  },
 });
+
 
 userContactSchema.index({ user: 1, uCompany: 1 });
 const UserContact = mongoose.model("UserContact", userContactSchema);

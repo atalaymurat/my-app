@@ -1,7 +1,6 @@
 const { Contact } = require("../../../models/contact/contact.model");
 
 const findContact = async (emails) => {
-  console.log("Contact model is:", Contact); // <- Check if it's undefined
   console.log("Email FIND ONE", emails);
   if (emails?.length > 0) {
     const byEmail = await Contact.findOne({ emails: { $in: emails } });

@@ -14,22 +14,22 @@ firebase authentication service for users
 
 Yapı bu sisteme uyumlu hale getirilecek
 
-[Frontend] 
+[x] [Frontend] 
   → Kullanıcı giriş yapar → Firebase'den idToken alır 
   → Token'i backend'e gönderir → 
   
-[Backend] 
+[x] [Backend] 
   → Token'i doğrular → Session cookie oluşturur 
   → Cookie'yi tarayıcıya kaydeder →
   
-[Sonraki İstekler] 
+[x] [Sonraki İstekler] 
   → Tarayıcı cookie'yi otomatik gönderir → 
   → Backend cookie'yi kontrol eder → 
   → Yetki verirse işlemi yapar
 
 [Yapılacaklarar]
 
-- Firma Modeli
+- [x] Firma Modeli
   - detaylandırıldı
   - servises eklendi
   - user özel model yapıldı
@@ -37,13 +37,17 @@ Yapı bu sisteme uyumlu hale getirilecek
   [] - scraping özelliklerini güncelle ve ilave et
   
 
-- Person Modeli
-  [] - user person modeli yapılacak
-  [] - servisler ve utiller yapılacak
+- Contatct Modeli
+  [x] - user contact modeli yapılacak
+  [x] - servisler ve utiller yapılacak
+  [ ] - burda updateUserContact form data si ile yeniliyor gerek olursa onu CompanyUpdate
+  gibi degistir.
   
 
 - Base Modeli
-  [] - yapılacak
+  [ ] - yapılacak
 - Option Modeli
 
 - Teklif Modeli
+
+[ ] - Table modellerini reusable component haline getir.

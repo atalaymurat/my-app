@@ -9,7 +9,7 @@ function CheckBoxGroup(props) {
       <label className="block">
         <span className="text-sm font-semibold text-gray-500">{label}</span>
       </label>
-      <div className="flex flex-row space-x-4 px-2 py-4 border bg-slate-50 text-gray-500 border-gray-300 rounded transition duration-300 focus:border-transparent focus:outline-none focus:ring-4 focus:ring-blue-200">
+      <div className="flex flex-row bg-black space-x-4 px-2 py-4 border text-gray-500 border-gray-300 rounded transition duration-300 focus:border-transparent focus:outline-none focus:ring-4 focus:ring-blue-200">
         <Field name={name} {...rest}>
           {({ field }) => (
             <div className="flex flex-row gap-3 w-full">

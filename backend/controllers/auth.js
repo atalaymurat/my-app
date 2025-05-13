@@ -104,7 +104,6 @@ module.exports = {
   user: async (req, res) => {
     try {
       const token = req.cookies._api_token;
-      console.log("Controller User Is Called");
 
       if (!token) {
         return res.status(401).json({

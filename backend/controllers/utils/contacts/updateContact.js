@@ -3,6 +3,8 @@ const getUpdates = require("../getUpdates");
 
 const updateContact = async (contact, data) => {
   const fieldsToCompare = [
+    { field: "name", value: data.name, merge: false },
+    { field: "gender", value: data.gender, merge: false },
     { field: "emails", value: data.emails, merge: true },
     { field: "phones", value: data.phones, merge: true },
   ];

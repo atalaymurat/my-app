@@ -12,7 +12,6 @@ module.exports = {
       const page = parseInt(req.query.page) || 1;
       const limit = parseInt(req.query.limit) || 10;
       const skip = (page - 1) * limit;
-      console.log("CTRL INDEX")
 
       const filter = { user: req.user._id };
 
@@ -23,7 +22,6 @@ module.exports = {
         .limit(limit)
         .sort({ createdAt: -1 });
 
-      console.log("Companies Controller Index User Comapnies", companies);
 
       res.json({
         succuess: true,

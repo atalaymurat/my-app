@@ -7,6 +7,7 @@ import apiClient from "@/lib/apiClient";
 import ContactTable from "@/components/contact/contactTable";
 import Pagination from "@/components/Pagination";
 import Link from "next/link";
+import PageLinks from "../templates/PageLinks";
 
 const ContactPage = () => {
   const { user, loading, checkSession, authChecked } = useAuth();
@@ -57,12 +58,10 @@ const ContactPage = () => {
 
   return (
     <div>
-      <div className="overflow-hidden w-full px-2 py-4">
-        <div className="grid md:grid-cols-3 gap-2">
-          <Link href="/contact/new">
-            <div className="btn-purple mt-2">Kişi +</div>
-          </Link>
-        </div>
+      <div>
+        <PageLinks
+          links={[{ href: "/contact/new", label: "Yeni Kişi Ekle" }]}
+        />
         <ContactTable contacts={contacts} />
 
         <Pagination
