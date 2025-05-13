@@ -2,7 +2,7 @@ import { cookies } from 'next/headers';
 
 const BaseIndex = async () => {
   const cookiesList = await cookies(); // cookies() asenkron olduğu için await edilmesi gerekiyor
-  const token = cookiesList.get('_api_token');
+  const token = cookiesList.get('_server_token')?.value; // Tokeni alıyoruz
   console.log('BaseIndex Page Server Side Token:', token);
 
   if (!token) {

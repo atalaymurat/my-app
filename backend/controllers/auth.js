@@ -25,10 +25,12 @@ const setCookie = (res, token) => {
   res.header("Access-Control-Allow-Credentials", "true");
   res.header("Access-Control-Allow-Origin", origin);
   res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Content-Type, Authorization, X-Requested-With",
+  );
   res.cookie("_api_token", token, getCookieOptions());
 };
-
 
 module.exports = {
   login: async (req, res) => {
@@ -64,17 +66,17 @@ module.exports = {
       const jwtToken = jwt.sign(
         { userId: user._id, email: user.email, role: user.role },
         process.env.JWT_SECRET,
-        { expiresIn: "5d" }
+        { expiresIn: "5d" },
       );
 
- //     setCookie(res, jwtToken);
+      //     setCookie(res, jwtToken);
       console.log("JWT Token Setted:", jwtToken);
-      res.cookie("_api_token", jwtToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax", // SSR için güvenli ayar
-      maxAge: 5 * 24 * 60 * 60 * 1000,
-    });
+      res.cookie("_server_token", jwtToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
+        maxAge: 5 * 24 * 60 * 60 * 1000,
+      });
 
       return res.status(200).json({
         success: true,
@@ -122,7 +124,7 @@ module.exports = {
 
       const decodedPayload = jwt.verify(token, process.env.JWT_SECRET);
       const user = await User.findById(decodedPayload.userId).select(
-        "_id email name profilePicture roles isActive createdAt preferences firebaseUid emailVerified"
+        "_id email name profilePicture roles isActive createdAt preferences firebaseUid emailVerified",
       );
 
       if (!user) {
@@ -168,7 +170,7 @@ module.exports = {
       const newToken = jwt.sign(
         { userId: decoded.userId },
         process.env.JWT_SECRET,
-        { expiresIn: "1d" }
+        { expiresIn: "1d" },
       );
 
       setCookie(res, newToken);
