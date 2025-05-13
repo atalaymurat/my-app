@@ -26,7 +26,6 @@ const setCookie = (res, token) => {
   res.header("Access-Control-Allow-Origin", origin);
   res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
   res.header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With");
-
   res.cookie("_api_token", token, getCookieOptions());
 };
 
@@ -68,8 +67,14 @@ module.exports = {
         { expiresIn: "5d" }
       );
 
-      setCookie(res, jwtToken);
+ //     setCookie(res, jwtToken);
       console.log("JWT Token Setted:", jwtToken);
+      res.cookie("_api_token", jwtToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax", // SSR için güvenli ayar
+      maxAge: 5 * 24 * 60 * 60 * 1000,
+    });
 
       return res.status(200).json({
         success: true,
