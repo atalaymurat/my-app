@@ -1,16 +1,13 @@
 "use client";
 import React from "react";
 import { useEffect } from "react";
-import { useAuth } from "../../context/AuthContext";
 import { useRouter, useSearchParams } from "next/navigation";
 import apiClient from "@/lib/apiClient";
 import ContactTable from "@/components/contact/contactTable";
 import Pagination from "@/components/Pagination";
-import Link from "next/link";
 import PageLinks from "../templates/PageLinks";
 
 const ContactPage = () => {
-  const { user, loading, checkSession, authChecked } = useAuth();
   const [contacts, setContacts] = React.useState(null);
   const [totalPages, setTotalPages] = React.useState(1);
   const searchParams = useSearchParams();
@@ -33,25 +30,7 @@ const ContactPage = () => {
     getContacts();
   }, [currentPage]);
 
-  useEffect(() => {
-    const verifySession = async () => {
-      if (!authChecked) {
-        const sessionUser = await checkSession();
-        if (!sessionUser) {
-          router.push("/auth");
-        }
-      }
-    };
-    verifySession();
-  }, [authChecked, checkSession, router]);
 
-  if (loading || !authChecked) {
-    return <div className="p-8">Loading authentication status...</div>;
-  }
-  if (!user) {
-    router.push("/auth");
-    return null;
-  }
   if (!contacts) {
     return <div className="p-8 h-full">Loading data from server...</div>;
   }
@@ -60,7 +39,7 @@ const ContactPage = () => {
     <div>
       <div>
         <PageLinks
-          links={[{ href: "/contact/new", label: "Yeni Kişi Ekle" }]}
+          links={[{ href: "/shield/contact/new", label: "Yeni Kişi Ekle" }]}
         />
         <ContactTable contacts={contacts} />
 
@@ -68,7 +47,7 @@ const ContactPage = () => {
           currentPage={currentPage}
           totalPages={totalPages}
           onPageChange={(page) => {
-            router.push(`/contact?page=${page}`);
+            router.push(`shield/contact?page=${page}`);
           }}
         />
       </div>

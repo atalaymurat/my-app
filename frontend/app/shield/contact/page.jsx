@@ -1,9 +1,7 @@
 // app/contact/page.js
 
 import { Suspense } from "react";
-
-// Client-side import için dinamik import kullanıyoruz
-const ContactPage = require("@/components/contact/ContactPage").default;
+import ContactPage from "@/components/contact/ContactPage";
 
 export default function Page() {
   return (

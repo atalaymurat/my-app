@@ -31,7 +31,7 @@ export default function Navbar() {
 
       {user && !loading ? (
         <div className="flex items-center space-x-4">
-          <Link href="/profile">
+          <Link href="/shield/profile">
             <div className="px-2 py-1">
               {(user?.profilePicture && (
                 <Image

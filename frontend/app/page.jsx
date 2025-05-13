@@ -16,7 +16,7 @@ export default function Home() {
             <p className="text-xl md:text-2xl mb-8">
               Seamlessly integrate with your companies and contacts
             </p>
-            <Link href={user ? "/profile" : "/auth"}>
+            <Link href={user ? "shield/profile" : "/auth"}>
               <button className="bg-fuchsia-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-fuchsia-700 transition">
                 Get Started
               </button>

@@ -90,7 +90,7 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="w-full flex items-center justify-center bg-gray-100 p-2 rounded-2xl">
+    <div className="w-full flex my-8 items-center justify-center bg-gray-100 p-2 rounded-xl">
       {/* Your existing UI code */}
       <div className="bg-white p-4 rounded-2xl shadow-xl w-md lg:w-md space-y-4">
         <h1 className="text-2xl font-bold text-center">

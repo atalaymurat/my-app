@@ -30,7 +30,7 @@ const CompanyPage = ({  }) => {
 
 
   const handlePageChange = (newPage) => {
-    router.push(`/company?page=${newPage}`);
+    router.push(`/shield/company?page=${newPage}`);
   };
 
   if (!companies) {
@@ -40,7 +40,7 @@ const CompanyPage = ({  }) => {
   if (companies.length > 0) {
     return (
       <div>
-        <PageLinks links={[{href:'/company/new', label:'Firma Ekle'}]} />
+        <PageLinks links={[{href:'/shield/company/new', label:'Firma Ekle'}]} />
         <CompanyTable companies={companies} />
         <div className="text-white">
           <Pagination

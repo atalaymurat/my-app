@@ -21,8 +21,6 @@ Yapı bu sisteme uyumlu hale getirilecek
 [x] [Backend] 
   → Token'i doğrular → Session cookie oluşturur 
   → Cookie'yi tarayıcıya kaydeder →
-  bunu su an yapamadik cinku domainler ayni olmadigi icin server ve frontend cookie okumasi middlewarede yapilamiyor 
-  domain ayni olunca useAuth mantik degistirilip middleware ile route korumasi yapilacak
   
 [x] [Sonraki İstekler] 
   → Tarayıcı cookie'yi otomatik gönderir → 
@@ -57,4 +55,3 @@ Yapı bu sisteme uyumlu hale getirilecek
 [x] - Table modellerini reusable component haline getir.
 [x] - Contact and Companies Pages re arranged 
 [ ] - Tablolar icin duzgun bir Skeleton yap
-[ ] - fORM Sayfalarininda ayni sablonu kullanmasini sagla

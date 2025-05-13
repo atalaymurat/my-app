@@ -43,6 +43,7 @@ app.use("/api", require("./routes/auth"));
 app.use("/api/company", require("./routes/company"));
 app.use("/api/scrape", require("./routes/scrape"));
 app.use("/api/contact", require("./routes/contact"));
+app.use("/api/base-product", require("./routes/baseProduct"));
 
 // --- Basic Root Route (Optional) ---
 app.get('/', (req, res) => {
