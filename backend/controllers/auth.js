@@ -11,7 +11,7 @@ const getCookieOptions = () => {
     secure: isProduction,
     path: "/",
     sameSite: isProduction ? "none" : "lax",
-    domain: isProduction ? domain : undefined,
+    // domain: isProduction ? domain : undefined,
     maxAge: 5 * 24 * 60 * 60 * 1000, // 5 days
   };
 };
@@ -29,6 +29,7 @@ const setCookie = (res, token) => {
 
   res.cookie("_api_token", token, getCookieOptions());
 };
+
 
 module.exports = {
   login: async (req, res) => {
@@ -68,6 +69,7 @@ module.exports = {
       );
 
       setCookie(res, jwtToken);
+      console.log("JWT Token Setted:", jwtToken);
 
       return res.status(200).json({
         success: true,

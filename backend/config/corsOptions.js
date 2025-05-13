@@ -2,15 +2,8 @@
 
 const allowedOrigins = [
   process.env.FRONTEND_URL,
-  process.env.BACKEND_URL,
   "http://localhost:3000",
   "https://postiva-atalaymurats-projects.vercel.app",
-  "https://postiva-server.onrender.com",
-  // Vercel deployment patterns
-  /\.vercel\.app$/,
-  /\.vercel\.sh$/,
-  /\.now\.sh$/,
-  /postiva-.*-atalaymurats-projects\.vercel\.app$/, // Vercel preview deployments
 ].filter(Boolean);
 
 const corsOptions = {
@@ -67,10 +60,10 @@ const corsOptions = {
     "x-vercel-ip-postal-code",
     "x-vercel-ip-timezone",
     "x-vercel-ja4-digest",
-    "x-vercel-proxied-for"
+    "x-vercel-proxied-for",
   ],
   preflightContinue: false,
-  maxAge: 86400 // 24 hours
+  maxAge: 86400, // 24 hours
 };
 
 module.exports = { corsOptions, allowedOrigins };

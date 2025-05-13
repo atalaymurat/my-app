@@ -7,7 +7,6 @@
     "start": "nodemon index.js",
     "test": "jest --env=node"
   },
-
   "compilerOptions": {
     "module": "CommonJS"
   },
@@ -16,6 +15,7 @@
   "dependencies": {
     "axios": "^1.9.0",
     "cheerio": "^1.0.0",
+    "cookie": "^1.0.2",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",

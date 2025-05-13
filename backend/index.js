@@ -3,12 +3,11 @@ require("dotenv").config();
 const express = require("express");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
-const connectDB = require('./config/db'); // Import the connectDB function
-const { corsOptions, allowedOrigins } = require('./config/corsOptions');
+const connectDB = require("./config/db"); // Import the connectDB function
+const { corsOptions, allowedOrigins } = require("./config/corsOptions");
 
 // --- Connect to Database ---
 connectDB(); // Call the function to establish the connection
-
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -18,20 +17,23 @@ const PORT = process.env.PORT || 5000;
 console.log("--------------------------------");
 console.log("Allowed CORS Origins:");
 if (allowedOrigins && allowedOrigins.length > 0) {
-    allowedOrigins.forEach(origin => console.log(`- ${origin}`));
+  allowedOrigins.forEach((origin) => console.log(`- ${origin}`));
 } else {
-    console.log("- (No specific origins defined - Check .env FRONTEND_URL)");
+  console.log("- (No specific origins defined - Check .env FRONTEND_URL)");
 }
 console.log("--------------------------------");
 
 // Apply CORS Middleware with imported options
 // Place CORS middleware early, especially before routes
-app.use(cors({
-  origin: process.env.NODE_ENV === "production" 
-    ? process.env.FRONTEND_URL 
-    : "http://localhost:3000",
-  credentials: true
-}));
+app.use(
+  cors({
+    origin:
+      process.env.NODE_ENV === "production"
+        ? process.env.FRONTEND_URL
+        : "http://localhost:3000",
+    credentials: true,
+  }),
+);
 
 // Middleware
 app.use(express.json());
@@ -46,10 +48,9 @@ app.use("/api/contact", require("./routes/contact"));
 app.use("/api/base-product", require("./routes/baseProduct"));
 
 // --- Basic Root Route (Optional) ---
-app.get('/', (req, res) => {
-  res.send('API is running...');
+app.get("/", (req, res) => {
+  res.send("API is running...");
 });
-
 
 // Start server
 app.listen(PORT, () => {

@@ -1,9 +1,22 @@
-import BasePage from "@/components/base/BasePage";
-const BaseIndex = () => {
+import { cookies } from 'next/headers';
+
+const BaseIndex = async () => {
+  const cookiesList = await cookies(); // cookies() asenkron olduğu için await edilmesi gerekiyor
+  const token = cookiesList.get('_api_token');
+
+  if (!token) {
+    // Token yoksa başka bir işlem yapabilirsiniz
+    return <div>No Token Found</div>;
+  }
+
   return (
-    <>
-      <BasePage />
-    </>
+    <div>
+      {/* Token bulunduğunda gösterilecek içerik */}
+      <pre className='text-white'>
+
+      Token: {JSON.stringify(token, null, 2)}
+      </pre>
+    </div>
   );
 };
 
