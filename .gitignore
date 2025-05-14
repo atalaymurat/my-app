@@ -16,6 +16,7 @@ lerna-debug.log*
 /backend/.env.test
 /frontend/.node_modules
 /frontend/.env.local
+/frontend/.env.production
 /frontend/.env*
 /frontend/.*
 /backend/.*
@@ -39,6 +40,7 @@ jspm_packages/
 .env.development.local
 .env.test.local
 .env.production.local
+.env.production
 .env.local
 
 # parcel-bundler cache (https://parceljs.org/)
@@ -48,3 +50,4 @@ jspm_packages/
 # Next.js build output
 /frontend/.next
 /frontend/out
+README.md

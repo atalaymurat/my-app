@@ -2,7 +2,7 @@
 import { useFormikContext } from "formik";
 import { useEffect, useState } from "react";
 import FormikControl from "../formik/FormikControl";
-import apiClient from "@/lib/apiClient";
+import axios from '@/utils/axios';
 
 const WebUrlWithMeta = ({ metadata, setMetadata, setMessage }) => {
   const [contactData, setContactData] = useState(null);
@@ -19,8 +19,7 @@ const WebUrlWithMeta = ({ metadata, setMetadata, setMessage }) => {
 
     try {
       setIsFetching(true);
-      const response = await apiClient.post("/api/scrape/meta", { url });
-      // const contactRes = await apiClient.post("/api/scrape/contacts", { url });
+      const response = await axios.post("/api/scrape/meta", { url });
       setMetadata(response.data);
       // setContactData(contactRes.data);
     } catch (error) {

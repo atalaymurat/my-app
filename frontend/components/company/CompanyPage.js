@@ -3,7 +3,7 @@ import Pagination from "../Pagination";
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import CompanyListSkeleton from "../skeleton/CompanyListSkeleton";
-import apiClient from "@/lib/apiClient";
+import axios from "@/utils/axios"
 import PageLinks from "../templates/PageLinks";
 
 const CompanyPage = ({  }) => {
@@ -16,7 +16,7 @@ const CompanyPage = ({  }) => {
   useEffect(() => {
     const getCompanies = async () => {
       try {
-        const { data } = await apiClient.get(
+        const { data } = await axios.get(
           `/api/company?page=${currentPage}&limit=10`
         );
         setCompanies(data.companies);

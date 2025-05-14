@@ -3,20 +3,8 @@ import { createContext, useContext, useState, useEffect } from "react";
 import { auth } from "@/lib/firebase"; // Still needed for signOut and getting idToken
 import { signOut as firebaseSignOut } from "firebase/auth";
 import { useRouter } from "next/navigation";
-import axios from "axios";
+import axios from "@/utils/axios"; // Custom axios instance
 
-// Configure axios client
-// Ensure baseURL points to your backend correctly in different environments
-const apiClient = axios.create({
-  baseURL:
-    process.env.NODE_ENV === "production"
-      ? process.env.NEXT_PUBLIC_BACKEND_URL // Make sure this env var is set in production
-      : "http://localhost:5000", // Your backend URL for development
-  withCredentials: true, // Crucial for sending/receiving HTTP-only cookies
-  headers: {
-    "Content-Type": "application/json",
-  },
-});
 
 // Create the context
 const AuthContext = createContext();
@@ -30,10 +18,10 @@ export function AuthProvider({ children }) {
 
   const checkSession = async () => {
     if (authChecked) return user;
-    
+
     setLoading(true);
     try {
-      const response = await apiClient.get("/api/user", {
+      const response = await axios.get("/api/user", {
         validateStatus: (status) => status < 500,
       });
 
@@ -44,7 +32,11 @@ export function AuthProvider({ children }) {
       });
 
       // Handle successful authentication
-      if (response.status === 200 && response.data?.success && response.data.user) {
+      if (
+        response.status === 200 &&
+        response.data?.success &&
+        response.data.user
+      ) {
         const userData = response.data.user;
         setUser(userData);
         setAuthChecked(true);
@@ -102,7 +94,7 @@ export function AuthProvider({ children }) {
   // Helper function to handle invalid sessions
   const handleInvalidSession = async () => {
     try {
-      await apiClient.post("/api/logout");
+      await axios.post("/api/logout");
       setUser(null);
       console.log("Session cleared successfully");
     } catch (logoutError) {
@@ -123,16 +115,22 @@ export function AuthProvider({ children }) {
     }
     setLoading(true);
     try {
-      // Send the Firebase ID token to your backend's login endpoint
-      const response = await apiClient.post("/api/login", { idToken });
+      const response = await axios.post("/api/login", { idToken });
+      console.log("Login response:", {
+        status: response.status,
+        data: response.data,
+      });
 
-      // Check if backend confirms success and provides user data
-      if (response.data?.success && response.data.user) {
-        setUser(response.data.user); // Set user state with data from backend
+      if (
+        response.data?.success &&
+        response.data.user &&
+        response.data.accessToken
+      ) {
+        setUser(response.data.user);
+        localStorage.setItem("accessToken", response.data.accessToken); // Token'ı kaydet
         setLoading(false);
-        return true; // Indicate success
+        return true;
       } else {
-        // Handle cases where backend indicates failure despite a 2xx response
         throw new Error(response.data?.error || "Backend login failed.");
       }
     } catch (error) {
@@ -140,11 +138,9 @@ export function AuthProvider({ children }) {
         "Frontend Login error:",
         error.response?.data || error.message
       );
-      setUser(null); // Clear user state on login failure
-      // Optional: Consider signing out from Firebase client-side if backend login fails
-      // await firebaseSignOut(auth);
+      setUser(null);
       setLoading(false);
-      return false; // Indicate failure
+      return false;
     }
   };
 
@@ -159,8 +155,9 @@ export function AuthProvider({ children }) {
     try {
       // 1. Sign out from Firebase on the client
       await firebaseSignOut(auth);
+      localStorage.removeItem("accessToken"); // <-- Token temizle
       // 2. Call your backend's logout endpoint to clear the session cookie
-      await apiClient.post("/api/logout");
+      await axios.post("/api/logout");
       // 3. Clear the user state locally
       setUser(null);
       // 4. Redirect to login or home page

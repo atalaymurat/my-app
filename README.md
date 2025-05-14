@@ -58,3 +58,45 @@ Yapı bu sisteme uyumlu hale getirilecek
 [x] - Contact and Companies Pages re arranged 
 [ ] - Tablolar icin duzgun bir Skeleton yap
 [ ] - fORM Sayfalarininda ayni sablonu kullanmasini sagla
+
+###AUTH LOGIN SISTEMI
+✅ Şu anda Çalışan Auth Sistemi Özeti:
+🔐 1. Giriş Süreci (Login Flow)
+Kullanıcı, Firebase üzerinden e-posta/şifre ya da Google ile giriş yapıyor.
+
+Firebase client SDK'sı aracılığıyla idToken alınır (auth.currentUser.getIdToken()).
+
+Bu idToken, backend'e (/auth/login) bir POST isteği ile gönderilir.
+
+🔁 2. Backend Token Doğrulama (Tek seferlik)
+Backend, gelen idToken'ı firebase-admin ile doğrular.
+
+Token geçerliyse:
+
+Firebase UID, email gibi bilgilerle MongoDB'de kullanıcı kaydı oluşturulur veya güncellenir.
+
+Backend, kendi JWT'sini (örneğin accessToken) üretir ve client’a döner.
+
+🛡️ 3. JWT Kullanımı (Artık Firebase yok)
+Artık tüm kimlik doğrulama, Firebase yerine backend’in verdiği JWT (Bearer Token) ile yapılır.
+
+Bu token:
+
+localStorage'da tutulur.
+
+Her API isteğine otomatik olarak Authorization: Bearer <token> header'ı ile eklenir (utils/axios.js aracılığıyla).
+
+Backend'deki korumalı route'larda, middleware/guard ile bu token doğrulanır ve ilgili kullanıcıya erişim izni verilir.
+
+🚫 Firebase ile İlişki Koptu mu?
+Evet ve Hayır:
+
+Amaç	Firebase kullanımı	Açıklama
+Kimlik Doğrulama Başlangıcı	✅ Giriş için (login)	Kullanıcıyı doğrulayıp idToken alıyoruz.
+Backend token üretimi	✅ İlk doğrulamada	idToken kontrol edilip backend token'ı veriliyor.
+API isteklerinde kimlik	❌ Kullanılmıyor	Artık sadece backend JWT tokenı kullanılıyor.
+Firebase ile tekrar kontrol	❌ Gerekli değil	Token verildikten sonra tüm işlemler backend’e ait.
+
+Yani sadece girişte Firebase kullanıyorsun, sonrasında tüm akış tamamen kendi backend’in üzerinde ilerliyor.
+
+

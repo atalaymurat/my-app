@@ -1,48 +1,36 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 
-const getCookieOptions = () => {
-  const isProduction = process.env.NODE_ENV === "production";
-  const domain = isProduction ? ".postiva-server.onrender.com" : undefined;
-
-  return {
-    httpOnly: true,
-    secure: isProduction,
-    path: "/",
-    sameSite: isProduction ? "none" : "lax",
-    domain: isProduction ? domain : undefined,
-    maxAge: 5 * 24 * 60 * 60 * 1000, // 5 days
-  };
-};
-
 const authenticate = async (req, res, next) => {
   try {
-    const token = req.cookies._api_token;
+    const authHeader = req.headers.authorization;
+    console.log("AUTH MIDDLEWARE AUTH HEADER: ", authHeader);
 
-    if (!token) {
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
       return res.status(401).json({
         success: false,
         error: "Not authenticated",
-        details: "No session token found.",
+        details: "Authorization header missing or malformed.",
       });
     }
 
-    const decodedPayload = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findById(decodedPayload.userId).select(
+    const token = authHeader.split(" ")[1];
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    console.log("AUTH MIDDLEWARE DECODED: ", decoded);
+
+    const user = await User.findById(decoded.userId).select(
       "_id email name profilePicture roles isActive createdAt preferences firebaseUid emailVerified"
     );
 
     if (!user) {
-      res.clearCookie("_api_token", getCookieOptions());
       return res.status(404).json({
         success: false,
         error: "User not found",
-        details: "User associated with this session no longer exists.",
+        details: "User associated with this token does not exist.",
       });
     }
 
     if (!user.isActive) {
-      res.clearCookie("_api_token", getCookieOptions());
       return res.status(403).json({
         success: false,
         error: "Forbidden",
@@ -54,7 +42,6 @@ const authenticate = async (req, res, next) => {
     next();
   } catch (error) {
     console.error("Authentication error:", error);
-    res.clearCookie("_api_token", getCookieOptions());
     return res.status(401).json({
       success: false,
       error: "Authentication failed",
@@ -63,4 +50,4 @@ const authenticate = async (req, res, next) => {
   }
 };
 
-module.exports = { authenticate }; 
+module.exports = { authenticate };

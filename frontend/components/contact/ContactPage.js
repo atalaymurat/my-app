@@ -2,7 +2,7 @@
 import React from "react";
 import { useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import apiClient from "@/lib/apiClient";
+import axios from "@/utils/axios";
 import ContactTable from "@/components/contact/contactTable";
 import Pagination from "@/components/Pagination";
 import PageLinks from "../templates/PageLinks";
@@ -17,7 +17,7 @@ const ContactPage = () => {
   useEffect(() => {
     const getContacts = async () => {
       try {
-        const { data } = await apiClient.get(
+        const { data } = await axios.get(
           `/api/contact?page=${currentPage}&limit=10`
         );
         setContacts(data.contacts);

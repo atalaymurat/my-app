@@ -1,6 +1,6 @@
 import { Formik, Form, FieldArray, useFormikContext } from "formik";
 import * as Yup from "yup";
-import axios from "axios";
+import axios from "@/utils/axios";
 
 import { useState } from "react";
 import EmailFields from "../formik/emailFields";
@@ -20,16 +20,6 @@ const validationSchema = Yup.object({
     .max(3, "En fazla 3 email adresi ekleyebilirsiniz"),
 });
 
-const apiClient = axios.create({
-  baseURL:
-    process.env.NODE_ENV === "production"
-      ? process.env.NEXT_PUBLIC_BACKEND_URL // Make sure this env var is set in production
-      : "http://localhost:5000", // Your backend URL for development
-  withCredentials: true, // Crucial for sending/receiving HTTP-only cookies
-  headers: {
-    "Content-Type": "application/json",
-  },
-});
 
 const NewForm = () => {
   const [message, setMessage] = useState(null);
@@ -51,7 +41,7 @@ const NewForm = () => {
             setSubmitting(true);
             // make api call to create new contact
             try {
-              const response = await apiClient.post("/api/contact", values);
+              const response = await axios.post("/api/contact", values);
               console.log("CONTACTS RESPONSE", response.data);
               if (response.data.success) {
                 setMessage({

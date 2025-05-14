@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Formik, Form } from "formik";
 import FormSaveButton from "@/components/formSaveButton";
 import MessageBlock from "@/components/messageBlock";
-import apiClient from "@/lib/apiClient";
+import axios from "@/utils/axios"
 import EmailFields from "@/components/formik/emailFields";
 import DomainFields from "@/components/company/DomainFields";
 
@@ -54,7 +54,7 @@ export default function NewCompany() {
 
           const processedValues = { ...values };
 
-          const { data } = await apiClient.post(
+          const { data } = await axios.post(
             "/api/company",
             processedValues
           );

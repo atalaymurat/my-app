@@ -1,56 +1,26 @@
-const admin = require("../config/firebaseAdmin");
-const User = require("../models/User");
 const jwt = require("jsonwebtoken");
+const admin = require("../utils/firebaseAdmin");
+const User = require("../models/User");
 
-const getCookieOptions = () => {
-  const isProduction = process.env.NODE_ENV === "production";
-  const domain = isProduction ? ".postiva-server.onrender.com" : undefined;
-
-  return {
-    httpOnly: true,
-    secure: isProduction,
-    path: "/",
-    sameSite: isProduction ? "none" : "lax",
-    domain: isProduction ? domain : undefined,
-    maxAge: 1 * 24 * 60 * 60 * 1000, // 1 days
-  };
-};
-
-const setCookie = (res, token) => {
-  const isProduction = process.env.NODE_ENV === "production";
-  const origin = isProduction
-    ? "https://postiva-atalaymurats-projects.vercel.app"
-    : "http://localhost:3000";
-
-  res.header("Access-Control-Allow-Credentials", "true");
-  res.header("Access-Control-Allow-Origin", origin);
-  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-  res.header(
-    "Access-Control-Allow-Headers",
-    "Content-Type, Authorization, X-Requested-With",
+const createToken = (user) => {
+  return jwt.sign(
+    { userId: user._id, email: user.email, role: user.role },
+    process.env.JWT_SECRET,
+    { expiresIn: "5d" }
   );
-  res.cookie("_api_token", token, getCookieOptions());
 };
 
 module.exports = {
   login: async (req, res) => {
     try {
       const { idToken } = req.body;
-
       if (!idToken) {
-        return res.status(400).json({
-          error: "Authentication required",
-          details: "No ID token provided",
-        });
+        return res.status(400).json({ error: "No ID token provided" });
       }
 
       const decodedToken = await admin.auth().verifyIdToken(idToken);
-
-      if (!decodedToken.uid) {
-        return res.status(401).json({
-          success: false,
-          error: "Invalid credentials",
-        });
+      if (!decodedToken?.uid) {
+        return res.status(401).json({ error: "Invalid Firebase token" });
       }
 
       const userData = {
@@ -61,123 +31,74 @@ module.exports = {
         emailVerified: decodedToken.email_verified || false,
         authProvider: decodedToken.firebase?.sign_in_provider || "password",
       };
+      console.log("User data from Firebase:", userData);
 
       const user = await User.findOrCreate(userData);
-      const jwtToken = jwt.sign(
-        { userId: user._id, email: user.email, role: user.role },
-        process.env.JWT_SECRET,
-        { expiresIn: "5d" },
-      );
-
-      //     setCookie(res, jwtToken);
-      console.log("JWT Token Setted:", jwtToken);
-      res.cookie("_server_token", jwtToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
-        maxAge: 5 * 24 * 60 * 60 * 1000,
-      });
+      const token = createToken(user);
+      console.log("Response From login:", token)
 
       return res.status(200).json({
         success: true,
-        user: user,
+        accessToken: token,
+        user,
       });
     } catch (error) {
       console.error("Login error:", error);
-      res.clearCookie("_api_token", getCookieOptions());
-      return res.status(401).json({
-        success: false,
-        error: "Login failed",
-        details:
-          process.env.NODE_ENV !== "production" ? error.message : undefined,
-      });
+      return res.status(401).json({ error: "Login failed" });
     }
   },
 
-  logout: (req, res) => {
-    try {
-      res.clearCookie("_api_token", getCookieOptions());
-      return res.status(200).json({
-        success: true,
-        message: "Logout successful.",
-      });
-    } catch (error) {
-      console.error("Error during logout:", error);
-      return res.status(500).json({
-        success: false,
-        error: "Internal server error during logout.",
-      });
-    }
+  logout: async (_req, res) => {
+    // Bearer token client tarafında silinecek. API tarafında işlem gerekmez.
+    return res.status(200).json({ success: true, message: "Logout successful" });
   },
 
   user: async (req, res) => {
     try {
-      const token = req.cookies._api_token;
-
-      if (!token) {
-        return res.status(401).json({
-          success: false,
-          error: "Not authenticated",
-          details: "No session token found.",
-        });
+      const authHeader = req.headers.authorization;
+      if (!authHeader || !authHeader.startsWith("Bearer ")) {
+        return res.status(401).json({ error: "Unauthorized" });
       }
 
-      const decodedPayload = jwt.verify(token, process.env.JWT_SECRET);
-      const user = await User.findById(decodedPayload.userId).select(
-        "_id email name profilePicture roles isActive createdAt preferences firebaseUid emailVerified",
+      const token = authHeader.split(" ")[1];
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+      const user = await User.findById(decoded.userId).select(
+        "_id email name profilePicture roles isActive createdAt preferences firebaseUid emailVerified"
       );
 
-      if (!user) {
-        res.clearCookie("_api_token", getCookieOptions());
-        return res.status(404).json({
-          success: false,
-          error: "User not found",
-          details: "User associated with this session no longer exists.",
-        });
+      if (!user || !user.isActive) {
+        return res.status(403).json({ error: "User not found or inactive" });
       }
 
-      if (!user.isActive) {
-        res.clearCookie("_api_token", getCookieOptions());
-        return res.status(403).json({
-          success: false,
-          error: "Forbidden",
-          details: "User account is inactive.",
-        });
-      }
-
-      return res.status(200).json({
-        success: true,
-        user: user,
-      });
+      return res.status(200).json({ success: true, user });
     } catch (error) {
-      console.error("Get User Profile error:", error);
-      return res.status(500).json({
-        success: false,
-        error: "Internal server error",
-        details: "Failed to fetch user profile due to a server issue.",
-      });
+      console.error("User fetch error:", error);
+      return res.status(500).json({ error: "Server error" });
     }
   },
 
   verify: async (req, res) => {
     try {
-      const token = req.cookies._api_token;
-      if (!token) {
+      const authHeader = req.headers.authorization;
+      if (!authHeader || !authHeader.startsWith("Bearer ")) {
         return res.status(401).json({ success: false });
       }
 
+      const token = authHeader.split(" ")[1];
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
       const newToken = jwt.sign(
         { userId: decoded.userId },
         process.env.JWT_SECRET,
-        { expiresIn: "1d" },
+        { expiresIn: "1d" }
       );
 
-      setCookie(res, newToken);
-      return res.status(200).json({ success: true });
+      return res.status(200).json({ success: true, token: newToken });
     } catch (error) {
-      console.error("Verification error:", error);
+      console.error("Token verification error:", error);
       return res.status(401).json({ success: false });
     }
   },
 };
+
