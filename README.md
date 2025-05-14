@@ -99,4 +99,16 @@ Firebase ile tekrar kontrol	❌ Gerekli değil	Token verildikten sonra tüm işl
 
 Yani sadece girişte Firebase kullanıyorsun, sonrasında tüm akış tamamen kendi backend’in üzerinde ilerliyor.
 
+ [ ] - refresh token yapisi kur ve token gecerlilik suresini 1 saat e dusur
+ [x] - cookie artiklari temizlensi, cors passsword reset limit ekle
+
+✅ Girişte access + refresh token üret.
+
+🍪 Refresh token'ı HTTP-only cookie olarak gönder.
+
+🔐 Her istek access token ile yapılır.
+
+❌ Token süresi dolunca 401 alınırsa → /auth/refresh ile yeni token alınır.
+
+🚫 Logout’ta refresh token temizlenir.
 

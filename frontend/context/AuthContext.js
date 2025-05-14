@@ -144,19 +144,12 @@ export function AuthProvider({ children }) {
     }
   };
 
-  /**
-   * Logs the user out.
-   * Signs out from Firebase client-side.
-   * Calls the backend logout endpoint to clear the session cookie.
-   * Clears the local user state.
-   */
   const signOut = async () => {
     setLoading(true);
     try {
       // 1. Sign out from Firebase on the client
       await firebaseSignOut(auth);
       localStorage.removeItem("accessToken"); // <-- Token temizle
-      // 2. Call your backend's logout endpoint to clear the session cookie
       await axios.post("/api/logout");
       // 3. Clear the user state locally
       setUser(null);

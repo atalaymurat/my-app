@@ -11,9 +11,10 @@ module.exports = {
   },
   create: async (req, res) => {
     try {
-      return res.status(201).json({
+      console.log("Creating a new product with data:", req.body);
+      return res.status(200).json({
         message: "Product created successfully.",
-        product: newProduct,
+        product: [],
         success: true,
       });
     } catch (error) {

@@ -1,7 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const baseProductController = require("../controllers/baseProductController");
-const { authenticate } = require("../middleware/auth");
+const User = require("../models/User");
+const authenticate = require("shared-auth").authenticate(User);
 
 // Public routes
 

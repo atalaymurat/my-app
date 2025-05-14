@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Formik, Form } from "formik";
 import FormSaveButton from "@/components/formSaveButton";
 import MessageBlock from "@/components/messageBlock";
-import axios from "@/utils/axios"
+import axios from "@/utils/axios";
 import EmailFields from "@/components/formik/emailFields";
 import DomainFields from "@/components/company/DomainFields";
 
@@ -52,12 +52,7 @@ export default function NewCompany() {
         onSubmit={async (values, { setSubmitting, resetForm }) => {
           setSubmitting(true);
 
-          const processedValues = { ...values };
-
-          const { data } = await axios.post(
-            "/api/company",
-            processedValues
-          );
+          const { data } = await axios.post("/api/company", values);
           if (data.success) {
             setMessage({
               text: data.message || "Başarıyla Kaydedildi",

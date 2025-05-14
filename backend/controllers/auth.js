@@ -1,14 +1,9 @@
-const jwt = require("jsonwebtoken");
-const admin = require("../utils/firebaseAdmin");
 const User = require("../models/User");
-
-const createToken = (user) => {
-  return jwt.sign(
-    { userId: user._id, email: user.email, role: user.role },
-    process.env.JWT_SECRET,
-    { expiresIn: "5d" }
-  );
-};
+const {
+  verifyFirebaseToken,
+  createToken,
+  verifyToken,
+} = require("shared-auth");
 
 module.exports = {
   login: async (req, res) => {
@@ -18,7 +13,7 @@ module.exports = {
         return res.status(400).json({ error: "No ID token provided" });
       }
 
-      const decodedToken = await admin.auth().verifyIdToken(idToken);
+      const decodedToken = await verifyFirebaseToken(idToken);
       if (!decodedToken?.uid) {
         return res.status(401).json({ error: "Invalid Firebase token" });
       }
@@ -31,11 +26,10 @@ module.exports = {
         emailVerified: decodedToken.email_verified || false,
         authProvider: decodedToken.firebase?.sign_in_provider || "password",
       };
-      console.log("User data from Firebase:", userData);
 
       const user = await User.findOrCreate(userData);
       const token = createToken(user);
-      console.log("Response From login:", token)
+      console.log("Response From login:", token);
 
       return res.status(200).json({
         success: true,
@@ -50,7 +44,9 @@ module.exports = {
 
   logout: async (_req, res) => {
     // Bearer token client tarafında silinecek. API tarafında işlem gerekmez.
-    return res.status(200).json({ success: true, message: "Logout successful" });
+    return res
+      .status(200)
+      .json({ success: true, message: "Logout successful" });
   },
 
   user: async (req, res) => {
@@ -61,10 +57,10 @@ module.exports = {
       }
 
       const token = authHeader.split(" ")[1];
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const decoded = verifyToken(token);
 
       const user = await User.findById(decoded.userId).select(
-        "_id email name profilePicture roles isActive createdAt preferences firebaseUid emailVerified"
+        "_id email name profilePicture roles isActive createdAt preferences firebaseUid emailVerified",
       );
 
       if (!user || !user.isActive) {
@@ -77,28 +73,4 @@ module.exports = {
       return res.status(500).json({ error: "Server error" });
     }
   },
-
-  verify: async (req, res) => {
-    try {
-      const authHeader = req.headers.authorization;
-      if (!authHeader || !authHeader.startsWith("Bearer ")) {
-        return res.status(401).json({ success: false });
-      }
-
-      const token = authHeader.split(" ")[1];
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-      const newToken = jwt.sign(
-        { userId: decoded.userId },
-        process.env.JWT_SECRET,
-        { expiresIn: "1d" }
-      );
-
-      return res.status(200).json({ success: true, token: newToken });
-    } catch (error) {
-      console.error("Token verification error:", error);
-      return res.status(401).json({ success: false });
-    }
-  },
 };
-
