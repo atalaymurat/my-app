@@ -3,11 +3,11 @@ import Pagination from "../Pagination";
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import CompanyListSkeleton from "../skeleton/CompanyListSkeleton";
-import axios from "@/utils/axios"
+import axios from "@/utils/axios";
 import PageLinks from "../templates/PageLinks";
 
-const CompanyPage = ({  }) => {
-  const [companies, setCompanies] = useState(null);
+const CompanyPage = ({}) => {
+  const [companies, setCompanies] = useState([]);
   const [totalPages, setTotalPages] = useState(1);
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -28,19 +28,24 @@ const CompanyPage = ({  }) => {
     getCompanies();
   }, [currentPage]);
 
-
   const handlePageChange = (newPage) => {
     router.push(`/shield/company?page=${newPage}`);
   };
 
-  if (!companies) {
-    return <CompanyListSkeleton />;
+  if (companies.length === 0) {
+    return (
+      <PageLinks
+        links={[{ href: "/shield/company/new", label: "Firma Ekle" }]}
+      />
+    );
   }
 
   if (companies.length > 0) {
     return (
       <div>
-        <PageLinks links={[{href:'/shield/company/new', label:'Firma Ekle'}]} />
+        <PageLinks
+          links={[{ href: "/shield/company/new", label: "Firma Ekle" }]}
+        />
         <CompanyTable companies={companies} />
         <div className="text-white">
           <Pagination
