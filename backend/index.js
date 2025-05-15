@@ -1,7 +1,6 @@
 // backend/index.js
 require("dotenv").config();
 const express = require("express");
-const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const connectDB = require("./config/db"); // Import the connectDB function
 const { corsOptions, allowedOrigins } = require("./config/corsOptions");
@@ -37,15 +36,9 @@ app.use(
 
 // Middleware
 app.use(express.json());
-app.use(cookieParser());
-
 
 // Routes
-app.use("/api", require("./routes/auth"));
-app.use("/api/company", require("./routes/company"));
-app.use("/api/scrape", require("./routes/scrape"));
-app.use("/api/contact", require("./routes/contact"));
-app.use("/api/base-product", require("./routes/baseProduct"));
+app.use("/api", require("./routes/index")); // Use the index.js file in routes to handle all routes
 
 // --- Basic Root Route (Optional) ---
 app.get("/", (req, res) => {

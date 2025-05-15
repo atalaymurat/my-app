@@ -20,8 +20,8 @@ const handleCompanyCreateOrUpdate = async (normalizedData, rawData) => {
   return company;
 };
 
-const linkCompany = async (user, company, normalizedData) => {
-  await linkCompanyToUser(user, company, {
+const linkCompany = async (userId, company, normalizedData) => {
+  await linkCompanyToUser(userId, company, {
     title: normalizedData.title,
     emails: normalizedData.emails,
     phones: normalizedData.phones,
@@ -36,8 +36,8 @@ const linkCompany = async (user, company, normalizedData) => {
   });
 };
 
-const updateUserCompanyLink = async (user, company, normalizedData) => {
-  await updateUserCompany(user, company, {
+const updateUserCompanyLink = async (userId, company, normalizedData) => {
+  await updateUserCompany(userId, company, {
     customTitle: normalizedData.title,
     userEmails: normalizedData.emails,
     userPhones: normalizedData.phones,

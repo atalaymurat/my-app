@@ -8,6 +8,7 @@ const UserCompany = require("../models/company/UserCompany")
 
 module.exports = {
   index: async (req, res ) => {
+    console.log("Company Index Req User ", req.user);
     try {
       const page = parseInt(req.query.page) || 1;
       const limit = parseInt(req.query.limit) || 10;
@@ -43,7 +44,7 @@ module.exports = {
           .json({ message: "No valid user or data found." });
       }
 
-      const user = req.user;
+      const userId = req.user._id;
       const rawData = req.body;
       const normalizedData = normalizeCompanyData(rawData);
 
@@ -51,8 +52,8 @@ module.exports = {
         normalizedData,
         rawData
       );
-      await linkCompany(user, company, normalizedData);
-      await updateUserCompanyLink(user, company, normalizedData);
+      await linkCompany(userId, company, normalizedData);
+      await updateUserCompanyLink(userId, company, normalizedData);
 
       return res.status(200).json({
         message: "Company data process success.",

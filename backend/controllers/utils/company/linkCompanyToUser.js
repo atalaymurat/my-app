@@ -1,15 +1,15 @@
 const UserCompany = require("../../../models/company/UserCompany");
 // check if userCompany exists and if not create a new one
 // userCompany check if it exists and if not create a new one
-const linkCompanyToUser = async (user, company, userData) => {
+const linkCompanyToUser = async (userId, company, userData) => {
   const userCompany = await UserCompany.findOne({
-    user: user._id,
+    user: userId,
     company: company._id,
   });
   // Removed Logic function to controller updateUserCompany from here
   if (!userCompany) {
     await UserCompany.create({
-      user: user._id,
+      user: userId,
       company: company._id,
       customTitle: userData.title,
       notes: "",

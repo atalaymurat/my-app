@@ -5,9 +5,9 @@ const {
 } = require("../helperFunctions");
 const UserCompany = require("../../../models/company/UserCompany");
 
-const updateUserCompany = async (user, company, userData) => {
+const updateUserCompany = async (userId, company, userData) => {
   const userCompany = await UserCompany.findOne({
-    user: user._id,
+    user: userId,
     company: company._id,
   });
   if (!userCompany) return;

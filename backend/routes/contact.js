@@ -1,16 +1,15 @@
 const express = require("express");
 const router = express.Router();
 const contactsController = require("../controllers/contactsControl");
-const User = require("../models/User");
-const authenticate = require("shared-auth").authenticate(User);
+const { authenticate } = require("shared-auth")
 
 // 🔓 Public routes
 // (none defined yet, but can be added here in future)
 
 // 🔐 Protected routes (authentication required)
-router.get("/", authenticate, contactsController.index);         // List all contacts
-router.post("/", authenticate, contactsController.create);       // Create or find contact
-router.patch("/:id", authenticate, contactsController.update);   // Update contact
-router.delete("/:id", authenticate, contactsController.destroy); // Delete contact
+router.get("/", authenticate(), contactsController.index);         // List all contacts
+router.post("/", authenticate(), contactsController.create);       // Create or find contact
+router.patch("/:id", authenticate(), contactsController.update);   // Update contact
+router.delete("/:id", authenticate(), contactsController.destroy); // Delete contact
 
 module.exports = router;

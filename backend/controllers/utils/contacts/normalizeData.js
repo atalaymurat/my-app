@@ -18,7 +18,7 @@ function normalizeData(data = {}, user) {
       ? [...new Set(data.emails.map((e) => e.trim().toLowerCase()).filter(Boolean))]
       : [],
     image: data.image?.trim() || "",
-    createdBy: user._id || null,
+    createdBy: user.userId || null,
     company: data.company || null,
   };
 
