@@ -27,9 +27,11 @@ export const checkSession = async ({ setUser, setAuthChecked, setLoading }) => {
 
     setUser(null);
     setAuthChecked(true);
+    localStorage.removeItem("accessToken");
     return null;
   } catch (error) {
     console.error("Session check error:", error.response?.data || error.message);
+    localStorage.removeItem("accessToken");
     setUser(null);
     setAuthChecked(true);
     return null;
