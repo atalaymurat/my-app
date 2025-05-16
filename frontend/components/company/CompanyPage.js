@@ -2,7 +2,6 @@ import CompanyTable from "./CompanyTable";
 import Pagination from "../Pagination";
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import CompanyListSkeleton from "../skeleton/CompanyListSkeleton";
 import axios from "@/utils/axios";
 import PageLinks from "../templates/PageLinks";
 
@@ -34,9 +33,11 @@ const CompanyPage = ({}) => {
 
   if (companies.length === 0) {
     return (
-      <PageLinks
-        links={[{ href: "/shield/company/new", label: "Firma Ekle" }]}
-      />
+      <>
+        <PageLinks
+          links={[{ href: "/shield/company/new", label: "Firma Ekle" }]}
+        />
+      </>
     );
   }
 

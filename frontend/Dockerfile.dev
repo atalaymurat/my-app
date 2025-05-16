@@ -1,0 +1,20 @@
+# Geliştirme ortamı için resmi Node imajı
+FROM node:18
+
+# Çalışma dizinini ayarla
+WORKDIR /usr/src/app
+
+# package.json ve package-lock.json dosyalarını kopyala
+COPY package*.json ./
+
+# Bağımlılıkları yükle
+RUN npm install
+
+# Tüm kaynak dosyaları container'a kopyala
+COPY . .
+
+# Geliştirme portu
+EXPOSE 3000
+
+# Geliştirme sunucusunu başlat
+CMD ["npm", "run", "dev"]

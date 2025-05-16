@@ -1,6 +1,7 @@
 module.exports = {
   index: async (req, res) => {
     try {
+      console.log("Base product controller index method called.");
       return res.status(200).json({
         message: "Base product controller index method.",
         success: true,

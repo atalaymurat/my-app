@@ -8,9 +8,11 @@ export const checkSession = async ({ setUser, setAuthChecked, setLoading }) => {
   if (!token) {
     // Token yoksa kontrol yapmaya gerek yok
     setAuthChecked(true);
+    setLoading(false);
     setUser(null);
     return null;
   }
+
 
   setLoading(true);
   try {

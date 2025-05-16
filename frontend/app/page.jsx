@@ -12,7 +12,7 @@ export default function Home() {
       <div className="bg-gradient-to-r from-zinc-100 via-neutral-100 to-stone-100 text-zinc-900 py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <h1 className="text-4xl md:text-6xl font-bold mb-6">Bussiness Documents Creater</h1>
+            <h1 className="text-4xl md:text-6xl font-bold mb-6">Bussiness Marketing Tracker..</h1>
             <p className="text-xl md:text-2xl mb-8">
               Seamlessly integrate with your companies and contacts
             </p>

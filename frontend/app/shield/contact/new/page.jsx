@@ -5,8 +5,8 @@ import NewForm from "@/components/contact/form";
 export default function NewContact() {
   return (
     <>
-      <div className="overflow-hidden w-full">
-        <div className="text-2xl font-semibold py-4 px-2 text-center">
+      <div className="p-8 flex flex-col gap-4 overflow-hidden w-full">
+        <div className="font-bold text-2xl text-white">
           Kişi Kaydı Oluşturma Formu
         </div>
         <NewForm />

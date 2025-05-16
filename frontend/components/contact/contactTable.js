@@ -1,4 +1,3 @@
-import { format } from "@react-input/mask";
 import TableTemplate from "../templates/TableTemplate";
 
 const ContactTable = ({ contacts }) => {
