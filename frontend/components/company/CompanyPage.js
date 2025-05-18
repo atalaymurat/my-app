@@ -31,7 +31,7 @@ const CompanyPage = ({}) => {
     router.push(`/shield/company?page=${newPage}`);
   };
 
-  if (companies.length === 0) {
+  if (companies?.length === 0) {
     return (
       <>
         <PageLinks

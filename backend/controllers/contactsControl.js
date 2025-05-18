@@ -46,10 +46,8 @@ module.exports = {
       const user = req.user;
       // normalize data
       const normalized = normalizeData(data, user);
-      console.log("Normalized Data", normalized);
       // check find if existing and update otherwise create new contact
       const contact = await handleContactCreateOrUpdate(normalized);
-      console.log("Contact", contact);
 
       // Create userContact record if not exists, otherwise update it if there are changes
       const userContact = await handleUserContactCreateOrUpdateLink(

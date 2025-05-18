@@ -13,8 +13,19 @@ const NewForm = () => {
       <Formik
         enableReinitialize={true}
         initialValues={{
-          title: "",
           description: "",
+          make: "",
+          model: "",
+          year: "",
+          condition: "",
+          priceNet: {
+            currency: "TRY",
+            value: "",
+          },
+          priceList: {
+            currency: "TRY",
+            value: "",
+          },
         }}
         onSubmit={async (values, { setSubmitting, resetForm }) => {
           setSubmitting(true);

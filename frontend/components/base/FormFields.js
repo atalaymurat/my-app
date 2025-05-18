@@ -4,18 +4,63 @@ import FormikControl from "../formik/FormikControl";
 const FormFields = () => {
   return (
     <>
+      <FormikControl control="input" type="text" label="Marka" name="make" />
+      <FormikControl control="input" type="text" label="Model" name="model" />
       <FormikControl
-        control="input"
+        control="numberInput"
         type="text"
-        label="Baslik"
-        name="title"
+        label="Uretim Yili"
+        name="year"
+        maxDigits={4}
       />
       <FormikControl
-        control="input"
+        control="checkboxSingle"
+        label="Durumu"
+        name="condition"
+        options={[
+          { label: "Yeni", value: "new" },
+          { label: "Ikinci El", value: "used" },
+          { label: "Tamir Edilmis", value: "refurbished" },
+        ]}
+      />
+      <FormikControl
+        control="textArea"
         type="text"
         label="Aciklama"
         name="description"
       />
+      <div className="my-4 border border-blue-800 px-2 py-4 rounded-lg h-full w-full">
+        <div className="text-stone-200 text-lg">Net Fiyat</div>
+        <div className="flex flex-row gap-2 h-full items-end">
+          <FormikControl
+            control="checkboxSingle"
+            label="Doviz"
+            name="priceNet.currency"
+            options={[
+              { label: "TL", value: "TRY" },
+              { label: "EUR", value: "EUR" },
+              { label: "USD", value: "USD" },
+            ]}
+          />
+          <FormikControl control="price" label="Fiyat" name="priceNet.value" />
+        </div>
+      </div>
+      <div className="border border-blue-800 px-2 py-4 rounded-lg h-full w-full">
+        <div className="text-stone-200 text-lg">Liste Fiyat</div>
+        <div className="flex flex-row gap-2 h-full items-end">
+          <FormikControl
+            control="checkboxSingle"
+            label="Doviz"
+            name="priceList.currency"
+            options={[
+              { label: "TL", value: "TRY" },
+              { label: "EUR", value: "EUR" },
+              { label: "USD", value: "USD" },
+            ]}
+          />
+          <FormikControl control="price" label="Fiyat" name="priceList.value" />
+        </div>
+      </div>
     </>
   );
 };

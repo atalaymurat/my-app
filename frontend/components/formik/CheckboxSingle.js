@@ -1,10 +1,8 @@
-import React from 'react';
-import { Field, ErrorMessage } from 'formik';
-import TextError from './TextError';
+import React from "react";
+import { Field, ErrorMessage } from "formik";
+import TextError from "./TextError";
 
-function SingleCheckBoxGroup(props) {
-  const { name, label, options, className, ...rest } = props;
-  
+function SingleCheckBoxGroup({ name, label, options, className, ...rest }) {
   return (
     <div className={`flex flex-col space-y-1 my-2 ${className}`}>
       <label className="block">
@@ -14,22 +12,25 @@ function SingleCheckBoxGroup(props) {
         <Field name={name} {...rest}>
           {({ field, form }) => (
             <div className="flex flex-row gap-3 w-full">
-              {options.map((option) => (
-                <div key={option.value} className="flex items-center space-x-1">
-                  <input
-                    type="checkbox"
-                    id={option.value}
-                    checked={field.value === option.value}
-                    onChange={() => {
-                      form.setFieldValue(
-                        name,
-                        field.value === option.value ? '' : option.value
-                      );
-                    }}
-                  />
-                  <label htmlFor={option.value}>{option.label}</label>
-                </div>
-              ))}
+              {options.map((option, idx) => {
+                const inputId = `${name}_${idx}`;
+                return (
+                  <div key={inputId} className="flex items-center space-x-1">
+                    <input
+                      type="checkbox"
+                      id={inputId}
+                      checked={field.value === option.value}
+                      onChange={() =>
+                        form.setFieldValue(
+                          name,
+                          field.value === option.value ? "" : option.value
+                        )
+                      }
+                    />
+                    <label htmlFor={inputId}>{option.label}</label>
+                  </div>
+                );
+              })}
             </div>
           )}
         </Field>

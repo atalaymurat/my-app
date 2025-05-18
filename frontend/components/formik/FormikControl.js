@@ -6,6 +6,8 @@ import TextArea from "./TextArea";
 import MaskInput from "./MaskInput";
 import CheckBoxGroup from "./CheckBoxGroup";
 import SingleCheckBoxGroup from "./CheckboxSingle";
+import NumberInput from "./NumberInput";
+import PriceInput from "./PriceInput";
 
 function FormikControl(props) {
   const { control, inputRef,  ...rest } = props;
@@ -15,6 +17,10 @@ function FormikControl(props) {
       return <Input inputRef={inputRef} {...rest} />;
     case "mask":
       return <MaskInput {...rest} />;
+    case "numberInput":
+      return <NumberInput {...rest} />;
+    case "price":
+      return <PriceInput {...rest} />;
     case "checkbox":
       return <Checkbox {...rest} />;
     case "checkboxGroup":
