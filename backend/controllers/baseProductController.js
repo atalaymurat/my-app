@@ -55,7 +55,7 @@ module.exports = {
   list: async (req, res) => {
     try {
       const make = req.query.make;
-      const query = { user: req.user._id };
+      const query = { user: req.user._id, condition: "new" };
 
       if (make) {
         query.nMake = make;
@@ -84,7 +84,7 @@ module.exports = {
   },
   makeList: async (req, res) => {
     try {
-      const records = await BaseProduct.find({ user: req.user._id });
+      const records = await BaseProduct.find({ user: req.user._id, condition: "new" });
       const list = [...new Set(records.map((record) => record.make))];
       const makes = list.map((make) => ({
         value: make,

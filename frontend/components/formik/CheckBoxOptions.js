@@ -34,7 +34,7 @@ function CheckBoxGroup(props) {
                       <div className="grid grid-cols-3 sm:grid-cols-6 gap-1">
                         <div className="col-span-2 sm:col-span-5 flex flex-col border px-1">
                           <div className="font-semibold ">{option.label}</div>
-                          <div className="text-sm">{option.desc}</div>
+                          <div className="text-sm whitespace-pre-line">{option.desc}</div>
                         </div>
                         <div className="flex flex-row space-x-1 border font-semibold text-sm items-center justify-center">
                           <div>{formPrice(option.listPrice)}</div>

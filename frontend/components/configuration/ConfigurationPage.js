@@ -41,18 +41,20 @@ const ConfigurationPage = () => {
   if (configurations) {
     return (
       <>
-        <div className="text-white">
-          <PageLinks
-            links={[{ href: "/shield/configuration/new", label: "New" }]}
-          />
-          <ConfigurationTable configurations={configurations} />
-        </div>
-        <div className="text-white">
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={handlePageChange}
-          />
+        <div className="max-w-4xl mx-auto text-white">
+          <div>
+            <PageLinks
+              links={[{ href: "/shield/configuration/new", label: "New" }]}
+            />
+            <ConfigurationTable configurations={configurations} />
+          </div>
+          <div className="text-white">
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+            />
+          </div>
         </div>
       </>
     );

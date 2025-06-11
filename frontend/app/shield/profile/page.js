@@ -13,6 +13,7 @@ export default function ProfilePage() {
           { href: "/shield/base", label: "Temel Urunler" },
           { href: "/shield/option", label: "Opsiyonlar" },
           { href: "/shield/configuration", label: "Konfigurasyonlar" },
+          { href: "/shield/offer", label: "Teklifler" },
         ]}
       />
     </div>
