@@ -1,33 +1,21 @@
 "use client";
 import FormikControl from "../formik/FormikControl";
 
-const FormFields = () => {
+const FormFields = ({ baseProducts }) => {
   return (
     <>
-      <FormikControl control="input" type="text" label="Marka" name="make" />
-      <FormikControl control="input" type="text" label="Model" name="model" />
-      <FormikControl
-        control="numberInput"
-        type="text"
-        label="Uretim Yili"
-        name="year"
-        maxDigits={4}
-      />
-      <FormikControl
-        control="checkboxSingle"
-        label="Durumu"
-        name="condition"
-        options={[
-          { label: "Yeni", value: "new" },
-          { label: "Kullanilmis", value: "used" },
-          { label: "Sifirlanmis", value: "refurbished" },
-        ]}
-      />
+      <FormikControl control="input" type="text" label="Baslik" name="title" />
       <FormikControl
         control="textArea"
         type="text"
         label="Aciklama"
         name="description"
+      />
+      <FormikControl
+        control="checkboxGroup"
+        label="Temel Urun"
+        name="baseProducts"
+        options={baseProducts}
       />
       <div className="my-4 border border-blue-800 px-2 py-4 rounded-lg h-full w-full">
         <div className="text-stone-200 text-lg">Net Fiyat</div>

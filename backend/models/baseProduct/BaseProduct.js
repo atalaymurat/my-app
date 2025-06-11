@@ -19,9 +19,8 @@ const baseProductSchema = new Schema(
     nModel: String,
     year: String,
     condition: String,
-    priceNet:  { value: Number, currency: String },
-    priceList:  { value: Number, currency: String },
-    
+    priceNet: { value: Number, currency: String },
+    priceList: { value: Number, currency: String },
   },
   { timestamps: true },
 );

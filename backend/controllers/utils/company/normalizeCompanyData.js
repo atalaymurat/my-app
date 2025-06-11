@@ -1,5 +1,5 @@
-const formatDomain = require("../formatDomain")
-const normalizeAddress = require("../normalizeAddress")
+const formatDomain = require("../formatDomain");
+const normalizeAddress = require("../normalizeAddress");
 
 function normalizeCompanyData(data = {}) {
   function isMaskedEmpty(value) {
@@ -14,7 +14,6 @@ function normalizeCompanyData(data = {}) {
 
   const normalized = {
     title: data.title?.trim()?.toLowerCase() || "",
-    vd: data.vd?.trim()?.toLowerCase() || "",
     vatTitle: data.vatTitle?.trim()?.toLowerCase() || "",
 
     phones: Array.isArray(data.phones)
@@ -37,12 +36,15 @@ function normalizeCompanyData(data = {}) {
       ? data.addresses.map(normalizeAddress)
       : [],
 
-    vatNo: !isMaskedEmpty(data.vatNo) ? data.vatNo.trim() : null,
-    tcNo: !isMaskedEmpty(data.tcNo) ? data.tcNo.trim() : null,
+    vatNo: !isMaskedEmpty(data.vatNo) ? data.vatNo.trim() : undefined,
+    tcNo: !isMaskedEmpty(data.tcNo) ? data.tcNo.trim() : undefined,
+    vd: !isMaskedEmpty(data.vd) ? data.vd.trim().toLowerCase() : undefined,
+
     tags: data.tags || [],
     notes: data.notes || "",
   };
-  console.log("NORMALIZED DATA", normalized)
+
+  console.log("NORMALIZED DATA", normalized);
 
   return normalized;
 }

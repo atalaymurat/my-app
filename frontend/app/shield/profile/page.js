@@ -10,7 +10,9 @@ export default function ProfilePage() {
         links={[
           { href: "/shield/company", label: "Firmalar" },
           { href: "/shield/contact", label: "Kisiler" },
-          { href: "/shield/base", label: "Base" },
+          { href: "/shield/base", label: "Temel Urunler" },
+          { href: "/shield/option", label: "Opsiyonlar" },
+          { href: "/shield/configuration", label: "Konfigurasyonlar" },
         ]}
       />
     </div>

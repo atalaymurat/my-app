@@ -8,6 +8,8 @@ import CheckBoxGroup from "./CheckBoxGroup";
 import SingleCheckBoxGroup from "./CheckboxSingle";
 import NumberInput from "./NumberInput";
 import PriceInput from "./PriceInput";
+import CheckBoxOptions from "./CheckBoxOptions";
+import CheckBoxProducts from "./CheckboxProducts";
 
 function FormikControl(props) {
   const { control, inputRef,  ...rest } = props;
@@ -25,6 +27,10 @@ function FormikControl(props) {
       return <Checkbox {...rest} />;
     case "checkboxGroup":
       return <CheckBoxGroup {...rest} />;
+    case "checkboxProducts":
+      return <CheckBoxProducts {...rest} />;
+    case "checkboxOptions":
+      return <CheckBoxOptions {...rest} />;
     case "checkboxSingle":
       return <SingleCheckBoxGroup {...rest} />;
     case "select":

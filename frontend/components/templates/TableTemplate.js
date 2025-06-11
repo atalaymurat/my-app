@@ -1,14 +1,13 @@
 import React from "react";
 import UserAvatar from "../UserAvatar";
 import PhoneNumber from "../PhoneNumber";
+import { formPrice } from "@/lib/helpers";
 
 const TableTemplate = ({ title, data = [], columns = [], minRows = 10 }) => {
   const paddedData = [...data];
   while (paddedData.length < minRows) {
     paddedData.push(null);
   }
-
-  const columnCount = columns.length;
 
   return (
     <div className="overflow-hidden my-2 text-stone-300 px-2 py-2">
@@ -90,6 +89,19 @@ const TableTemplate = ({ title, data = [], columns = [], minRows = 10 }) => {
                         .join(" ") || "-"}
                     </div>
                   ))}
+                </div>
+              );
+            }
+
+            if (col.type === "price") {
+              return (
+                <div
+                  key={colIdx}
+                  className={`text-xs text-stone-400 overflow-hidden ${
+                    col.className || ""
+                  }`}
+                >
+                  {formPrice(item[col.key].value)} {item[col.key].currency}
                 </div>
               );
             }
