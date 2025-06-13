@@ -49,7 +49,6 @@ export function LineItem({ item, index, options, handleSelect, remove, canRemove
           control="input"
           label="Döviz"
           name={`lineItems.${index}.currencyList`}
-          readOnly
         />
         <FormikControl
           control="price"
@@ -60,7 +59,6 @@ export function LineItem({ item, index, options, handleSelect, remove, canRemove
           control="input"
           label="Döviz"
           name={`lineItems.${index}.currencyNet`}
-          readOnly
         />
       </div>
 

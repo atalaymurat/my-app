@@ -17,7 +17,7 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="tr" className={geist.className}>
-      <body className="bg-black min-h-screen">
+      <body className="bg-black text-white min-h-screen">
         <AuthProvider>
           <Navbar />
           <div>{children}</div>

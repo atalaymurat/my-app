@@ -7,5 +7,6 @@ router.use("/base-product", require("./baseProduct"));
 router.use("/option", require("./options"));
 router.use("/scrape", require("./scrape"));
 router.use("/configuration", require("./configuration"));
+router.use("/offer", require("./offers"));
 
 module.exports = router;

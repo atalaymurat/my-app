@@ -14,10 +14,11 @@ const NewForm = () => {
       <Formik
         enableReinitialize={true}
         initialValues={{
+          docType: "Teklif",
           search: "",
           companyId: "",
           title: "",
-          vatTitle:"",
+          vatTitle: "",
           email: "",
           domain: "",
           line1: "",
@@ -53,6 +54,7 @@ const NewForm = () => {
               });
             }
           } catch (err) {
+            setMessage({ type: "error", text: err.response?.data?.message || "Hata oluştu" });
             console.log("Error during form submission:", err);
           }
         }}

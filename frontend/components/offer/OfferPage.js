@@ -45,6 +45,10 @@ const OfferPage = () => {
           <PageLinks
             links={[{ href: "/shield/offer/new", label: "New" }]}
           />
+          <pre> 
+
+          {JSON.stringify(offers, null, 2)}
+          </pre>
           <OfferTable offers={offers} />
         </div>
         <div className="text-white">
