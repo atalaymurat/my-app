@@ -29,6 +29,7 @@ const FormFields = () => {
         name="vatNo"
         mask="___ ___ __ __"
         replacement={{ _: /\d/ }} // Only numbers allowed
+        className="text-white"
       />
       <FormikControl
         control="mask"
@@ -37,6 +38,7 @@ const FormFields = () => {
         name="tcNo"
         mask="___ ___ ___ __"
         replacement={{ _: /\d/ }} // Only numbers allowed
+        className="text-white"
       />
       <PhoneFields />
     </>

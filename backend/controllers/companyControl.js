@@ -4,10 +4,10 @@ const {
   linkCompany,
   updateUserCompanyLink,
 } = require("./services/companyServices");
-const UserCompany = require("../models/company/UserCompany")
+const UserCompany = require("../models/company/UserCompany");
 
 module.exports = {
-  index: async (req, res ) => {
+  index: async (req, res) => {
     console.log("Company Index Req User ", req.user);
     try {
       const page = parseInt(req.query.page) || 1;
@@ -22,7 +22,6 @@ module.exports = {
         .limit(limit)
         .sort({ createdAt: -1 });
 
-
       res.json({
         succuess: true,
         message: "User companies fetched successfully.",
@@ -34,8 +33,39 @@ module.exports = {
       res.status(500).json({ error: error.message });
     }
   },
+  search: async (req, res) => {
+    const search = req.query.search;
 
-  create: async (req, res ) => {
+    if (!search) return res.status(400).json({ success: false });
+
+    const normalized = search.trim()?.toLowerCase();
+    const companies = await UserCompany.find({
+      customTitle: { $regex: normalized, $options: "i" },
+    }).limit(5);
+    console.log("Company Find", companies);
+
+    if (!companies.length) {
+      return res.json({ success: false, message: "Company not found" });
+    }
+
+    res.json({
+      success: true,
+      companies: companies.map((company) => ({
+        id: company._id,
+        title: company.customTitle,
+        vatTitle: company.userVatTitle,
+        domain: company.userDomains?.[0]|| "",
+        email: company.userEmails?.[0] || "",
+        line1: company.addresses?.[0]?.line1 || "",
+        line2: company.addresses?.[0]?.line2 || "",
+        city: company.addresses?.[0]?.city || "",
+        country: company.addresses?.[0]?.country || "",
+        district: company.addresses?.[0]?.district || "",
+      })),
+    });
+  },
+
+  create: async (req, res) => {
     try {
       if (!req.user || !req.body) {
         return res
@@ -49,7 +79,7 @@ module.exports = {
 
       const company = await handleCompanyCreateOrUpdate(
         normalizedData,
-        rawData
+        rawData,
       );
       await linkCompany(userId, company, normalizedData);
       await updateUserCompanyLink(userId, company, normalizedData);

@@ -3,6 +3,10 @@ import { FastField, ErrorMessage } from "formik";
 import TextError from "./TextError";
 
 function formatPrice(value) {
+  if (typeof value !== "string") {
+    // Eğer value string değilse, stringe çevir (örneğin number olabilir)
+    value = value?.toString() || "";
+  }
   // Remove all non-digit and comma
   const cleaned = value.replace(/[^\d,]/g, "");
 
@@ -22,11 +26,11 @@ function PriceInput({ label, name, inputRef, ...rest }) {
   return (
     <FastField name={name}>
       {({ field, meta, form }) => (
-        <div className="flex flex-col py-1 h-full">
+        <div className="flex flex-col py-1">
           {label && (
             <label
               htmlFor={name}
-              className="block text-sm font-semibold text-gray-500 mb-1"
+              className="block text-sm font-semibold text-gray-500"
             >
               {label}
             </label>
@@ -45,7 +49,7 @@ function PriceInput({ label, name, inputRef, ...rest }) {
 
               form.setFieldValue(name, raw);
             }}
-            className={`px-1 py-[18px] mb-1 h-full border text-gray-500 border-gray-300 rounded transition duration-300 focus:border-transparent focus:outline-none focus:ring-4 focus:ring-blue-200 ${
+            className={`px-1 py-[5px] border text-gray-500 border-gray-300 rounded transition duration-300 focus:border-transparent focus:outline-none focus:ring-4 focus:ring-blue-200 ${
               meta.touched && meta.error ? "border-red-600 border-2" : ""
             }`}
           />

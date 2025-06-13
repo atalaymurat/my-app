@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Formik, Form } from "formik";
 import FormFields from "./FormFields";
 import FormSaveButton from "@/components/formSaveButton";
@@ -14,7 +14,32 @@ const NewForm = () => {
       <Formik
         enableReinitialize={true}
         initialValues={{
+          search: "",
+          companyId: "",
           title: "",
+          vatTitle:"",
+          email: "",
+          domain: "",
+          line1: "",
+          line2: "",
+          district: "",
+          city: "",
+          country: "",
+          lineItems: [
+            {
+              title: "",
+              priceList: "",
+              priceNet: "",
+              currencyList: "",
+              currencyNet: "",
+              type: "",
+              productValue: "",
+              raw: "",
+              desc: "",
+              options: [],
+              notes: "",
+            },
+          ],
         }}
         onSubmit={async (values, { setSubmitting, resetForm }) => {
           setSubmitting(true);
@@ -34,7 +59,7 @@ const NewForm = () => {
       >
         {({ isSubmitting, values }) => (
           <Form autoComplete="off">
-            <FormFields  />
+            <FormFields />
             <MessageBlock message={message} />
             <FormSaveButton isSubmitting={isSubmitting} />
             <pre className="text-white">{JSON.stringify(values, null, 2)}</pre>

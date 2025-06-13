@@ -1,5 +1,6 @@
 const formatDomain = require("../formatDomain");
 const normalizeAddress = require("../normalizeAddress");
+const { transliterate } = require("transliteration");
 
 function normalizeCompanyData(data = {}) {
   function isMaskedEmpty(value) {

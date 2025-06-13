@@ -5,22 +5,27 @@ const BaseProduct = require("../models/baseProduct/BaseProduct");
 module.exports = {
   index: async (req, res) => {
     try {
-      const page = parseInt(req.query.page) || 1;
-      const limit = parseInt(req.query.limit) || 10;
-      const skip = (page - 1) * limit;
+      const rawLimit = req.query.limit;
+      const limit =
+        rawLimit && (rawLimit === "all" || Number(rawLimit) === 0)
+          ? 0 // ← no limit, return every record
+          : parseInt(rawLimit, 10) || 10; // default: 10 per page
+
+      const page = parseInt(req.query.page, 10) || 1;
+      const skip = limit === 0 ? 0 : (page - 1) * limit;
+
       const filter = { user: req.user._id };
 
       const totalRecords = await BaseProduct.countDocuments(filter);
-      const records = await BaseProduct.find(filter)
-        .skip(skip)
-        .limit(limit)
-        .sort({ createdAt: -1 });
+      let query = BaseProduct.find(filter).sort({ createdAt: -1 });
+      if (limit !== 0) query = query.skip(skip).limit(limit); // pagination only if needed
+      const records = await query.exec();
 
       return res.status(200).json({
-        message: "Base product controller index method.",
+        message: "Base products List.",
         success: true,
-        totalPages: Math.ceil(totalRecords / limit),
-        currentPage: page,
+        totalPages: limit === 0 ? 1 : Math.ceil(totalRecords / limit),
+        currentPage: limit === 0 ? 1 : page,
         products: records,
       });
     } catch (error) {
@@ -84,7 +89,10 @@ module.exports = {
   },
   makeList: async (req, res) => {
     try {
-      const records = await BaseProduct.find({ user: req.user._id, condition: "new" });
+      const records = await BaseProduct.find({
+        user: req.user._id,
+        condition: "new",
+      });
       const list = [...new Set(records.map((record) => record.make))];
       const makes = list.map((make) => ({
         value: make,

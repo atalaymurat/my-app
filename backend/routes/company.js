@@ -8,5 +8,6 @@ const authenticate = require("../middleware/authenticate");
 // Protected routes
 router.get("/", authenticate, companyController.index);
 router.post("/", authenticate, companyController.create);
+router.get("/find", authenticate, companyController.search);
 
 module.exports = router;
