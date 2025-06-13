@@ -1,7 +1,7 @@
 export const localeDate = (date) => {
-  return new Date(date).toLocaleDateString("de-DE", {
+  return new Date(date).toLocaleDateString("tr-TR", {
     year: "numeric",
-    month: "long",
+    month: "short",
     day: "2-digit",
   })
 }

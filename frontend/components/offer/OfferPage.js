@@ -32,23 +32,13 @@ const OfferPage = () => {
     router.push(`/shield/offer?page=${newPage}`);
   };
   if (!offers) {
-    return (
-      <PageLinks
-        links={[{ href: "/shield/offer/new", label: "New" }]}
-      />
-    );
+    return <PageLinks links={[{ href: "/shield/offer/new", label: "New" }]} />;
   }
   if (offers) {
     return (
       <>
         <div className="text-white">
-          <PageLinks
-            links={[{ href: "/shield/offer/new", label: "New" }]}
-          />
-          <pre> 
-
-          {JSON.stringify(offers, null, 2)}
-          </pre>
+          <PageLinks links={[{ href: "/shield/offer/new", label: "New" }]} />
           <OfferTable offers={offers} />
         </div>
         <div className="text-white">
@@ -58,6 +48,7 @@ const OfferPage = () => {
             onPageChange={handlePageChange}
           />
         </div>
+        <pre>{JSON.stringify(offers, null, 2)}</pre>
       </>
     );
   }
