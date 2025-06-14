@@ -12,9 +12,9 @@ const OfferTable = ({ offers }) => {
                 className="grid grid-flow-col grid-rows-3 gap-1 mb-4"
                 key={index}
               >
-                <div className="col-span-3 flex flex-row border px-2 py-1 font-semibold w-full">
-                  <div className="text-purple-500">{off.docCode}</div>
-                  <div className="text-stone-400 ml-auto text-sm">
+                <div className="col-span-3 flex flex-row border px-2 py-1 font-semibold w-full bg-stone-500 text-black">
+                  <div className="text-black">{off.docCode}</div>
+                  <div className="text-gray-800 ml-auto text-sm">
                     {localeDate(lastVersion.docDate)}
                   </div>
                 </div>
