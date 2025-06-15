@@ -2,8 +2,6 @@ const normalizeCompanyData = require("../utils/company/normalizeCompanyData");
 const findExistingCompany = require("../utils/company/findExistingCompany");
 const createNewCompany = require("../utils/company/createNewCompany");
 const updateCompany = require("../utils/company/updateCompany");
-const linkCompanyToUser = require("../utils/company/linkCompanyToUser");
-const updateUserCompany = require("../utils/company/updateUserCompany");
 
 const handleCompanyCreateOrUpdate = async (normalizedData, rawData) => {
   let company = await findExistingCompany(
@@ -20,41 +18,8 @@ const handleCompanyCreateOrUpdate = async (normalizedData, rawData) => {
   return company;
 };
 
-const linkCompany = async (userId, company, normalizedData) => {
-  await linkCompanyToUser(userId, company, {
-    title: normalizedData.title,
-    emails: normalizedData.emails,
-    phones: normalizedData.phones,
-    addresses: normalizedData.addresses,
-    tags: normalizedData.tags,
-    notes: normalizedData.notes,
-    vatTitle: normalizedData.vatTitle,
-    vd: normalizedData.vd,
-    tcNo: normalizedData.tcNo,
-    vatNo: normalizedData.vatNo,
-    domains: normalizedData.domains,
-  });
-};
-
-const updateUserCompanyLink = async (userId, company, normalizedData) => {
-  await updateUserCompany(userId, company, {
-    customTitle: normalizedData.title,
-    userEmails: normalizedData.emails,
-    userPhones: normalizedData.phones,
-    addresses: normalizedData.addresses,
-    tags: normalizedData.tags,
-    notes: normalizedData.notes,
-    userVatTitle: normalizedData.vatTitle,
-    userVd: normalizedData.vd,
-    userTcNo: normalizedData.tcNo,
-    userVatNo: normalizedData.vatNo,
-    userDomains: normalizedData.domains,
-  });
-};
 
 module.exports = {
   normalizeCompanyData,
   handleCompanyCreateOrUpdate,
-  linkCompany,
-  updateUserCompanyLink,
 };

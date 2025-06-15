@@ -1,4 +1,4 @@
-const { Company } = require("../../../models/company/Company");
+const  Company  = require("../../../models/company/Company");
 
 const createNewCompany = async (normalizedData, rawData) => {
   console.log("Step 1 Creating New Company:", normalizedData.title);
@@ -15,7 +15,8 @@ const createNewCompany = async (normalizedData, rawData) => {
     ogImage: rawData.ogImage || "",
     favicon: rawData.favicon || "",
     description: rawData.description || "",
-    tags: rawData.tags || []
+    tags: rawData.tags || [],
+    user: normalizedData.user, // Ensure userId is passed correctly
   });
 };
 

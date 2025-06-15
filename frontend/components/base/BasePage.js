@@ -33,12 +33,14 @@ const BasePage = () => {
   };
   if (baseProducts?.length === 0) {
     return (
-      <PageLinks links={[{ href: "/shield/base/new", label: "New Base" }]} />
+      <div className="text-white max-w-4xl mx-auto">
+        <PageLinks links={[{ href: "/shield/base/new", label: "New Base" }]} />
+      </div>
     );
   }
   return (
     <>
-      <div className="text-white">
+      <div className="text-white max-w-4xl mx-auto">
         <PageLinks links={[{ href: "/shield/base/new", label: "New Base" }]} />
         <BaseTable baseProducts={baseProducts} />
       </div>

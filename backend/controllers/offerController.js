@@ -7,7 +7,8 @@ const {
 } = require("./services/companyServices");
 
 const normalizeOfferData = require("./utils/offer/normalizeOfferData");
-const Offer = require ("../models/offer/Offer");
+const Offer = require("../models/offer/Offer");
+const createNewCompany = require("./utils/company/createNewCompany");
 
 module.exports = {
   create: async (req, res) => {
@@ -27,14 +28,11 @@ module.exports = {
 
       // Eğer companyId yoksa, şirketi oluştur
       if (needsCompanyCreation && companyData) {
-        const normalized = normalizeCompanyData(companyData);
-        const company = await handleCompanyCreateOrUpdate(
+        const normalized = normalizeCompanyData(companyData, userId);
+        const company = await createNewCompany(
           normalized,
           companyData,
         );
-        console.log("Şirket oluşturuldu veya güncellendi:", company);
-        await linkCompany(userId, company, normalized);
-        await updateUserCompanyLink(userId, company, normalized);
         offerData.company = company._id;
       }
 
@@ -42,7 +40,7 @@ module.exports = {
       offerData.user = userId;
 
       // Teklif kaydını oluştur
-      const record = await createOffer({ ...offerData, ...versionData});
+      const record = await createOffer({ ...offerData, ...versionData });
       return res.status(201).json({
         message: "Teklif oluşturuldu.",
         record,
@@ -59,7 +57,6 @@ module.exports = {
   },
 
   index: async (req, res) => {
-
     const records = await Offer.find({})
       .populate("company")
       .sort({ createdAt: -1 })

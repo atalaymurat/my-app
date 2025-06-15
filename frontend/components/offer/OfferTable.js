@@ -20,7 +20,7 @@ const OfferTable = ({ offers }) => {
                 </div>
                 <div className="col-span-3 row-span-4 border px-2 py-1">
                   <div className="text-lg font-semibold capitalize">
-                    {off.company?.customTitle} / {off.company?.addresses[0].city}
+                    {off.company?.title} / {off.company?.addresses[0].city}
                   </div>
                   <div className="text-sm text-stone-400">
                     {off.versions[off.versions.length - 1].lineItems?.map(

@@ -43,7 +43,7 @@ const CompanyPage = ({}) => {
 
   if (companies.length > 0) {
     return (
-      <div>
+      <div className="max-w-4xl mx-auto text-white">
         <PageLinks
           links={[{ href: "/shield/company/new", label: "Firma Ekle" }]}
         />

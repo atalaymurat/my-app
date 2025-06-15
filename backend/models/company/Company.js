@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 const addressSchema = require("./AddressSchema");
-const formatDomain  = require("../../controllers/utils/formatDomain"); // Assuming you have a helper function for formatting domains
+const formatDomain = require("../../controllers/utils/formatDomain"); // Assuming you have a helper function for formatting domains
 
 const Schema = mongoose.Schema;
 
@@ -25,17 +25,16 @@ const companySchema = new Schema(
     vatNo: { type: String, unique: true, sparse: true },
     tcNo: { type: String, unique: true, sparse: true },
     addresses: [addressSchema],
+    tags: [String],
 
     // Company specific fields
     ogImage: String,
     favicon: String,
     description: String,
+    user: { type: Schema.Types.ObjectId, ref: "User", required: true },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
-
 const Company = mongoose.model("Company", companySchema);
-module.exports = {
-  Company,
-};
+module.exports = Company;

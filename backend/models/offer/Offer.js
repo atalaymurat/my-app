@@ -61,7 +61,7 @@ const offerSchema = new Schema(
       required: true,
     }, // BURADA
 
-    company: { type: Schema.Types.ObjectId, ref: "UserCompany", required: true },
+    company: { type: Schema.Types.ObjectId, ref: "Company", required: true },
     user: { type: Schema.Types.ObjectId, ref: "User", required: true },
 
     versions: {

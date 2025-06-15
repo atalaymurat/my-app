@@ -1,5 +1,5 @@
 const { mergeArrays, mergeObjectArrays, getFieldUpdates } = require("../helperFunctions");
-const { Company } = require("../../../models/company/Company");
+const  Company  = require("../../../models/company/Company");
 
 const updateCompany = async (company, normalizedData, rawData) => {
   const updates = {};

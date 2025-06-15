@@ -18,7 +18,6 @@ const authenticate = async (req, res, next) => {
 
     if (response.status === 200 && response.data?.success) {
       req.user = response.data.user
-      console.log("User verified:", req.user);
       return next();
     }
 

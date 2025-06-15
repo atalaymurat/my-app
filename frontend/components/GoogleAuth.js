@@ -42,7 +42,7 @@ const GoogleAuth = ({ setAuthError }) => {
   return (
     <div>
       <button
-        className="w-full text-center py-2 my-3 border border-gray-500 flex items-center justify-center rounded-lg hover:border-slate-400 hover:text-gray-900 hover:shadow transition duration-150 hover:cursor-pointer"
+        className="w-full text-center text-black py-2 my-3 border border-gray-500 flex items-center justify-center rounded-lg hover:border-slate-400 hover:text-gray-900 hover:shadow transition duration-150 hover:cursor-pointer"
         onClick={handleGoogleLogin}
         disabled={isSubmitting}
       >
