@@ -18,6 +18,8 @@ const NewForm = () => {
           model: "",
           year: "",
           condition: "",
+          isConfigurable: false,
+          asItIs: true,
           priceNet: {
             currency: "TRY",
             value: "",
@@ -29,9 +31,9 @@ const NewForm = () => {
         }}
         onSubmit={async (values, { setSubmitting, resetForm }) => {
           setSubmitting(true);
-          console.log("Form submitted with values:", JSON.stringify(values));
+          console.log("Form submitted with values:", JSON.stringify(values, null , 2));
           try {
-            const { data } = await axios.post("/api/base-product", values);
+            const { data } = await axios.post("/api/master", values);
             if (data.success) {
               setMessage({
                 text: data.message || "Başarıyla Kaydedildi",

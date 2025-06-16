@@ -4,7 +4,7 @@ function normalizeData(data, userId) {
   const normalized = {
     title: data.title?.trim() || "",
     nTitle: transliterate(data.title.trim()?.toLowerCase()),
-    baseProducts: data.baseProducts.filter(item => item !== ""),
+    masterProducts: data.masterProducts.filter(item => item !== ""),
     image: data.image?.trim() || "",
     description: data.description
       ? transliterate(data.description.toLowerCase().trim())

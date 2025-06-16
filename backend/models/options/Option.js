@@ -7,10 +7,10 @@ const optionsSchema = new Schema(
     title: String,
     nTitle: String,
     image: String,
-    baseProducts: [
+    masterProducts: [
       {
         type: Schema.Types.ObjectId,
-        ref: "BaseProduct",
+        ref: "MasterProduct",
       },
     ],
 

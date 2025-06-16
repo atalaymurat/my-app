@@ -4,10 +4,10 @@ import Pagination from "../Pagination";
 import { useRouter, useSearchParams } from "next/navigation";
 import axios from "@/utils/axios";
 import PageLinks from "../templates/PageLinks";
-import ConfigurationTable from "./ConfigurationTable";
+import ConfigurationTable from "./VariantTable";
 
-const ConfigurationPage = () => {
-  const [configurations, setConfigurations] = useState(null);
+const VariantPage = () => {
+  const [variants, setVariants] = useState(null);
   const [totalPages, setTotalPages] = useState(1);
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -17,36 +17,36 @@ const ConfigurationPage = () => {
     const getData = async () => {
       try {
         const { data } = await axios.get(
-          `/api/configuration?page=${currentPage}&limit=10`
+          `/api/variant?page=${currentPage}&limit=10`
         );
-        setConfigurations(data.records);
+        setVariants(data.records);
         setTotalPages(data.totalPages);
       } catch (error) {
-        console.error("Error fetching configurations:", error);
+        console.error("Error fetching variants:", error);
       }
     };
     getData();
   }, [currentPage]);
 
   const handlePageChange = (newPage) => {
-    router.push(`/shield/configuration?page=${newPage}`);
+    router.push(`/shield/variant?page=${newPage}`);
   };
-  if (!configurations) {
+  if (!variants) {
     return (
       <PageLinks
-        links={[{ href: "/shield/configuration/new", label: "New" }]}
+        links={[{ href: "/shield/variant/new", label: "New" }]}
       />
     );
   }
-  if (configurations) {
+  if (variants) {
     return (
       <>
         <div className="max-w-4xl mx-auto text-white">
           <div>
             <PageLinks
-              links={[{ href: "/shield/configuration/new", label: "New" }]}
+              links={[{ href: "/shield/variant/new", label: "New" }]}
             />
-            <ConfigurationTable configurations={configurations} />
+            <ConfigurationTable variants={variants} />
           </div>
           <div className="text-white">
             <Pagination
@@ -61,4 +61,4 @@ const ConfigurationPage = () => {
   }
 };
 
-export default ConfigurationPage;
+export default VariantPage;

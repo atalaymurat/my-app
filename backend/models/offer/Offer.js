@@ -11,11 +11,16 @@ const lineItemSchema = new Schema(
     priceList: Number,
     currencyList: String,
     currencyNet: String,
-    type: { type: String, enum: ["base", "configuration"] },
+    productVariant: String, 
     desc: String,
-    options: [String], // opsiyonların başlıkları
+    options: [{}], // opsiyonların başlıkları
     priceNet: Number,
     notes: String,
+    make: String, // üretici
+    model: String, // model
+    year: String, // üretim yılı
+    condition: String, // ürün durumu
+    createdFromMaster: Boolean, // master'dan mı oluşturuldu
   },
   { _id: false },
 ); // _id olmadan gömülü doküman olarak tutulacak

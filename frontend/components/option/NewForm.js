@@ -8,31 +8,31 @@ import axios from "@/utils/axios";
 
 const NewForm = () => {
   const [message, setMessage] = useState(null);
-  const [baseProducts, setBaseProducts] = useState(null);
+  const [masterProducts, setMasterProducts] = useState(null);
 
   useEffect(() => {
-    const fetchBaseProducts = async () => {
+    const fetchMasterProducts = async () => {
       try {
-        const { data } = await axios.get("/api/base-product/list");
+        const { data } = await axios.get("/api/master/list");
         if (data.success) {
-          setBaseProducts(data.list);
+          setMasterProducts(data.list);
           console.log("Base products fetched successfully:", data.list);
         }
       } catch (error) {
         console.error("Error fetching base products:", error);
       }
     };
-    fetchBaseProducts();
+    fetchMasterProducts();
   }, []);
 
-  if (baseProducts !== null) {
+  if (masterProducts !== null) {
     return (
       <div>
         <Formik
           enableReinitialize={true}
           initialValues={{
             title: "",
-            baseProducts: [],
+            masterProducts: [],
             description: "",
             priceNet: {
               currency: "TRY",
@@ -61,7 +61,7 @@ const NewForm = () => {
         >
           {({ isSubmitting }) => (
             <Form autoComplete="off">
-              <FormFields baseProducts={baseProducts} />
+              <FormFields masterProducts={masterProducts} />
               <MessageBlock message={message} />
               <FormSaveButton isSubmitting={isSubmitting} />
             </Form>

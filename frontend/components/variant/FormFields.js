@@ -8,13 +8,13 @@ import { formPrice } from "@/lib/helpers";
 const FormFields = ({ makeList }) => {
   const { values, setFieldValue } = useFormikContext();
   const [optionList, setOptionList] = useState([]);
-  const [baseProducts, setBaseProducts] = useState(null);
+  const [masterProducts, setMasterProducts] = useState(null);
 
   useEffect(() => {
-    const fetchOptionList = async (baseProductId) => {
-      if (!baseProductId || baseProductId === "") return;
+    const fetchOptionList = async (masterProductId) => {
+      if (!masterProductId || masterProductId === "") return;
       try {
-        const { data } = await axios.get(`/api/option/list/${baseProductId}`);
+        const { data } = await axios.get(`/api/option/list/${masterProductId}`);
         if (data.success) {
           setFieldValue("options", []); // Reset options when base product changes
           setOptionList(data.list);
@@ -23,26 +23,26 @@ const FormFields = ({ makeList }) => {
         console.error("Error fetching options:", error);
       }
     };
-    fetchOptionList(values.baseProduct);
-  }, [values.baseProduct]);
+    fetchOptionList(values.masterProduct);
+  }, [values.masterProduct]);
 
   useEffect(() => {
     if (!values.make) return;
-    const fetchBaseProducts = async (make) => {
+    const fetchMasterProducts = async (make) => {
       try {
-        const { data } = await axios.get(`/api/base-product/list?make=${make}`);
+        const { data } = await axios.get(`/api/master/list?make=${make}`);
         if (data.success) {
           // Only reset fields if previously set
-          setFieldValue("baseProduct", "");
+          setFieldValue("masterProduct", "");
           setFieldValue("options", []);
           setOptionList([]);
-          setBaseProducts(data.list);
+          setMasterProducts(data.list);
         }
       } catch (error) {
-        console.error("Error fetching base products by make :", error);
+        console.error("Error fetching master products by make :", error);
       }
     };
-    fetchBaseProducts(values.make);
+    fetchMasterProducts(values.make);
   }, [values.make]);
 
   // Total List Price Calculation
@@ -50,13 +50,13 @@ const FormFields = ({ makeList }) => {
     let total = 0;
     let currency = ""; // fallback
 
-    const selectedBaseProduct = baseProducts?.find(
-      (item) => item.value === values.baseProduct
+    const selectedMasterProduct = masterProducts?.find(
+      (item) => item.value === values.masterProduct
     );
 
-    if (selectedBaseProduct) {
-      total += selectedBaseProduct.listPrice || 0;
-      currency = selectedBaseProduct.currency || currency;
+    if (selectedMasterProduct) {
+      total += selectedMasterProduct.listPrice || 0;
+      currency = selectedMasterProduct.currency || currency;
     }
 
     const selectedOptions = optionList.filter((option) =>
@@ -68,7 +68,7 @@ const FormFields = ({ makeList }) => {
     });
 
     return { value: total, currency };
-  }, [values.baseProduct, values.options, baseProducts, optionList]);
+  }, [values.masterProduct, values.options, masterProducts, optionList]);
 
   useEffect(() => {
     setFieldValue("priceList", totalListPrice);
@@ -86,8 +86,8 @@ const FormFields = ({ makeList }) => {
       <FormikControl
         control="checkboxProducts"
         label="Temel Urun"
-        name="baseProduct"
-        options={baseProducts || []}
+        name="masterProduct"
+        options={masterProducts || []}
       />
       {optionList.length > 0 && (
         <FormikControl

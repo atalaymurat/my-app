@@ -1,5 +1,5 @@
-const Configuration = require("../models/configuration/Configuration");
-const normalizeData = require("./utils/configuration/normalizeData");
+const ProductVariant = require("../models/productVariant/ProductVariant");
+const normalizeData = require("./utils/productVariant/normalizeData");
 
 module.exports = {
   index: async (req, res) => {
@@ -15,9 +15,9 @@ module.exports = {
 
       const filter = { user: req.user._id };
 
-      const totalRecords = await Configuration.countDocuments(filter);
+      const totalRecords = await ProductVariant.countDocuments(filter);
 
-      let query = Configuration.find(filter)
+      let query = ProductVariant.find(filter)
         .populate([{ path: "masterProduct" }, { path: "options" }])
         .sort({ createdAt: -1 });
 
@@ -53,15 +53,15 @@ module.exports = {
       // Normalize the data
       const normalizedData = normalizeData(data, userId);
 
-      const newConfiguration = new Configuration({
+      const record = new ProductVariant({
         ...normalizedData,
       });
 
-      await newConfiguration.save();
+      await record.save();
 
       return res.status(200).json({
         message: "Configuration created successfully.",
-        configuration: newConfiguration,
+        record,
         success: true,
       });
     } catch (error) {

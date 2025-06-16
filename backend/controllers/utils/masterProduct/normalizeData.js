@@ -30,6 +30,8 @@ function normalizeData(data, userId) {
       currency: data.priceList?.currency,
     },
     user: userId,
+    productVariant: data.productVariant, // asItIs, configurable, both
+    variantType: data.variantType
   };
 
   return normalized;

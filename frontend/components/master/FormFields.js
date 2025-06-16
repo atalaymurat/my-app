@@ -61,6 +61,16 @@ const FormFields = () => {
           <FormikControl control="price" label="Fiyat" name="priceList.value" />
         </div>
       </div>
+      <FormikControl
+        control="checkboxSingle"
+        label="Varyant Durumu"
+        name="productVariant"
+        options={[
+          { label: "Olgugu Gibi Satilabilir", value: "asItIs" },
+          { label: "Konfigurasyon Gerekli", value: "configurable" },
+          { label: "Hepsi", value: "both" },
+        ]}
+      />
     </>
   );
 };

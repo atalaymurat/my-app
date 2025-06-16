@@ -54,11 +54,11 @@ module.exports = {
   },
   list: async (req, res) => {
     try {
-      const baseProductId = req.params.id;
-      console.log("Base Product ID:", baseProductId);
+      const masterProductId = req.params.id;
+      console.log("Base Product ID:", masterProductId);
       const records = await Option.find({
         user: req.user._id,
-        baseProducts: { $in: [baseProductId] },
+        masterProducts: { $in: [masterProductId] },
       });
       const list = records.map((record) => ({
         value: record._id,

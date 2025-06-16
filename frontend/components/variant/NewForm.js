@@ -13,7 +13,7 @@ const NewForm = () => {
   useEffect(() => {
     const fetchMakeList = async () => {
       try {
-        const { data } = await axios.get(`/api/base-product/make`);
+        const { data } = await axios.get(`/api/master/make`);
         if (data.success) {
           setMakeList(data.makes);
         }
@@ -31,7 +31,7 @@ const NewForm = () => {
           enableReinitialize={true}
           initialValues={{
             title: "",
-            baseProduct:"",
+            masterProduct:"",
             make: makeList[0]?.value || "",
             options: [],
           }}

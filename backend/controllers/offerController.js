@@ -40,6 +40,8 @@ module.exports = {
       offerData.user = userId;
 
       // Teklif kaydını oluştur
+      console.log("Yeni Teklif Offer Data:", offerData);
+      console.log("Yeni Teklif  Versyon Data:", versionData);
       const record = await createOffer({ ...offerData, ...versionData });
       return res.status(201).json({
         message: "Teklif oluşturuldu.",

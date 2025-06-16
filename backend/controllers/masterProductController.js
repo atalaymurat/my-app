@@ -1,6 +1,7 @@
-const normalizeData = require("./utils/baseProduct/normalizeData");
-const createBaseProduct = require("./utils/baseProduct/createBaseProduct");
-const BaseProduct = require("../models/baseProduct/BaseProduct");
+const normalizeData = require("./utils/masterProduct/normalizeData");
+const createMasterProduct = require("./utils/masterProduct/createMasterProduct");
+const MasterProduct = require("../models/masterProduct/MasterProduct");
+const createProductVariant = require("./utils/productVariant/createProductVariant");
 
 module.exports = {
   index: async (req, res) => {
@@ -16,8 +17,8 @@ module.exports = {
 
       const filter = { user: req.user._id };
 
-      const totalRecords = await BaseProduct.countDocuments(filter);
-      let query = BaseProduct.find(filter).sort({ createdAt: -1 });
+      const totalRecords = await MasterProduct.countDocuments(filter);
+      let query = MasterProduct.find(filter).sort({ createdAt: -1 });
       if (limit !== 0) query = query.skip(skip).limit(limit); // pagination only if needed
       const records = await query.exec();
 
@@ -46,11 +47,24 @@ module.exports = {
 
       const normalized = normalizeData(data, userId);
 
-      const newBaseProduct = createBaseProduct(normalized);
+      const newMasterProduct = await createMasterProduct(normalized);
+
+      let newProductVariant = null;
+      // asItIs true ise varyant oluştur
+      if (normalized.productVariant === "asItIs") {
+        const variantData = {
+          ...normalized,
+          masterProduct: newMasterProduct._id,
+          createdFromMaster: true,
+        };
+
+        newProductVariant = await createProductVariant(variantData, userId);
+      }
 
       return res.status(200).json({
         message: "Product created successfully.",
-        product: newBaseProduct,
+        product: newMasterProduct,
+        variant: newProductVariant,
         success: true,
       });
     } catch (error) {
@@ -66,7 +80,7 @@ module.exports = {
         query.nMake = make;
       }
 
-      const records = await BaseProduct.find(query);
+      const records = await MasterProduct.find(query);
 
       const list = records.map((record) => ({
         value: record._id,
@@ -89,7 +103,7 @@ module.exports = {
   },
   makeList: async (req, res) => {
     try {
-      const records = await BaseProduct.find({
+      const records = await MasterProduct.find({
         user: req.user._id,
         condition: "new",
       });
@@ -100,7 +114,7 @@ module.exports = {
       }));
 
       res.status(200).json({
-        message: "Base product makes retrieved successfully.",
+        message: "Master product makes retrieved successfully.",
         success: true,
         makes,
       });

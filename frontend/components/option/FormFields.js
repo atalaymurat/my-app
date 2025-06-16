@@ -1,7 +1,7 @@
 "use client";
 import FormikControl from "../formik/FormikControl";
 
-const FormFields = ({ baseProducts }) => {
+const FormFields = ({ masterProducts }) => {
   return (
     <>
       <FormikControl control="input" type="text" label="Baslik" name="title" />
@@ -14,8 +14,8 @@ const FormFields = ({ baseProducts }) => {
       <FormikControl
         control="checkboxGroup"
         label="Temel Urun"
-        name="baseProducts"
-        options={baseProducts}
+        name="masterProducts"
+        options={masterProducts}
       />
       <div className="my-4 border border-blue-800 px-2 py-4 rounded-lg h-full w-full">
         <div className="text-stone-200 text-lg">Net Fiyat</div>

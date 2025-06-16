@@ -3,19 +3,14 @@ import { useState, useEffect, useMemo } from "react";
 import axios from "@/utils/axios";
 
 export function useProductOptions() {
-  const [base, setBase] = useState([]);
-  const [configs, setConfigs] = useState([]);
+  const [variants, setVariants] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     (async () => {
       try {
-        const [b, c] = await Promise.all([
-          axios.get("/api/base-product?limit=all"),
-          axios.get("/api/configuration?limit=all"),
-        ]);
-        setBase(b.data.products);
-        setConfigs(c.data.records);
+        const { data } = await axios.get("/api/variant?limit=all");
+        setVariants(data.records);
       } catch (e) {
         console.error("Error fetching products", e);
       } finally {
@@ -26,26 +21,34 @@ export function useProductOptions() {
 
   const options = useMemo(
     () => [
-      ...base.map((p) => ({
-        value: `base_${p._id}`,
-        label: `${p.title} _BS`,
+      ...variants.map((p) => ({
+        value: `${p._id}`,
+        label: `${p.title}`,
         title: p.title,
         priceList: p.priceList?.value,
         currencyList: p.priceList?.currency,
-        type: "base",
+        priceNet: p.priceNet?.value,
+        currencyNet: p.priceNet?.currency,
+        type: p.productVariant,
+        createdFromMaster: p.createdFromMaster,
+        make: p.make,
+        model: p.model,
+        year: p.year,
+        condition: p.condition,
+        productVariant: p.productVariant,
         desc: p.description,
-      })),
-      ...configs.map((c) => ({
-        value: `conf_${c._id}`,
-        label: `${c.title} _CF`,
-        title: c.title,
-        priceList: c.priceList.value,
-        currencyList: c.priceList?.currency,
-        options: c.options.map((o) => o.title),
-        type: "configuration",
+        options: p.options.map((op) => ({
+          value: op._id,
+          label: op.title,
+          title: op.title,
+          description: op.description,
+          priceList: op.priceList?.value,
+          currencyList: op.priceList?.currency,
+          image: op.image,
+        })),
       })),
     ],
-    [base, configs]
+    [variants]
   );
 
   return { options, loading };

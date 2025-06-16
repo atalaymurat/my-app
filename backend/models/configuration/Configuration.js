@@ -8,9 +8,9 @@ const configurationSchema = new Schema(
     nTitle: String,
     image: String,
     make: String,
-    baseProduct: {
+    masterProduct: {
       type: Schema.Types.ObjectId,
-      ref: "BaseProduct",
+      ref: "MasterProduct",
     },
     options: [
       {

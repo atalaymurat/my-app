@@ -21,13 +21,19 @@ export default function LineItemsFields() {
             productValue: opt.value,
             title: opt.title,
             priceList: opt.priceList,
+            priceNet: opt.priceNet,
             currencyList: opt.currencyList,
             currencyNet: opt.currencyList,
-            type: opt.type,
+            productVariant: opt.productVariant,
             desc: opt.desc,
             options: opt.options,
-            priceNet: "",
             notes: "",
+            make: opt.make,
+            model: opt.model,
+            year: opt.year,
+            condition: opt.condition,
+            createdFromMaster: opt.createdFromMaster,
+            image: opt.image,
           });
         };
 

@@ -5,7 +5,7 @@ import TextError from "./TextError";
 function Checkbox(props) {
   const { name, label, className, ...rest } = props;
   return (
-    <div className={`flex flex-col p-4 items-center justify-center`}>
+    <div className={`flex flex-col p-4 items-center justify-center ${className}`}>
       <label>
         <Field id={name} name={name} type="checkbox" {...rest} />
         <span className="ml-2">{label}</span>
