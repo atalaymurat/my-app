@@ -31,15 +31,22 @@ const NewForm = () => {
           enableReinitialize={true}
           initialValues={{
             title: "",
+            description: "",
+            model: "",
+            year: "",
+            condition: "",
+            priceNet: { value: "", currency: "" },
+            priceList: { value: "", currency: "" },
             masterProduct:"",
             make: makeList[0]?.value || "",
             options: [],
+            productVariant:"",
+            createdFromMaster: false,
           }}
           onSubmit={async (values, { setSubmitting, resetForm }) => {
             setSubmitting(true);
-            console.log("Form submitted with values:", JSON.stringify(values));
             try {
-              const { data } = await axios.post("/api/configuration", values);
+              const { data } = await axios.post("/api/variant", values);
               if (data.success) {
                 setMessage({
                   text: data.message || "Başarıyla Kaydedildi",

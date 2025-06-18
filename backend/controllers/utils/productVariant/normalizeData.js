@@ -1,4 +1,5 @@
 const { transliterate } = require("transliteration");
+const { create } = require("../../../models/masterProduct/MasterProduct");
 
 function normalizeData(data, userId) {
   if (!data || typeof data !== "object") throw new Error("Invalid data");
@@ -41,6 +42,7 @@ function normalizeData(data, userId) {
         : "asItIs",
 
     options: Array.isArray(data.options) ? data.options : [],
+    createdFromMaster: data.createdFromMaster,
 
     user: userId,
   };

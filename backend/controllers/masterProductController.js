@@ -84,7 +84,13 @@ module.exports = {
 
       const list = records.map((record) => ({
         value: record._id,
+        condition: record.condition,
+        make: record.make,
         label: record.title,
+        year: record.year,
+        model: record.model,  
+        productVariant: record.productVariant,
+        priceNet: record.priceNet?.value,
         listPrice: record.priceList?.value,
         currency: record.priceList?.currency,
         desc: record.description,

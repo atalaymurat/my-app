@@ -34,6 +34,7 @@ const FormFields = ({ makeList }) => {
         if (data.success) {
           // Only reset fields if previously set
           setFieldValue("masterProduct", "");
+          setFieldValue("title", "");
           setFieldValue("options", []);
           setOptionList([]);
           setMasterProducts(data.list);
@@ -44,6 +45,23 @@ const FormFields = ({ makeList }) => {
     };
     fetchMasterProducts(values.make);
   }, [values.make]);
+
+  // 🆕 MasterProduct seçildiğinde alanlari doldur
+  useEffect(() => {
+    if (!values.masterProduct) return;
+
+    const selected = masterProducts?.find(
+      (item) => item.value === values.masterProduct
+    );
+    console.log("Selected Master Product:", JSON.stringify(selected, null, 2));
+    setFieldValue("title", `${selected.make} ${selected.model} ${selected.year}`);
+
+    setFieldValue("condition", selected.condition);
+    setFieldValue("year", selected.year);
+    setFieldValue("model", selected.model);
+    setFieldValue("description", selected.desc);
+    setFieldValue("productVariant", selected.productVariant);
+  }, [values.masterProduct, masterProducts, setFieldValue]);
 
   // Total List Price Calculation
   const totalListPrice = useMemo(() => {
@@ -98,6 +116,10 @@ const FormFields = ({ makeList }) => {
         />
       )}
       <FormikControl control="input" type="hidden" name="priceList" />
+      <FormikControl control="input" type="hidden" name="condition" />
+      <FormikControl control="input" type="hidden" name="model" />
+      <FormikControl control="input" type="hidden" name="year" />
+      <FormikControl control="input" type="hidden" name="description" />
       {totalListPrice.value > 0 && (
         <div className="flex flex-row space-x-2 my-2 border border-gray-400 px-2 py-2 w-full">
           <div className="text-gray-500 font-semibold">Toplam Liste Fiyati</div>

@@ -33,7 +33,11 @@ export function LineItem({ item, index, options, handleSelect, remove, canRemove
 
       {item.options?.length > 0 && (
         <InfoBlock title="İlave Opsiyonlar">
-          {item.options.join("\n")}
+          {item.options.map((option, idx) => (
+            <div key={idx} className="text-sm">
+              {option.title} 
+            </div>
+          ))}
         </InfoBlock>
       )}
 

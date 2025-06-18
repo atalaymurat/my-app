@@ -58,9 +58,10 @@ module.exports = {
       });
 
       await record.save();
+      console.log("Product variant created:", JSON.stringify(record, null, 2));
 
       return res.status(200).json({
-        message: "Configuration created successfully.",
+        message: "Variant created successfully.",
         record,
         success: true,
       });
