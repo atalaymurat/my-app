@@ -9,45 +9,50 @@ const OfferTable = ({ offers }) => {
             const lastVersion = off.versions[off.versions.length - 1];
             return (
               <div
-                className="grid grid-flow-col grid-rows-3 gap-1 mb-4"
+                className="grid grid-cols-2 gap-1 mb-4 border-b"
                 key={index}
               >
-                <div className="col-span-3 flex flex-row border px-2 py-1 font-semibold w-full bg-stone-500 text-black">
+                <div className="col-span-4 flex flex-row border px-2 py-1 font-semibold w-full bg-stone-500 text-black">
                   <div className="text-black">{off.docCode}</div>
                   <div className="text-gray-800 ml-auto text-sm">
                     {localeDate(lastVersion.docDate)}
                   </div>
                 </div>
-                <div className="col-span-3 row-span-4 border px-2 py-1">
+                <div className="col-span-4 border px-2 py-1">
                   <div className="text-lg font-semibold capitalize">
                     {off.company?.title} / {off.company?.addresses[0].city}
                   </div>
-                  <div className="text-sm text-stone-400">
-                    {off.versions[off.versions.length - 1].lineItems?.map(
-                      (item, idx) => (
-                        <div key={idx} className="text-xs">
-                          {item.title} -- {formPrice(item.priceNet)}{" "}
-                          {item.currencyNet}
-                        </div>
-                      )
-                    )}
-                  </div>
                 </div>
 
-                <div className="col-span-1 row-span-5 border flex flex-col px-2 py-1">
-                  <div className="grid grid-cols-2 text-sm">
+                <div className="col-span-3 text-sm text-stone-400">
+                  {lastVersion.lineItems?.map((item, idx) => (
+                    <div key={idx} className="text-sm capitalize">
+                      <div>
+                        {item.title} -- {formPrice(item.priceNet)}{" "}
+                        {item.currencyNet}
+                      </div>
+                      <div className="text-xs">Marka: {item.make}</div>
+                      <div className="text-xs">Model Yili: {item.year}</div>
+                      <div className="white-space-preline">{item.desc}</div>
+                      <div className="white-space-preline">{item.notes}</div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="col-span-1 flex flex-col px-2 py-1">
+                  <div className="grid grid-cols-3 text-sm ">
                     <div className="text-xs">Liste</div>
-                    <div className="text-sm">
+                    <div className="text-sm col-span-2 justify-self-end">
                       {formPrice(lastVersion.priceListTotal?.value)}{" "}
                       {lastVersion.priceListTotal?.currency}
                     </div>
                     <div className="text-xs">Net</div>
-                    <div className="text-sm">
+                    <div className="text-sm col-span-2 justify-self-end">
                       {formPrice(lastVersion.priceNetTotal?.value)}{" "}
                       {lastVersion.priceNetTotal?.currency}
                     </div>
                     <div className="text-xs">KDV</div>
-                    <div className="text-sm">
+                    <div className="text-sm col-span-2 justify-self-end">
                       {formPrice(lastVersion.priceVat?.value)}{" "}
                       {lastVersion.priceVat?.currency}
                     </div>
