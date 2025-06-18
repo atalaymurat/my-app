@@ -51,7 +51,7 @@ module.exports = {
 
       let newProductVariant = null;
       // asItIs true ise varyant oluştur
-      if (normalized.productVariant === "asItIs") {
+      if (normalized.productVariant === "asItIs" || normalized.productVariant === "both") {
         const variantData = {
           ...normalized,
           masterProduct: newMasterProduct._id,
