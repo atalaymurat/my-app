@@ -34,7 +34,7 @@ const OfferPage = () => {
   if (!offers) {
     return (
       <div className="text-white max-w-4xl mx-auto">
-        <PageLinks links={[{ href: "/shield/offer/new", label: "New" }]} />;
+        <PageLinks links={[{ href: "/shield/offer/new", label: "New" }]} />
       </div>
     );
   }

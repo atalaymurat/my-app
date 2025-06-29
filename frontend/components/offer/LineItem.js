@@ -65,6 +65,12 @@ export function LineItem({ item, index, options, handleSelect, remove, canRemove
           name={`lineItems.${index}.currencyNet`}
         />
       </div>
+        <FormikControl
+          control="input"
+          type="number"
+          label="Adet"
+          name={`lineItems.${index}.quantity`}
+        />
 
       <FormikControl
         control="textArea"

@@ -8,10 +8,7 @@ const OfferTable = ({ offers }) => {
           offers.map((off, index) => {
             const lastVersion = off.versions[off.versions.length - 1];
             return (
-              <div
-                className="grid grid-cols-2 gap-1 mb-4 border-b"
-                key={index}
-              >
+              <div className="grid grid-cols-2 gap-1 mb-4 border-b" key={index}>
                 <div className="col-span-4 flex flex-row border px-2 py-1 font-semibold w-full bg-stone-500 text-black">
                   <div className="text-black">{off.docCode}</div>
                   <div className="text-gray-800 ml-auto text-sm">
@@ -27,11 +24,12 @@ const OfferTable = ({ offers }) => {
                 <div className="col-span-3 text-sm text-stone-400">
                   {lastVersion.lineItems?.map((item, idx) => (
                     <div key={idx} className="text-sm capitalize">
-                      <div>
-                        {item.title} -- {formPrice(item.priceNet)}{" "}
-                        {item.currencyNet}
+                      <div className="text-md font-semibold">{item.title}</div>
+                      <div className="text-md font-semibold text-purple-500">
+                        {formPrice(item.priceNet)} {item.currencyNet} x{" "}
+                        {item.quantity} = {formPrice(item.priceNetTotal?.value)}{" "}
+                        {item.priceNetTotal?.currency}
                       </div>
-                      <div className="text-xs">Marka: {item.make}</div>
                       <div className="text-xs">Model Yili: {item.year}</div>
                       <div className="white-space-preline">{item.desc}</div>
                       <div className="white-space-preline">{item.notes}</div>

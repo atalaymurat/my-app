@@ -55,12 +55,12 @@ const FormFields = ({ makeList }) => {
     );
     console.log("Selected Master Product:", JSON.stringify(selected, null, 2));
     setFieldValue("title", `${selected.make} ${selected.model} ${selected.year}`);
-
     setFieldValue("condition", selected.condition);
     setFieldValue("year", selected.year);
     setFieldValue("model", selected.model);
     setFieldValue("description", selected.desc);
     setFieldValue("productVariant", selected.productVariant);
+    setFieldValue(`quantity`, 1); // Reset quantity to 1 when master product changes
   }, [values.masterProduct, masterProducts, setFieldValue]);
 
   // Total List Price Calculation

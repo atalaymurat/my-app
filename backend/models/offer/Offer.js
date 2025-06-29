@@ -21,6 +21,10 @@ const lineItemSchema = new Schema(
     year: String, // üretim yılı
     condition: String, // ürün durumu
     createdFromMaster: Boolean, // master'dan mı oluşturuldu
+    quantity: { type: Number, default: 1 }, // miktar
+    priceNetTotal: { value: Number, currency: String }, // net toplam
+    priceListTotal: { value: Number, currency: String }, // liste fiyatı toplam
+    
   },
   { _id: false },
 ); // _id olmadan gömülü doküman olarak tutulacak
@@ -45,7 +49,7 @@ const offerVersionSchema = new Schema(
     priceVat: { value: Number, currency: String },
     priceDiscount: { value: Number, currency: String },
     priceGrandTotal: { value: Number, currency: String },
-
+    vatRate: { type: Number, default: 0.2 }, // varsayılan KDV oranı %20
     showTotals: Boolean,
     showVat: Boolean,
 

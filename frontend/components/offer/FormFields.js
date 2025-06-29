@@ -138,6 +138,26 @@ export default function FormFields() {
         </div>
       </div>
       <LineItems />
+      <div className="grid grid-cols-3 gap-1">
+        <FormikControl
+          control="input"
+          type="number"
+          label="KDV Oranı"
+          name="vatRate"
+          min={0}
+          max={100}
+        />
+        <FormikControl
+          control="checkbox"
+          label="KDV Goster"
+          name="showVat"
+        />
+        <FormikControl
+          control="checkbox"
+          label="Toplamlari Goster"
+          name="showTotals"
+        />
+      </div>
     </>
   );
 }

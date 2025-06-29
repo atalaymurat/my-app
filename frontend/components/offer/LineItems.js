@@ -34,6 +34,7 @@ export default function LineItemsFields() {
             condition: opt.condition,
             createdFromMaster: opt.createdFromMaster,
             image: opt.image,
+            quantity: 1,
           });
         };
 

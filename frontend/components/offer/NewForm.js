@@ -44,8 +44,12 @@ const NewForm = () => {
               desc: "",
               options: [],
               notes: "",
+              quantity: 1,
             },
           ],
+          vatRate: 20,
+          showVat: true,
+          showTotals: true,
         }}
         onSubmit={async (values, { setSubmitting, resetForm }) => {
           setSubmitting(true);

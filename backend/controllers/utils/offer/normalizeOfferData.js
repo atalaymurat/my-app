@@ -73,6 +73,7 @@ function normalizeOfferData(formData = {}, userId) {
       desc: item.desc?.trim(),
       priceNet,
       notes: item.notes?.trim() || "",
+      quantity: item.quantity ? parseFloat(item.quantity) : 1,
     };
   });
 
@@ -94,7 +95,7 @@ function normalizeOfferData(formData = {}, userId) {
 
   const totals = calculateOfferTotals(normalizedLineItems, {
     showVat,
-    vatRate: vatRate || 0.2,
+    vatRate: vatRate || 0,
   });
 
   const versionData = {
@@ -105,6 +106,7 @@ function normalizeOfferData(formData = {}, userId) {
     warranty,
     lineItems: normalizedLineItems,
     ...totals,
+    vatRate: vatRate || 0,
     showTotals: showTotals !== undefined ? showTotals : true,
     showVat: showVat !== undefined ? showVat : true,
     createdAt: new Date(),
