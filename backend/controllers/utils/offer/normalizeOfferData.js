@@ -32,6 +32,15 @@ function normalizeOfferData(formData = {}, userId) {
     ...rest
   } = formData;
 
+  // ✅ companyData oluşturulacaksa, en az title olmalı
+  const hasCompanyData =
+    title?.trim() || vatTitle?.trim() || email || domain || city;
+
+  // ❌ companyId ve companyData yoksa: işlemi durdur
+  if (!companyId && !hasCompanyData) {
+    throw new Error("Firma bilgisi eksik: companyId veya companyData gerekli.");
+  }
+
   const address = {
     line1: line1?.trim(),
     line2: line2?.trim(),
@@ -68,7 +77,7 @@ function normalizeOfferData(formData = {}, userId) {
       model: item.model?.trim(),
       year: item.year?.trim(),
       condition: item.condition?.trim(),
-      options: item.options || null ,
+      options: item.options || null,
       createdFromMaster: item.createdFromMaster || false,
       desc: item.desc?.trim(),
       priceNet,

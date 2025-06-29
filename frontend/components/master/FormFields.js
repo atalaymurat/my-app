@@ -17,6 +17,7 @@ const FormFields = () => {
         control="checkboxSingle"
         label="Durumu"
         name="condition"
+        className="border border-purple-800 px-2 py-4 rounded-lg h-full w-full"
         options={[
           { label: "Yeni", value: "new" },
           { label: "Kullanilmis", value: "used" },
@@ -29,36 +30,46 @@ const FormFields = () => {
         label="Aciklama"
         name="description"
       />
-      <div className="my-4 border border-blue-800 px-2 py-4 rounded-lg h-full w-full">
-        <div className="text-stone-200 text-lg">Net Fiyat</div>
-        <div className="flex flex-row gap-2 h-full items-end">
-          <FormikControl
-            control="checkboxSingle"
-            label="Doviz"
-            name="priceNet.currency"
-            options={[
-              { label: "TL", value: "TRY" },
-              { label: "EUR", value: "EUR" },
-              { label: "USD", value: "USD" },
-            ]}
-          />
-          <FormikControl control="price" label="Fiyat" name="priceNet.value" />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 py-4 my-2">
+        <div className="border border-green-800 px-2 py-4 rounded-lg h-full w-full">
+          <div className="text-stone-200 text-lg">Liste Fiyat</div>
+          <div className="flex flex-row gap-2 h-full items-center">
+            <FormikControl
+              control="checkboxSingle"
+              label="Doviz"
+              name="priceList.currency"
+              options={[
+                { label: "TL", value: "TRY" },
+                { label: "EUR", value: "EUR" },
+                { label: "USD", value: "USD" },
+              ]}
+            />
+            <FormikControl
+              control="price"
+              label="Fiyat"
+              name="priceList.value"
+            />
+          </div>
         </div>
-      </div>
-      <div className="border border-blue-800 px-2 py-4 rounded-lg h-full w-full">
-        <div className="text-stone-200 text-lg">Liste Fiyat</div>
-        <div className="flex flex-row gap-2 h-full items-end">
-          <FormikControl
-            control="checkboxSingle"
-            label="Doviz"
-            name="priceList.currency"
-            options={[
-              { label: "TL", value: "TRY" },
-              { label: "EUR", value: "EUR" },
-              { label: "USD", value: "USD" },
-            ]}
-          />
-          <FormikControl control="price" label="Fiyat" name="priceList.value" />
+        <div className="border border-purple-800 px-2 py-4 rounded-lg h-full w-full">
+          <div className="text-stone-200 text-lg">Net Fiyat</div>
+          <div className="flex flex-row gap-2 h-full items-center">
+            <FormikControl
+              control="checkboxSingle"
+              label="Doviz"
+              name="priceNet.currency"
+              options={[
+                { label: "TL", value: "TRY" },
+                { label: "EUR", value: "EUR" },
+                { label: "USD", value: "USD" },
+              ]}
+            />
+            <FormikControl
+              control="price"
+              label="Fiyat"
+              name="priceNet.value"
+            />
+          </div>
         </div>
       </div>
       <FormikControl
@@ -66,7 +77,7 @@ const FormFields = () => {
         label="Varyant Durumu"
         name="productVariant"
         options={[
-          { label: "Olgugu Gibi Satilabilir", value: "asItIs" },
+          { label: "Oldugu Gibi Satilabilir", value: "asItIs" },
           { label: "Konfigurasyon Gerekli", value: "configurable" },
           { label: "Hepsi", value: "both" },
         ]}

@@ -8,7 +8,7 @@ function SingleCheckBoxGroup({ name, label, options, className, ...rest }) {
       <label className="block">
         <span className="text-sm font-semibold text-gray-500">{label}</span>
       </label>
-      <div className="flex flex-row space-x-4 px-2 py-4 border bg-black text-gray-500 border-gray-300 rounded transition duration-300 focus:border-transparent focus:outline-none focus:ring-4 focus:ring-blue-200">
+      <div className="flex flex-row space-x-4 px-2 py-4 bg-black text-gray-500">
         <Field name={name} {...rest}>
           {({ field, form }) => (
             <div className="grid sm:grid-cols-3 gap-3 w-full">
