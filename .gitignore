@@ -51,3 +51,6 @@ jspm_packages/
 /frontend/.next
 /frontend/out
 README.md
+
+pdf-service/
+auth-service/

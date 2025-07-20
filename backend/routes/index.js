@@ -8,5 +8,6 @@ router.use("/option", require("./options"));
 router.use("/scrape", require("./scrape"));
 router.use("/variant", require("./variant"));
 router.use("/offer", require("./offers"));
+router.use("/pdf", require("./pdf"));
 
 module.exports = router;
