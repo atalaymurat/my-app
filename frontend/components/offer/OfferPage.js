@@ -52,7 +52,6 @@ const OfferPage = () => {
             onPageChange={handlePageChange}
           />
         </div>
-        <pre>{JSON.stringify(offers, null, 2)}</pre>
       </div>
     );
   }

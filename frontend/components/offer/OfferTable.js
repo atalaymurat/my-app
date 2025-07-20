@@ -1,4 +1,30 @@
 import { formPrice, localeDate } from "@/lib/helpers";
+import axios from "@/utils/axios";
+
+const downloadPdf = async (offerId) => {
+  try {
+    const response = await axios.get(`/api/pdf/${offerId}`, {
+      responseType: "blob",
+    });
+
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `offer-${offerId}.pdf`; // Dosya adı
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+  } catch (error) {
+    console.error("PDF download error:", error);
+    alert("PDF indirilemedi.");
+  }
+};
+
+const viewPdfInNewTab = (offerId) => {
+  const pdfUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/pdf/${offerId}`;
+  window.open(pdfUrl, "_blank");
+};
 
 const OfferTable = ({ offers }) => {
   return (
@@ -15,9 +41,23 @@ const OfferTable = ({ offers }) => {
                     {localeDate(lastVersion.docDate)}
                   </div>
                 </div>
-                <div className="col-span-4 border px-2 py-1">
+                <div className="col-span-4 flex flex-row border px-2 py-1">
                   <div className="text-lg font-semibold capitalize">
                     {off.company?.title} / {off.company?.addresses[0].city}
+                  </div>
+                  <div className="text-gray-800 ml-auto text-sm space-x-2">
+                    <button
+                      className="btn-small"
+                      onClick={() => downloadPdf(off._id)}
+                    >
+                      PDF
+                    </button>
+                    <button
+                      className="btn-small"
+                      onClick={() => viewPdfInNewTab(off._id)}
+                    >
+                      SHOW
+                    </button>
                   </div>
                 </div>
 

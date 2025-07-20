@@ -42,9 +42,6 @@ const CompanyTable = ({ companies }) => {
             </div>
           ))}
       </div>
-      <pre className="text-xs text-stone-400">
-        {JSON.stringify(companies, null, 2)}  
-        </pre>
     </div>
 
   );
