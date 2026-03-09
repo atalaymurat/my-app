@@ -1,11 +1,12 @@
 // LineItemsFields.js
 import React from "react";
 import { FieldArray, useFormikContext } from "formik";
-import { useProductOptions } from "./useProductOptions";
-import { LineItem  } from "./LineItem";
+import { useOfferItems } from "./useProductMasters";
+import { LineItem } from "./LineItem";
+import axios from "@/utils/axios";
 
 export default function LineItemsFields() {
-  const { options, loading } = useProductOptions();
+  const { items, loading } = useOfferItems();
   const { values, setFieldValue } = useFormikContext();
 
   if (loading) return <div>Loading products…</div>;
@@ -13,30 +14,30 @@ export default function LineItemsFields() {
   return (
     <FieldArray name="lineItems">
       {({ push, remove }) => {
-        const handleSelect = (index) => ({ target: { value } }) => {
-          const opt = options.find((o) => o.value === value);
-          if (!opt) return;
+        const handleSelect =
+          (index) =>
+          async ({ target: { value } }) => {
+            console.log("VALUE", value);
+            // Seçilen İtem Option larını getiriyoruz api den
+            const { data } = await axios.get(`/api/option/list/${value}`);
+            console.log("Optiıns by Item", data);
+            const optionListById = data.list;
+            const item = items.find((o) => o.value === value);
+            if (!item) return;
 
-          setFieldValue(`lineItems.${index}`, {
-            productValue: opt.value,
-            title: opt.title,
-            priceList: opt.priceList,
-            priceNet: opt.priceNet,
-            currencyList: opt.currencyList,
-            currencyNet: opt.currencyList,
-            productVariant: opt.productVariant,
-            desc: opt.desc,
-            options: opt.options,
-            notes: "",
-            make: opt.make,
-            model: opt.model,
-            year: opt.year,
-            condition: opt.condition,
-            createdFromMaster: opt.createdFromMaster,
-            image: opt.image,
-            quantity: 1,
-          });
-        };
+            setFieldValue(`lineItems.${index}`, {
+              productValue: item.value,
+              title: item.title,
+              currency: item.currency,
+              desc: item.caption,
+              options: optionListById,
+              selectedOptions: [],
+              notes: "",
+              condition: item.condition,
+              image: item.image,
+              quantity: 1,
+            });
+          };
 
         return (
           <div className="my-2 border border-stone-400 px-2 py-4 rounded-xl">
@@ -49,7 +50,7 @@ export default function LineItemsFields() {
                 key={idx}
                 index={idx}
                 item={item}
-                options={options}
+                options={items}
                 handleSelect={handleSelect}
                 remove={remove}
                 canRemove={values.lineItems.length > 1}
@@ -63,6 +64,7 @@ export default function LineItemsFields() {
             >
               Add +++
             </button>
+            <pre>{JSON.stringify(items, null,2)}</pre>
           </div>
         );
       }}

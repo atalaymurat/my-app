@@ -6,9 +6,10 @@ const {
   updateUserCompanyLink,
 } = require("./services/companyServices");
 
-const normalizeOfferData = require("./utils/offer/normalizeOfferData");
 const Offer = require("../models/offer/Offer");
+const normalizeOfferData = require("./utils/offer/normalizeOfferData");
 const createNewCompany = require("./utils/company/createNewCompany");
+const Decimal = require("decimal.js");
 
 module.exports = {
   create: async (req, res) => {

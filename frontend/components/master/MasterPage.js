@@ -16,7 +16,7 @@ const BasePage = () => {
     const getData = async () => {
       try {
         const { data } = await axios.get(
-          `/api/master?page=${currentPage}&limit=10`
+          `/api/master?page=${currentPage}&limit=10`,
         );
         setMasterProducts(data.products);
         setTotalPages(data.totalPages);
@@ -33,15 +33,20 @@ const BasePage = () => {
   if (masterProducts?.length === 0) {
     return (
       <div className="text-white max-w-4xl mx-auto">
-        <PageLinks links={[{ href: "/shield/master/new", label: "Yeni Ekle" }]} />
+        <PageLinks
+          links={[{ href: "/shield/master/new", label: "Yeni Ekle" }]}
+        />
       </div>
     );
   }
   return (
     <>
       <div className="text-white max-w-4xl mx-auto">
-        <PageLinks links={[{ href: "/shield/master/new", label: "Yeni Ekle" }]} />
+        <PageLinks
+          links={[{ href: "/shield/master/new", label: "Yeni Ekle" }]}
+        />
         <MasterTable masterProducts={masterProducts} />
+        <pre>{JSON.stringify(masterProducts, null, 2)}</pre>
       </div>
     </>
   );

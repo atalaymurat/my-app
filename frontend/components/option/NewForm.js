@@ -8,24 +8,28 @@ import axios from "@/utils/axios";
 
 const NewForm = () => {
   const [message, setMessage] = useState(null);
-  const [masterProducts, setMasterProducts] = useState(null);
+  const [makes, setMakes] = useState(null);
 
   useEffect(() => {
-    const fetchMasterProducts = async () => {
+    const fetchMakes = async () => {
       try {
-        const { data } = await axios.get("/api/master/list");
+        const { data } = await axios.get("/api/make");
+
         if (data.success) {
-          setMasterProducts(data.list);
-          console.log("Base products fetched successfully:", data.list);
+          const formatted = data.makes.map((mk) => ({
+            value: mk._id,
+            label: mk.name,
+          }));
+          setMakes(formatted);
         }
       } catch (error) {
         console.error("Error fetching base products:", error);
       }
     };
-    fetchMasterProducts();
+    fetchMakes();
   }, []);
 
-  if (masterProducts !== null) {
+  if (makes !== null) {
     return (
       <div>
         <Formik
@@ -33,19 +37,16 @@ const NewForm = () => {
           initialValues={{
             title: "",
             masterProducts: [],
+            make: "",
             description: "",
-            priceNet: {
-              currency: "TRY",
-              value: "",
-            },
-            priceList: {
-              currency: "TRY",
-              value: "",
-            },
+            currency: "TRY",
+            priceNet: "",
+            priceList: "",
+            priceOffer: "",
+            image: "",
           }}
           onSubmit={async (values, { setSubmitting, resetForm }) => {
             setSubmitting(true);
-            console.log("Form submitted with values:", JSON.stringify(values));
             try {
               const { data } = await axios.post("/api/option", values);
               if (data.success) {
@@ -61,7 +62,7 @@ const NewForm = () => {
         >
           {({ isSubmitting }) => (
             <Form autoComplete="off">
-              <FormFields masterProducts={masterProducts} />
+              <FormFields makes={makes} />
               <MessageBlock message={message} />
               <FormSaveButton isSubmitting={isSubmitting} />
             </Form>

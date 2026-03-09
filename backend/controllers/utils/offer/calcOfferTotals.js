@@ -16,7 +16,7 @@ function calculateOfferTotals(lineItems = [], options = {}) {
 
   // Currency kontrolü
   const currencies = new Set(
-    lineItems.map((item) => item.currencyNet || item.currencyList),
+    lineItems.map((item) => item.currency || item.currencyList),
   );
   const currency = currencies.size === 1 ? [...currencies][0] : null;
 

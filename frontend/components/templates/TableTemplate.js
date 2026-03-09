@@ -101,7 +101,7 @@ const TableTemplate = ({ title, data = [], columns = [], minRows = 10 }) => {
                     col.className || ""
                   }`}
                 >
-                  {formPrice(item[col.key].value)} {item[col.key].currency}
+                  {formPrice(item[col.key])} {item.currency}
                 </div>
               );
             }

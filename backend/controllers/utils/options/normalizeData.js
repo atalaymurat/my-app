@@ -10,15 +10,12 @@ function normalizeData(data, userId) {
       ? transliterate(data.description.toLowerCase().trim())
       : "",
     nDescription: data.description?.trim()?.toLowerCase() || "",
-    priceNet: {
-      value: data.priceNet?.value?.trim(),
-      currency: data.priceNet?.currency,
-    },
-    priceList: {
-      value: data.priceList?.value?.trim(),
-      currency: data.priceList?.currency,
-    },
+    priceNet: data.priceNet,
+    priceList: data.priceList,
+    priceOffer: data.priceOffer,
+    currency: data.currency,
     user: userId,
+    make: data.make,
   };
 
   return normalized;

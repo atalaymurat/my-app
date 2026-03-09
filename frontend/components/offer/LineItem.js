@@ -2,8 +2,56 @@
 import React from "react";
 import FormikControl from "../formik/FormikControl";
 import { InfoBlock } from "./InfoBlock";
+import { useFormikContext } from "formik";
 
-export function LineItem({ item, index, options, handleSelect, remove, canRemove }) {
+export function LineItem({
+  item,
+  index,
+  options,
+  handleSelect,
+  remove,
+  canRemove,
+}) {
+  // Optıon Listesinden Seçileni selectedOptions Formik Hafızasına alıyoruz
+  const { values, setFieldValue } = useFormikContext();
+  // Opsyonların Liste Fiyatına Eklenmesini Saglayan Fonksyon
+  const recalculateLinePrice = (lineIndex, selectedOptions) => {
+    const basePrice = values.lineItems[lineIndex].basePrice || 0;
+
+    const optionsTotal = selectedOptions.reduce(
+      (sum, opt) => sum + opt.listPrice * (opt.quantity || 1),
+      0,
+    );
+
+    setFieldValue(`lineItems.${lineIndex}.priceList`, basePrice + optionsTotal);
+  };
+  const handleOptionToggle = (lineIndex, option) => {
+    const current = values.lineItems[lineIndex].selectedOptions || [];
+
+    const exists = current.find((o) => o.value === option.value);
+
+    let updated;
+
+    if (exists) {
+      updated = current.filter((o) => o.value !== option.value);
+    } else {
+      updated = [
+        ...current,
+        {
+          value: option.value,
+          label: option.label,
+          listPrice: option.listPrice,
+          currency: option.currency,
+          desc: option.desc,
+          quantity: 1, // Default 1
+        },
+      ];
+    }
+
+    setFieldValue(`lineItems.${lineIndex}.selectedOptions`, updated);
+    recalculateLinePrice(lineIndex, updated);
+  };
+
   return (
     <div
       key={index}
@@ -32,13 +80,56 @@ export function LineItem({ item, index, options, handleSelect, remove, canRemove
       />
 
       {item.options?.length > 0 && (
-        <InfoBlock title="İlave Opsiyonlar">
-          {item.options.map((option, idx) => (
-            <div key={idx} className="text-sm">
-              {option.title} 
-            </div>
-          ))}
-        </InfoBlock>
+        <div className="mt-3 border border-stone-700 rounded-lg p-3">
+          <p className="text-sm font-semibold mb-2 text-stone-300">
+            Opsiyonel Özellikleri Seçiniz...
+          </p>
+
+          {item.options.map((option) => {
+            const selected = item.selectedOptions?.find(
+              (o) => o.value === option.value,
+            );
+            const isChecked = !!selected;
+
+            return (
+              <div key={option.value}>
+                <label className="flex items-center gap-2 text-sm cursor-pointer mb-1">
+                  <input
+                    type="checkbox"
+                    checked={isChecked || false}
+                    onChange={() => handleOptionToggle(index, option)}
+                  />
+                  <div className="flex flex-row items-center">
+                    <div>
+                      {option.label} (+{option.listPrice} {option.currency})
+                    </div>
+                    <div>{option.desc}</div>
+                  </div>
+                </label>
+                {isChecked && (
+                  <input
+                    type="number"
+                    min="1"
+                    value={selected.quantity}
+                    onChange={(e) => {
+                      const qty = Number(e.target.value);
+                      const updated = item.selectedOptions.map((o) =>
+                        o.value === option.value ? { ...o, quantity: qty } : o,
+                      );
+                      setFieldValue(
+                        `lineItems.${index}.selectedOptions`,
+                        updated,
+                      );
+
+                      recalculateLinePrice(index, updated);
+                    }}
+                    className="my-1 mx-2 w-20 px-2 py-1 text-sm bg-black border border-stone-600 rounded"
+                  />
+                )}
+              </div>
+            );
+          })}
+        </div>
       )}
 
       {item.desc && <InfoBlock title="Açıklamalar">{item.desc}</InfoBlock>}
@@ -65,12 +156,12 @@ export function LineItem({ item, index, options, handleSelect, remove, canRemove
           name={`lineItems.${index}.currencyNet`}
         />
       </div>
-        <FormikControl
-          control="input"
-          type="number"
-          label="Adet"
-          name={`lineItems.${index}.quantity`}
-        />
+      <FormikControl
+        control="input"
+        type="number"
+        label="Adet"
+        name={`lineItems.${index}.quantity`}
+      />
 
       <FormikControl
         control="textArea"

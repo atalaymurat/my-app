@@ -9,10 +9,9 @@ export default function ProfilePage() {
       <PageLinks
         links={[
           { href: "/shield/company", label: "Firmalar" },
-          { href: "/shield/contact", label: "Kisiler" },
-          { href: "/shield/master", label: "Mastar Urunler" },
+          { href: "/shield/contact", label: "Kişiler" },
+          { href: "/shield/master", label: "Ürünler" },
           { href: "/shield/option", label: "Opsiyonlar" },
-          { href: "/shield/variant", label: "Urunler" },
           { href: "/shield/offer", label: "Teklifler" },
         ]}
       />

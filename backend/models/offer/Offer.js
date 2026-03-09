@@ -9,22 +9,25 @@ const lineItemSchema = new Schema(
     productValue: String, // base veya conf ürünün id'si + prefix
     title: String,
     priceList: Number,
-    currencyList: String,
-    currencyNet: String,
-    productVariant: String, 
+    currency: String,
     desc: String,
-    options: [{}], // opsiyonların başlıkları
+    selectedOptions: [
+      {
+        optionId: String,
+        quantity: Number,
+        unitPrice: Number,
+        currency: String,
+      },
+    ], // opsiyonların başlıkları
     priceNet: Number,
     notes: String,
     make: String, // üretici
     model: String, // model
     year: String, // üretim yılı
     condition: String, // ürün durumu
-    createdFromMaster: Boolean, // master'dan mı oluşturuldu
     quantity: { type: Number, default: 1 }, // miktar
     priceNetTotal: { value: Number, currency: String }, // net toplam
     priceListTotal: { value: Number, currency: String }, // liste fiyatı toplam
-    
   },
   { _id: false },
 ); // _id olmadan gömülü doküman olarak tutulacak

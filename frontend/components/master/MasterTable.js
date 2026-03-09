@@ -10,7 +10,7 @@ const MasterTable = ({ masterProducts }) => {
               key={index}
             >
               <div className="col-span-3 capitalize border-b border-stone-500 px-2 py-1 font-bold bg-stone-500 text-black text-lg">
-                {item.title}
+                {item.make.name} {item.title}
               </div>
 
               <div className="col-span-2 row-span-3 px-1 py-1 min-h-24">
@@ -19,13 +19,7 @@ const MasterTable = ({ masterProducts }) => {
                     <div className="text-xs font-semibold text-stone-500">
                       Marka
                     </div>
-                    <div className="capitalize"> {item.make}</div>
-                  </div>
-                  <div className="flex flex-row space-x-2 items-baseline">
-                    <div className="text-xs font-semibold text-stone-500">
-                      Model
-                    </div>
-                    <div className="capitalize"> {item.model}</div>
+                    <div className="capitalize"> {item.make.name}</div>
                   </div>
                   <div className="flex flex-row space-x-2 items-baseline">
                     <div className="text-xs font-semibold text-stone-500">
@@ -41,43 +35,36 @@ const MasterTable = ({ masterProducts }) => {
                   </div>
                   <div className="flex flex-row space-x-2 items-baseline">
                     <div className="text-xs font-semibold text-stone-500">
-                      Konfigurasyon
+                      Kategori
                     </div>
-                    <div className="capitalize">
-                      {item.productVariant === "configurable" ? "Gerekli" : "Gerekli Degil"}
-                    </div>
+                    <div className="whitespace-pre-line"> {item.caption}</div>
                   </div>
-                  <div className="flex flex-row space-x-2 items-baseline">
-                    <div className="text-xs font-semibold text-stone-500">
-                      Satilabilir
-                    </div>
-                    <div className="capitalize">
-                      {item.productVariant === "asItIs" ? "Evet" : "Hayir"}
-                    </div>
-                  </div>
-                  <div className="text-xs font-semibold text-stone-500">
-                    Aciklamalar
-                  </div>
-                  <div className="whitespace-pre-line"> {item.description}</div>
                 </div>
               </div>
 
-
               <div className="col-span-1 row-span-3 flex flex-col px-2 py-1">
-                <div className="text-xs font-semibold text-stone-500">
-                  Liste Fiyati
-                </div>
-                <div className="text-lg font-semibold flex flex-wrap items-center gap-2 my-auto overflow-hidden">
-                  {formPrice(item.priceList.value)}{" "}
-                  <div className="text-sm">{item.priceList.currency}</div>
-                </div>
-                <div className="text-xs font-semibold text-stone-500">
-                  Net Fiyati
-                </div>
-                <div className="text-lg font-semibold flex flex-wrap items-center gap-2 my-auto overflow-hidden">
-                  {formPrice(item.priceNet.value)}{" "}
-                  <div className="text-sm">{item.priceNet.currency}</div>
-                </div>
+                RIGHT
+              </div>
+              <div className="col-span-3 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 p-2">
+                {item.variants.map((variant, index) => (
+                  <div className="px-2 py-1 flex flex-col border border-gray-400 ">
+                    <div>{variant.modelType}</div>
+                    <div className="text-xs font-semibold text-stone-500 flex flex-row gap-2 items-center">
+                      Liste Fiyati
+                      <div className="text-lg font-semibold flex flex-wrap items-center gap-2 my-auto overflow-hidden">
+                        {formPrice(variant.priceList)}{" "}
+                        <div className="text-sm">{item.currency}</div>
+                      </div>
+                    </div>
+                    <div className="text-xs font-semibold text-stone-500 flex flex-row gap-2 items-center">
+                      Teklif Fiyati
+                      <div className="text-lg font-semibold flex flex-wrap items-center gap-2 my-auto overflow-hidden">
+                        {formPrice(variant.priceOffer)}{" "}
+                        <div className="text-sm">{item.currency}</div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           ))}

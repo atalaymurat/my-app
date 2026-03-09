@@ -13,10 +13,12 @@ const optionsSchema = new Schema(
         ref: "MasterProduct",
       },
     ],
-
+    make: { type: Schema.Types.ObjectId, ref: "Make" },
     description: String,
-    priceNet: { value: Number, currency: String },
-    priceList: { value: Number, currency: String },
+    priceNet: Number,
+    priceList: Number,
+    priceOffer: Number,
+    currency: String,
     user: {
       type: Schema.Types.ObjectId,
       ref: "User",

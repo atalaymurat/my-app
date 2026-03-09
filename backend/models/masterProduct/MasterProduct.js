@@ -1,43 +1,78 @@
 const mongoose = require("mongoose");
-
 const Schema = mongoose.Schema;
+
+const variantSchema = new Schema(
+  {
+    modelType: { type: String, required: true }, // 2128 Basic
+    code: { type: String },
+    priceNet: Number,
+    priceOffer: Number,
+    priceList: Number,
+    desc: String,
+    image: String,
+
+    stock: { type: Number, default: 0 },
+    technicalSpecs: [
+      {
+        key: String,
+        value: String,
+      },
+    ],
+
+    isDefault: { type: Boolean, default: false },
+  },
+  { _id: true },
+);
 
 const masterProductSchema = new Schema(
   {
-    title: String,
+    title: { type: String, required: true },
     nTitle: String,
-    user: {
+
+    caption: String,
+    nCaption: String,
+
+    make: {
       type: Schema.Types.ObjectId,
-      ref: "User",
+      ref: "Make",
+      required: true,
     },
 
-    description: String,
-    nDescription: String,
-    make: String,
-    nMake: String,
     model: String,
     nModel: String,
-    year: String,
-    condition: String,
-    priceNet: { value: Number, currency: String },
-    priceList: { value: Number, currency: String },
-    productVariant: {
-      type: String,
-      enum: ["asItIs", "configurable", "both"],
-      default: "asItIs",
-    },
+
+    currency: String, // master ve opstion tek currency
+    // ✅ ALT MODELLER
+    variants: [variantSchema],
+
+    // ✅ OPTIONLAR AYRI COLLECTION
+    options: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Option",
+      },
+    ],
+
     visibilityScope: {
       type: String,
       enum: ["adminOnly", "group", "public", "custom"],
       default: "group",
     },
+
     customAccess: {
       viewableBy: [{ type: Schema.Types.ObjectId, ref: "User" }],
       editableBy: [{ type: Schema.Types.ObjectId, ref: "User" }],
+    },
+
+    user: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
     },
   },
   { timestamps: true },
 );
 
 const MasterProduct = mongoose.model("MasterProduct", masterProductSchema);
+
 module.exports = MasterProduct;

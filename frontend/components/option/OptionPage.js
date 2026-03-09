@@ -53,6 +53,7 @@ const OptionPage = () => {
           onPageChange={handlePageChange}
         />
       </div>
+      <pre>{JSON.stringify(options, null, 2)}</pre>
     </>
   );
 };

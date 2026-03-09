@@ -1,5 +1,6 @@
 const calculateOfferTotals = require("./calcOfferTotals");
 const generateNewCode = require("../generateNewCode");
+const Decimal = require("decimal.js");
 
 function normalizeOfferData(formData = {}, userId) {
   const {
@@ -57,32 +58,43 @@ function normalizeOfferData(formData = {}, userId) {
     addresses: [address],
   };
 
-  const normalizedLineItems = lineItems.map((item) => {
-    const priceList = parseFloat(item.priceList);
-    // priceList geçerli değilse 0 kabul et
-    const validPriceList = isNaN(priceList) ? 0 : priceList;
 
-    let priceNet = parseFloat(item.priceNet);
-    // priceNet geçerli değilse priceList değerini kullan
-    if (isNaN(priceNet)) priceNet = validPriceList;
+  const normalizedLineItems = lineItems.map((item) => {
+    const basePrice = new Decimal(item.basePrice || 0);
+    const quantity = new Decimal(item.quantity || 1);
+
+    const optionsTotal = (item.selectedOptions || []).reduce(
+      (sum, opt) =>
+        sum.plus(
+          new Decimal(opt.listPrice || 0).times(new Decimal(opt.quantity || 1)),
+        ),
+      new Decimal(0),
+    );
+    const priceNet = new Decimal(item.priceNet || 0)
+    const unitPrice = basePrice.plus(optionsTotal);
 
     return {
       productValue: item.productValue,
       title: item.title?.trim(),
-      priceList: validPriceList,
-      currencyList: item.currencyList || "TRY",
-      currencyNet: item.currencyNet || "TRY",
-      productVariant: item.productVariant,
-      make: item.make?.trim(),
-      model: item.model?.trim(),
-      year: item.year?.trim(),
-      condition: item.condition?.trim(),
-      options: item.options || null,
-      createdFromMaster: item.createdFromMaster || false,
+
+      basePrice: basePrice.toNumber(), // saklamak istiyorsan
+      priceList: unitPrice.toNumber(), // backend hesapladı
+      priceNet: priceNet.toNumber(), // şimdilik net = list
+
+      currency: item.currency || "TRY",
+
+      quantity: quantity.toNumber(),
+
+      selectedOptions: (item.selectedOptions || []).map((opt) => ({
+        optionId: opt.value,
+        quantity: opt.quantity || 1,
+        currency: opt.currency,
+        desc: opt.desc,
+        unitPrice: opt.listPrice,
+      })),
+
       desc: item.desc?.trim(),
-      priceNet,
       notes: item.notes?.trim() || "",
-      quantity: item.quantity ? parseFloat(item.quantity) : 1,
     };
   });
 
@@ -101,6 +113,7 @@ function normalizeOfferData(formData = {}, userId) {
     company: companyId,
     user: userId,
   };
+  console.log("Normalized Line İtems", normalizedLineItems)
 
   const totals = calculateOfferTotals(normalizedLineItems, {
     showVat,

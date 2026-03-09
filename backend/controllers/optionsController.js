@@ -12,6 +12,7 @@ module.exports = {
 
       const totalRecords = await Option.countDocuments(filter);
       const records = await Option.find(filter)
+        .populate("make", "name")
         .skip(skip)
         .limit(limit)
         .sort({ createdAt: -1 });
@@ -52,7 +53,25 @@ module.exports = {
       res.status(500).json({ error: error.message, success: false });
     }
   },
+  make: async (req, res) => {
+    const makeId = req.params.id;
+
+    const records = await Option.find({
+      user: req.user._id,
+      make: makeId,
+    });
+
+    console.log("Options by Make:", records);
+
+    res.status(200).json({
+      message: "Options by make ıd",
+      success: true,
+      options: records,
+    });
+  },
   list: async (req, res) => {
+    // Master Product ait Opsyonları Getiriyor
+    console.log("OPTION LIST CONTROLLER ", req.params);
     try {
       const masterProductId = req.params.id;
       console.log("Base Product ID:", masterProductId);
@@ -61,12 +80,13 @@ module.exports = {
         masterProducts: { $in: [masterProductId] },
       });
       const list = records.map((record) => ({
-        value: record._id,
+        value: record._id.toString(),
         label: record.title,
         listPrice: record.priceList?.value,
         currency: record.priceList?.currency,
-        desc: record.description, 
+        desc: record.description,
       }));
+      console.log("OPTION LIST", list);
       res.status(200).json({
         message: "Option list retrieved successfully.",
         success: true,

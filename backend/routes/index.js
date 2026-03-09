@@ -5,8 +5,8 @@ router.use("/company", require("./company"));
 router.use("/contact", require("./contact"));
 router.use("/master", require("./masterProduct"));
 router.use("/option", require("./options"));
+router.use("/make", require("./make"));
 router.use("/scrape", require("./scrape"));
-router.use("/variant", require("./variant"));
 router.use("/offer", require("./offers"));
 router.use("/pdf", require("./pdf"));
 
