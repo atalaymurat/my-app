@@ -1,6 +1,7 @@
 // next.config.js
 
 module.exports = {
+  output: 'standalone',
   images: {
     remotePatterns: [
       {
