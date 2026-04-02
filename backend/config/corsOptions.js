@@ -2,8 +2,9 @@
 
 const allowedOrigins = [
   process.env.FRONTEND_URL,
-  "http://localhost:3000",
-  "https://postiva-atalaymurats-projects.vercel.app",
+  "http://localhost:3020",
+  "https://app.postiva.uk",
+  "http://192.168.1.100",
 ].filter(Boolean);
 
 const corsOptions = {

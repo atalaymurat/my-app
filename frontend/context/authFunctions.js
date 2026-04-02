@@ -3,21 +3,9 @@ import { auth } from "@/lib/firebase";
 import { signOut as firebaseSignOut } from "firebase/auth";
 
 export const checkSession = async ({ setUser, setAuthChecked, setLoading }) => {
-  const token = localStorage.getItem("accessToken");
-  console.log("Token:", token);
-  if (!token) {
-    // Token yoksa kontrol yapmaya gerek yok
-    setAuthChecked(true);
-    setLoading(false);
-    setUser(null);
-    return null;
-  }
-
-
   setLoading(true);
   try {
     const response = await axiosAuth.post("/verify", {
-      token,
       applicationId: process.env.NEXT_PUBLIC_APPLICATION_ID,
     });
 
@@ -29,11 +17,9 @@ export const checkSession = async ({ setUser, setAuthChecked, setLoading }) => {
 
     setUser(null);
     setAuthChecked(true);
-    localStorage.removeItem("accessToken");
     return null;
   } catch (error) {
     console.error("Session check error:", error.response?.data || error.message);
-    localStorage.removeItem("accessToken");
     setUser(null);
     setAuthChecked(true);
     return null;
@@ -50,9 +36,8 @@ export const login = async ({ idToken, setUser, setLoading }) => {
       applicationId: process.env.NEXT_PUBLIC_APPLICATION_ID,
     });
 
-    if (response.data?.success && response.data.user && response.data.accessToken) {
+    if (response.data?.success && response.data.user) {
       setUser(response.data.user);
-      localStorage.setItem("accessToken", response.data.accessToken);
       return true;
     }
 

@@ -2,6 +2,7 @@
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
+const cookieParser = require("cookie-parser");
 const connectDB = require("./config/db"); // Import the connectDB function
 const { corsOptions, allowedOrigins } = require("./config/corsOptions");
 
@@ -9,7 +10,7 @@ const { corsOptions, allowedOrigins } = require("./config/corsOptions");
 connectDB(); // Call the function to establish the connection
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3021;
 
 // --- Log Allowed CORS Origins ---
 // Log this info early so it's visible during startup
@@ -29,12 +30,13 @@ app.use(
     origin:
       process.env.NODE_ENV === "production"
         ? process.env.FRONTEND_URL
-        : "http://localhost:3000",
+        : "http://192.168.1.100",
     credentials: true,
   }),
 );
 
 // Middleware
+app.use(cookieParser());
 app.use(express.json());
 
 // Routes

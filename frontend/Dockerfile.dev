@@ -14,7 +14,7 @@ RUN npm install
 COPY . .
 
 # Geliştirme portu
-EXPOSE 3000
+EXPOSE 3020
 
 # Geliştirme sunucusunu başlat
 CMD ["npm", "run", "dev"]
