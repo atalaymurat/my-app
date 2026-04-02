@@ -19,7 +19,6 @@ export const checkSession = async ({ setUser, setAuthChecked, setLoading }) => {
     setAuthChecked(true);
     return null;
   } catch (error) {
-    console.error("Session check error:", error.response?.data || error.message);
     setUser(null);
     setAuthChecked(true);
     return null;
