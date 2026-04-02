@@ -5,6 +5,7 @@ const allowedOrigins = [
   "http://localhost:3020",
   "https://app.postiva.uk",
   "http://192.168.1.100",
+  "http://192.168.1.100:3020",
 ].filter(Boolean);
 
 const corsOptions = {

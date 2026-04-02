@@ -25,15 +25,7 @@ console.log("--------------------------------");
 
 // Apply CORS Middleware with imported options
 // Place CORS middleware early, especially before routes
-app.use(
-  cors({
-    origin:
-      process.env.NODE_ENV === "production"
-        ? process.env.FRONTEND_URL
-        : "http://192.168.1.100",
-    credentials: true,
-  }),
-);
+app.use(cors(corsOptions));
 
 // Middleware
 app.use(cookieParser());
