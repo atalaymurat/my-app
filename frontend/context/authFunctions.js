@@ -55,7 +55,7 @@ export const signOut = async ({ setUser, router, setLoading }) => {
   setLoading(true);
   try {
     await firebaseSignOut(auth);
-    localStorage.removeItem("accessToken");
+    await axiosAuth.post("/logout");
     setUser(null);
     router.push("/auth");
   } catch (error) {
