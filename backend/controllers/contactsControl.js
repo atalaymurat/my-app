@@ -93,21 +93,16 @@ module.exports = {
     }
   },
   destroy: async (req, res) => {
-    // find and delete record
     try {
-      const contact = await Contact.findByIdAndDelete(req.params.id);
+      const contact = await UserContact.findOneAndDelete({ _id: req.params.id, user: req.user._id });
 
       if (!contact) {
         return res.status(404).json({ message: "Contact not found" });
       }
 
-      res
-        .status(200)
-        .json({ message: "Contact deleted successfully", contact });
+      res.status(200).json({ message: "Contact deleted successfully" });
     } catch (err) {
-      res
-        .status(500)
-        .json({ message: "Failed to delete contact", error: err.message });
+      res.status(500).json({ message: "Failed to delete contact", error: err.message });
     }
   },
 };

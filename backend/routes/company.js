@@ -9,5 +9,6 @@ const authenticate = require("../middleware/authenticate");
 router.get("/", authenticate, companyController.index);
 router.post("/", authenticate, companyController.create);
 router.get("/find", authenticate, companyController.search);
+router.delete("/:id", authenticate, companyController.destroy);
 
 module.exports = router;

@@ -53,6 +53,16 @@ module.exports = {
       res.status(500).json({ error: error.message, success: false });
     }
   },
+  destroy: async (req, res) => {
+    try {
+      const option = await Option.findOneAndDelete({ _id: req.params.id, user: req.user._id });
+      if (!option) return res.status(404).json({ message: "Option not found" });
+      res.status(200).json({ success: true, message: "Option deleted" });
+    } catch (err) {
+      res.status(500).json({ message: "Failed to delete option", error: err.message });
+    }
+  },
+
   make: async (req, res) => {
     const makeId = req.params.id;
 

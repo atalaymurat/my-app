@@ -31,7 +31,6 @@ Dockerfile
 
 ## MongoDB
 - Bağlantı .env içindeki MONGODB_URI ile yapılsın
-- .env dosyasına dokunma, sadece kullan
 - Model şemalarında validation ekle
 
 ## Deployment

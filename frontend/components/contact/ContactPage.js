@@ -14,6 +14,20 @@ const ContactPage = () => {
   const currentPage = parseInt(searchParams.get("page") || "1", 10);
   const router = useRouter();
 
+  const handleDelete = async (co) => {
+    if (!confirm(`"${co.uName}" silinsin mi?`)) return;
+    try {
+      await axios.delete(`/api/contact/${co._id}`);
+      setContacts((prev) => prev.filter((c) => c._id !== co._id));
+    } catch (err) {
+      console.error("Delete error:", err);
+    }
+  };
+
+  const handleEdit = (co) => {
+    router.push(`/shield/contact/${co._id}/edit`);
+  };
+
   useEffect(() => {
     const getContacts = async () => {
       try {
@@ -36,21 +50,20 @@ const ContactPage = () => {
   }
 
   return (
-    <div>
-      <div>
+    <div className="flex flex-col h-[calc(100vh-80px)]">
+      <div className="flex-1">
         <PageLinks
           links={[{ href: "/shield/contact/new", label: "Yeni Kişi Ekle" }]}
         />
-        <ContactTable contacts={contacts} />
-
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={(page) => {
-            router.push(`shield/contact?page=${page}`);
-          }}
-        />
+        <ContactTable contacts={contacts} onEdit={handleEdit} onDelete={handleDelete} />
       </div>
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={(page) => {
+          router.push(`/shield/contact?page=${page}`);
+        }}
+      />
     </div>
   );
 };

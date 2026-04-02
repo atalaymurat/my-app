@@ -60,6 +60,16 @@ module.exports = {
     });
   },
 
+  destroy: async (req, res) => {
+    try {
+      const company = await Company.findOneAndDelete({ _id: req.params.id, user: req.user._id });
+      if (!company) return res.status(404).json({ message: "Company not found" });
+      res.status(200).json({ success: true, message: "Company deleted" });
+    } catch (err) {
+      res.status(500).json({ message: "Failed to delete company", error: err.message });
+    }
+  },
+
   create: async (req, res) => {
     try {
       if (!req.user || !req.body) {
