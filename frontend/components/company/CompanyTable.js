@@ -1,3 +1,20 @@
+const formatPhone = (phone) => {
+  const d = phone.replace(/\D/g, "");
+  if (!d) return phone;
+  let cc, local;
+  if (d.length >= 11 && d.length <= 13) {
+    const ccLen = d.length === 11 ? 1 : d.length === 12 ? 2 : 3;
+    cc = d.slice(0, ccLen);
+    local = d.slice(ccLen);
+  } else {
+    return "+" + d;
+  }
+  const formatted = local.length === 10
+    ? `${local.slice(0, 3)} ${local.slice(3, 6)} ${local.slice(6, 8)} ${local.slice(8, 10)}`
+    : local;
+  return `+${cc} ${formatted}`;
+};
+
 const CompanyTable = ({ companies, onEdit, onDelete }) => {
   return (
     <div className="px-2 py-2 grid grid-cols-1 lg:grid-cols-2 gap-3">
@@ -38,7 +55,7 @@ const CompanyTable = ({ companies, onEdit, onDelete }) => {
             {/* Telefon & Email & Domain */}
             <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs">
               {co.phones?.map((phone, i) => (
-                <a key={i} href={`tel:${phone}`} className="text-stone-300">{phone}</a>
+                <a key={i} href={`tel:${phone}`} className="text-stone-300">{formatPhone(phone)}</a>
               ))}
               {co.emails?.map((em, i) => (
                 <a key={i} href={`mailto:${em}`} className="text-stone-400 truncate max-w-[180px]">{em}</a>
@@ -48,16 +65,22 @@ const CompanyTable = ({ companies, onEdit, onDelete }) => {
               ))}
             </div>
 
-            {/* Adres */}
-            {co.addresses?.[0] && (
-              <div className="text-xs text-stone-400 border-t border-stone-700 pt-2">
-                {co.addresses[0].line1 && <div>{co.addresses[0].line1}</div>}
-                {co.addresses[0].line2 && <div>{co.addresses[0].line2}</div>}
-                <div className="flex gap-1 flex-wrap">
-                  {co.addresses[0].district && <span>{co.addresses[0].district}</span>}
-                  {co.addresses[0].city && <span className="font-medium text-stone-300">{co.addresses[0].city}</span>}
-                  {co.addresses[0].country && <span>{co.addresses[0].country}</span>}
-                </div>
+            {/* Adresler */}
+            {co.addresses?.length > 0 && (
+              <div className="border-t border-stone-700 pt-2 flex flex-wrap gap-x-4 gap-y-1">
+                {co.addresses.map((addr, i) => (
+                  <div key={i} className="text-xs text-stone-400">
+                    {addr.title && <span className="text-stone-500 mr-1">{addr.title}:</span>}
+                    {(addr.line1 || addr.line2) && (
+                      <div>{[addr.line1, addr.line2].filter(Boolean).join(" ")}</div>
+                    )}
+                    <div className="flex gap-1">
+                      {addr.district && <span>{addr.district}</span>}
+                      {addr.city && <span className="font-medium text-stone-300">{addr.city}</span>}
+                      {addr.country && <span>{addr.country}</span>}
+                    </div>
+                  </div>
+                ))}
               </div>
             )}
 

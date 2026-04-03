@@ -7,7 +7,8 @@ const authenticate = require("../middleware/authenticate");
 // (none defined yet, but can be added here in future)
 
 // 🔐 Protected routes (authentication required)
-router.get("/", authenticate, contactsController.index); // List all contacts
+router.get("/", authenticate, contactsController.index);
+router.get("/:id", authenticate, contactsController.show); // List all contacts
 router.post("/", authenticate, contactsController.create); // Create or find contact
 router.patch("/:id", authenticate, contactsController.update); // Update contact
 router.delete("/:id", authenticate, contactsController.destroy); // Delete contact

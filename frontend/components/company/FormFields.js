@@ -1,5 +1,6 @@
 import PhoneFields from "../formik/phoneFields";
 import FormikControl from "../formik/FormikControl";
+import TagField from "../formik/TagField";
 
 const FormFields = () => {
   return (
@@ -41,6 +42,7 @@ const FormFields = () => {
         className="text-white"
       />
       <PhoneFields />
+      <TagField name="tags" label="Etiketler" />
     </>
   );
 };

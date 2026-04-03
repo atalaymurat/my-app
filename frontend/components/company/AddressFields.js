@@ -42,18 +42,24 @@ const AddressFields = () => {
                   label="İlçe"
                   name={`addresses.${index}.district`}
                 />
-                <FormikControl
-                  control="input"
-                  type="text"
-                  label="Mahalle Sokak"
-                  name={`addresses.${index}.line1`}
-                />
-                <FormikControl
-                  control="input"
-                  type="text"
-                  label="Bina No / Kat"
-                  name={`addresses.${index}.line2`}
-                />
+                <div className="flex gap-2">
+                  <div className="flex-1">
+                    <FormikControl
+                      control="input"
+                      type="text"
+                      label="Mahalle Sokak"
+                      name={`addresses.${index}.line1`}
+                    />
+                  </div>
+                  <div className="w-32">
+                    <FormikControl
+                      control="input"
+                      type="text"
+                      label="Bina No / Kat"
+                      name={`addresses.${index}.line2`}
+                    />
+                  </div>
+                </div>
                 <FormikControl
                   control="input"
                   type="text"

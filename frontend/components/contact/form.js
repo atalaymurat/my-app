@@ -1,8 +1,7 @@
-import { Formik, Form, FieldArray, useFormikContext } from "formik";
+import { Formik, Form } from "formik";
 import * as Yup from "yup";
 import axios from "@/utils/axios";
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import EmailFields from "../formik/emailFields";
 import PhoneFields from "../formik/phoneFields";
 import FormFields from "./formFields";
@@ -20,58 +19,77 @@ const validationSchema = Yup.object({
     .max(3, "En fazla 3 email adresi ekleyebilirsiniz"),
 });
 
+const EMPTY_VALUES = {
+  name: "",
+  gender: "none",
+  emails: [""],
+  phones: ["90:"],
+};
 
-const NewForm = () => {
+const ContactForm = ({ contact }) => {
+  const [editMode, setEditMode] = useState(false);
   const [message, setMessage] = useState(null);
+
+  useEffect(() => {
+    if (contact) setEditMode(true);
+  }, [contact]);
+
+  const initialValues = editMode
+    ? {
+        name: contact.name || "",
+        gender: contact.gender || "none",
+        emails: contact.emails?.length ? contact.emails : [""],
+        phones: contact.phones?.length ? contact.phones : ["90:"],
+      }
+    : EMPTY_VALUES;
+
   return (
     <>
-      <div className="px-2 max-w-4xl mx-auto">
+      <div className="w-full px-2 max-w-4xl mx-auto">
         <Formik
           enableReinitialize
-          initialValues={{
-            name: "",
-            gender: "none",
-            emails: [""],
-            phones: [""],
-          }}
+          initialValues={initialValues}
           validationSchema={validationSchema}
           onSubmit={async (values, { setSubmitting, resetForm }) => {
             setMessage(null);
-            console.log("Form Values", JSON.stringify(values, null, 2));
             setSubmitting(true);
-            // make api call to create new contact
+            const payload = {
+              ...values,
+              phones: values.phones.filter(p => p && p !== "90:").map(p => {
+                if (p.includes(":")) {
+                  const [cc, local] = p.split(":");
+                  return (cc || "") + (local || "");
+                }
+                return p.replace(/\D/g, "");
+              }).filter(Boolean),
+            };
             try {
-              const response = await axios.post("/api/contact", values);
-              console.log("CONTACTS RESPONSE", response.data);
-              if (response.data.success) {
-                setMessage({
-                  text: response.data.message || "Başarıyla Kaydedildi",
-                  type: "success",
-                });
-                // resetForm();
+              if (editMode) {
+                const response = await axios.patch(`/api/contact/${contact._id}`, payload);
+                if (response.data) {
+                  setMessage({ text: "Başarıyla Güncellendi", type: "success" });
+                }
               } else {
-                setMessage({
-                  text: response.data.message + "Bir hata oluştu.",
-                  type: "error",
-                });
+                const response = await axios.post("/api/contact", payload);
+                if (response.data.success) {
+                  setMessage({ text: response.data.message || "Başarıyla Kaydedildi", type: "success" });
+                  resetForm();
+                } else {
+                  setMessage({ text: response.data.message || "Bir hata oluştu.", type: "error" });
+                }
               }
             } catch (error) {
-              console.error("Error creating contact:", error);
-              setMessage({
-                text: error.response?.data?.message || "Bir hata oluştu.",
-                type: "error",
-              });
+              setMessage({ text: error.response?.data?.message || "Bir hata oluştu.", type: "error" });
             } finally {
               setSubmitting(false);
             }
           }}
         >
           {({ isSubmitting }) => (
-            <Form autoComplete="false">
+            <Form autoComplete="off">
               <FormFields />
               <PhoneFields />
               <EmailFields />
-
               <MessageBlock message={message} />
               <FormSaveButton isSubmitting={isSubmitting} />
             </Form>
@@ -82,4 +100,4 @@ const NewForm = () => {
   );
 };
 
-export default NewForm;
+export default ContactForm;

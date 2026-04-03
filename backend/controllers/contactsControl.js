@@ -1,106 +1,83 @@
-const { Contact } = require("../models/contact/contact.model");
-const UserContact = require("../models/contact/userContact");
-const normalizeData = require("./utils/contacts/normalizeData");
-const {
-  handleContactCreateOrUpdate,
-  handleUserContactCreateOrUpdateLink,
-} = require("./services/contactServices");
+const Contact = require("../models/contact/userContact");
 
 module.exports = {
   index: async (req, res) => {
-    // response all contact records
     try {
       const page = parseInt(req.query.page) || 1;
       const limit = parseInt(req.query.limit) || 10;
       const skip = (page - 1) * limit;
-      const filter = { user: req.user._id };
 
-      const totalContacts = await UserContact.countDocuments(filter);
-      const contacts = await UserContact.find(filter)
+      const total = await Contact.countDocuments({ user: req.user._id });
+      const contacts = await Contact.find({ user: req.user._id })
         .skip(skip)
         .limit(limit)
         .sort({ createdAt: -1 });
 
-
       res.json({
-        message: "success",
+        success: true,
         contacts,
-        totalPages: Math.ceil(totalContacts / limit),
+        totalPages: Math.ceil(total / limit),
         currentPage: page,
       });
     } catch (err) {
-      res
-        .status(500)
-        .json({ message: "Failed to retrieve contacts", error: err.message });
+      res.status(500).json({ message: "Failed to retrieve contacts", error: err.message });
     }
   },
+
+  show: async (req, res) => {
+    try {
+      const contact = await Contact.findOne({ _id: req.params.id, user: req.user._id });
+      if (!contact) return res.status(404).json({ message: "Contact not found" });
+      res.status(200).json({ success: true, contact });
+    } catch (err) {
+      res.status(500).json({ message: "Failed to fetch contact", error: err.message });
+    }
+  },
+
   create: async (req, res) => {
-    // create contact via method findOrCreate on model
     try {
-      if (!req.user || !req.body) {
-        return res
-          .status(400)
-          .json({ message: "No valid user or data found." });
-      }
-      const data = req.body;
-      const user = req.user;
-      // normalize data
-      const normalized = normalizeData(data, user);
-      // check find if existing and update otherwise create new contact
-      const contact = await handleContactCreateOrUpdate(normalized);
-
-      // Create userContact record if not exists, otherwise update it if there are changes
-      const userContact = await handleUserContactCreateOrUpdateLink(
-        user,
-        contact,
-        data,
-      );
-
-      return res.status(200).json({
-        contact,
-        userContact,
-        success: true,
-        message: "Data proceed successfully",
+      const { name, gender, phones, emails, formattedPhones } = req.body;
+      const contact = await Contact.create({
+        name,
+        gender: gender || "none",
+        phones: formattedPhones?.filter(Boolean) || phones?.filter(Boolean) || [],
+        emails: emails?.filter(Boolean) || [],
+        user: req.user._id,
       });
+      res.status(200).json({ success: true, contact, message: "Kaydedildi" });
     } catch (err) {
-      console.error("Error on ContactsControl.create", err);
-      res
-        .status(500)
-        .json({
-          success: false,
-          message: "Failed to create contact",
-          error: err.message,
-        });
+      res.status(500).json({ success: false, message: "Failed to create contact", error: err.message });
     }
   },
+
   update: async (req, res) => {
-    // find and update record
     try {
-      const contact = await Contact.findByIdAndUpdate(req.params.id, req.body, {
-        new: true,
-        runValidators: true,
-      });
-
-      if (!contact) {
-        return res.status(404).json({ message: "Contact not found" });
-      }
-
-      res.status(200).json(contact);
+      const { name, gender, phones, emails, formattedPhones } = req.body;
+      const updateData = {
+        ...(name && { name }),
+        ...(gender && { gender }),
+        ...(emails && { emails: emails.filter(Boolean) }),
+        ...((formattedPhones || phones) && {
+          phones: (formattedPhones || phones).filter(Boolean),
+        }),
+      };
+      const contact = await Contact.findOneAndUpdate(
+        { _id: req.params.id, user: req.user._id },
+        updateData,
+        { new: true }
+      );
+      if (!contact) return res.status(404).json({ message: "Contact not found" });
+      res.status(200).json({ success: true, contact });
     } catch (err) {
-      res
-        .status(400)
-        .json({ message: "Failed to update contact", error: err.message });
+      res.status(400).json({ message: "Failed to update contact", error: err.message });
     }
   },
+
   destroy: async (req, res) => {
     try {
-      const contact = await UserContact.findOneAndDelete({ _id: req.params.id, user: req.user._id });
-
-      if (!contact) {
-        return res.status(404).json({ message: "Contact not found" });
-      }
-
-      res.status(200).json({ message: "Contact deleted successfully" });
+      const contact = await Contact.findOneAndDelete({ _id: req.params.id, user: req.user._id });
+      if (!contact) return res.status(404).json({ message: "Contact not found" });
+      res.status(200).json({ success: true, message: "Contact deleted" });
     } catch (err) {
       res.status(500).json({ message: "Failed to delete contact", error: err.message });
     }

@@ -1,3 +1,23 @@
+const formatPhone = (phone) => {
+  const d = phone.replace(/\D/g, "");
+  if (!d) return phone;
+  // Try to detect country code: 1 digit (US/CA), 2 digits (TR/DE/etc), 3 digits
+  // Heuristic: Turkish numbers are 12 digits total (90 + 10)
+  let cc, local;
+  if (d.length >= 11 && d.length <= 13) {
+    const ccLen = d.length === 11 ? 1 : d.length === 12 ? 2 : 3;
+    cc = d.slice(0, ccLen);
+    local = d.slice(ccLen);
+  } else {
+    return "+" + d;
+  }
+  const l = local;
+  const formatted = l.length === 10
+    ? `${l.slice(0, 3)} ${l.slice(3, 6)} ${l.slice(6, 8)} ${l.slice(8, 10)}`
+    : l;
+  return `+${cc} ${formatted}`;
+};
+
 const genderIcon = (gender) => {
   if (gender === "male") return "♂";
   if (gender === "female") return "♀";
@@ -13,11 +33,11 @@ const ContactTable = ({ contacts, onEdit, onDelete }) => {
           {/* Başlık */}
           <div className="bg-stone-700 px-3 py-2 flex items-center justify-between">
             <span className="font-bold text-white capitalize">
-              {genderIcon(co.uGender)} {co.uName}
+              {genderIcon(co.gender)} {co.name}
             </span>
             <div className="flex items-center gap-2">
-              {co.uImage && (
-                <img src={co.uImage} alt={co.uName} className="w-8 h-8 rounded-full object-cover" />
+              {co.image && (
+                <img src={co.image} alt={co.name} className="w-8 h-8 rounded-full object-cover" />
               )}
               <button onClick={() => onEdit?.(co)} className="text-stone-400 hover:text-blue-400 transition cursor-pointer">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
@@ -36,18 +56,18 @@ const ContactTable = ({ contacts, onEdit, onDelete }) => {
 
             {/* Telefon & Email */}
             <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs">
-              {co.uPhones?.map((phone, i) => (
-                <a key={i} href={`tel:${phone}`} className="text-stone-300">{phone}</a>
+              {co.phones?.map((phone, i) => (
+                <a key={i} href={`tel:${phone}`} className="text-stone-300">{formatPhone(phone)}</a>
               ))}
-              {co.uEmails?.map((em, i) => (
+              {co.emails?.map((em, i) => (
                 <a key={i} href={`mailto:${em}`} className="text-stone-400 truncate max-w-[180px]">{em}</a>
               ))}
             </div>
 
             {/* Firma */}
-            {co.uCompany && (
+            {co.company && (
               <div className="text-xs text-stone-500 border-t border-stone-700 pt-2">
-                {co.uCompany?.title || co.uCompany}
+                {co.company?.title || co.company}
               </div>
             )}
 

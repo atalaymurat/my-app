@@ -4,7 +4,6 @@ const createNewCompany = require("./utils/company/createNewCompany");
 
 module.exports = {
   index: async (req, res) => {
-    console.log("Company Index Req User ", req.user);
     try {
       const page = parseInt(req.query.page) || 1;
       const limit = parseInt(req.query.limit) || 10;
@@ -58,6 +57,32 @@ module.exports = {
         district: company.addresses?.[0]?.district || "",
       })),
     });
+  },
+
+  show: async (req, res) => {
+    try {
+      const company = await Company.findOne({ _id: req.params.id, user: req.user._id });
+      if (!company) return res.status(404).json({ message: "Company not found" });
+      res.status(200).json({ success: true, company });
+    } catch (err) {
+      res.status(500).json({ message: "Failed to fetch company", error: err.message });
+    }
+  },
+
+  update: async (req, res) => {
+    try {
+      const userId = req.user._id;
+      const normalizedData = normalizeCompanyData(req.body, userId);
+      const company = await Company.findOneAndUpdate(
+        { _id: req.params.id, user: userId },
+        normalizedData,
+        { new: true }
+      );
+      if (!company) return res.status(404).json({ message: "Company not found" });
+      res.status(200).json({ success: true, company });
+    } catch (err) {
+      res.status(400).json({ message: "Failed to update company", error: err.message });
+    }
   },
 
   destroy: async (req, res) => {

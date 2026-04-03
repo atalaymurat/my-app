@@ -1,5 +1,5 @@
 "use client";
-import NewForm from "@/components/company/NewForm";
+import CompanyForm from "@/components/company/CompanyForm";
 
 export default function NewCompany() {
   return (
@@ -7,7 +7,7 @@ export default function NewCompany() {
       <div className="font-bold text-2xl text-white">
         Firma veya Şahıs Şirket Kaydı Oluştur...
       </div>
-      <NewForm />
+      <CompanyForm />
     </div>
   );
 }
