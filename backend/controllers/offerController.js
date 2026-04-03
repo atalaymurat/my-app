@@ -7,7 +7,7 @@ const {
 const Offer = require("../models/offer/Offer");
 const normalizeOfferData = require("./utils/offer/normalizeOfferData");
 const createNewCompany = require("./utils/company/createNewCompany");
-const Decimal = require("decimal.js");
+const createOrFindContact = require("./utils/contact/createOrFindContact");
 
 module.exports = {
   create: async (req, res) => {
@@ -22,18 +22,23 @@ module.exports = {
       const rawData = req.body;
 
       // Veriyi normalize et
-      const { offerData, versionData, needsCompanyCreation, companyData } =
+      const { offerData, versionData, needsCompanyCreation, companyData, contactData } =
         normalizeOfferData(rawData, userId);
 
       // Eğer companyId yoksa, şirketi oluştur
       if (needsCompanyCreation && companyData) {
         const normalized = normalizeCompanyData(companyData, userId);
-        const company = await createNewCompany(
-          normalized,
-          companyData,
-        );
+        const company = await createNewCompany(normalized, companyData);
         offerData.company = company._id;
       }
+
+      // İletişim kişisini bul veya oluştur
+      const contactId = await createOrFindContact({
+        ...contactData,
+        companyId: offerData.company,
+        userId,
+      });
+      if (contactId) offerData.contact = contactId;
 
       // user bilgisini ekle
       offerData.user = userId;
@@ -54,6 +59,29 @@ module.exports = {
         error: error.message,
         success: false,
       });
+    }
+  },
+
+  destroy: async (req, res) => {
+    try {
+      const record = await Offer.findByIdAndDelete(req.params.id);
+      if (!record) return res.status(404).json({ message: "Teklif bulunamadı.", success: false });
+      return res.status(200).json({ message: "Teklif silindi.", success: true });
+    } catch (error) {
+      return res.status(500).json({ message: error.message, success: false });
+    }
+  },
+
+  show: async (req, res) => {
+    try {
+      const record = await Offer.findById(req.params.id)
+        .populate("company")
+        .populate("contact")
+        .exec();
+      if (!record) return res.status(404).json({ message: "Teklif bulunamadı.", success: false });
+      return res.status(200).json({ success: true, record });
+    } catch (error) {
+      return res.status(500).json({ message: error.message, success: false });
     }
   },
 

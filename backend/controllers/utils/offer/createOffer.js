@@ -6,6 +6,7 @@ async function createOffer(data) {
     _id,
     docCode,
     company,
+    contact,
     docType,
     user,
     title,
@@ -57,6 +58,7 @@ async function createOffer(data) {
       docCode,
       docType,
       company,
+      contact: contact || undefined,
       user,
       versions: [versionData],
     });

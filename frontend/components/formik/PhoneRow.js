@@ -12,8 +12,8 @@ const toMasked = (digits) => {
   return out;
 };
 
-const PhoneRow = React.memo(({ index, onRemove, phones }) => {
-  const [field, meta, helpers] = useField(`phones.${index}`);
+const PhoneRow = React.memo(({ index, onRemove, phones, baseName = "phones" }) => {
+  const [field, meta, helpers] = useField(`${baseName}.${index}`);
   const isTyping = useRef(false);
 
   const parseValue = (val) => {

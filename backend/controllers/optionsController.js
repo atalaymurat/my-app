@@ -117,8 +117,10 @@ module.exports = {
       const list = records.map((record) => ({
         value: record._id.toString(),
         label: record.title,
-        listPrice: record.priceList?.value,
-        currency: record.priceList?.currency,
+        listPrice: record.priceList || 0,
+        offerPrice: record.priceOffer || 0,
+        netPrice: record.priceNet || 0,
+        currency: record.currency,
         desc: record.description,
       }));
       res.status(200).json({

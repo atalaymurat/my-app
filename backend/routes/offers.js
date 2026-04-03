@@ -7,7 +7,9 @@ const authenticate = require("../middleware/authenticate");
 
 // Protected routes
 router.get("/", authenticate, offersController.index);
+router.get("/:id", authenticate, offersController.show);
 router.post("/", authenticate, offersController.create);
+router.delete("/:id", authenticate, offersController.destroy);
 
 module.exports = router;
 

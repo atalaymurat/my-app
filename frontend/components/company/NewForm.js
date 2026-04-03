@@ -11,6 +11,7 @@ import WebUrlWithMeta from "@/components/company/WebUrlWithMeta";
 import { companyValidationSchema } from "@/components/company/validationSchema";
 import AddressFields from "@/components/company/AddressFields";
 import FormFields from "@/components/company/FormFields";
+import ContactFields from "@/components/company/ContactFields";
 const NewForm = () => {
   const [metadata, setMetadata] = useState(null);
   const [message, setMessage] = useState(null);
@@ -29,6 +30,10 @@ const NewForm = () => {
         favicon: "",
         ogImage: "",
         description: "",
+        contactId: "",
+        contactName: "",
+        contactPhone: "",
+        contactEmail: "",
         addresses: [
           {
             title: "",
@@ -43,7 +48,7 @@ const NewForm = () => {
         ],
       }}
       validationSchema={companyValidationSchema}
-      onSubmit={async (values, { setSubmitting, resetForm }) => {
+      onSubmit={async (values, { setSubmitting }) => {
         setSubmitting(true);
 
         const { data } = await axios.post("/api/company", values);
@@ -78,6 +83,7 @@ const NewForm = () => {
           <FormFields />
           <EmailFields />
 
+          <ContactFields />
           <AddressFields />
 
           <MessageBlock message={message} />

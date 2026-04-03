@@ -6,112 +6,85 @@ import FormSaveButton from "@/components/formSaveButton";
 import MessageBlock from "@/components/messageBlock";
 import axios from "@/utils/axios";
 
-const NewForm = () => {
+const DEFAULT_VALUES = {
+  caption: "", make: "", model: "", year: "", condition: "", currency: "EUR", options: [],
+  variants: [{ modelType: "", code: "", priceNet: "", priceOffer: "", priceList: "", stock: "", technicalSpecs: [{ key: "", value: "" }] }],
+};
+
+function mapMasterToForm(product) {
+  return {
+    caption: product.caption || "",
+    make: product.make?._id || product.make || "",
+    model: product.model || "",
+    year: product.year || "",
+    condition: product.condition || "",
+    currency: product.currency || "EUR",
+    options: product.options || [],
+    variants: product.variants?.length > 0
+      ? product.variants.map((v) => ({
+          modelType: v.modelType || "",
+          code: v.code || "",
+          priceNet: v.priceNet ?? "",
+          priceOffer: v.priceOffer ?? "",
+          priceList: v.priceList ?? "",
+          stock: v.stock ?? "",
+          technicalSpecs: v.technicalSpecs?.length > 0 ? v.technicalSpecs : [{ key: "", value: "" }],
+        }))
+      : DEFAULT_VALUES.variants,
+  };
+}
+
+const NewForm = ({ masterId }) => {
   const [message, setMessage] = useState(null);
-  const [options, setOptions] = useState([]);
   const [makes, setMakes] = useState([]);
-  const [loadingOptions, setLoadingOptions] = useState(false);
+  const [loadingMakes, setLoadingMakes] = useState(false);
+  const [initialValues, setInitialValues] = useState(DEFAULT_VALUES);
 
   useEffect(() => {
     const fetchMakes = async () => {
       try {
-        setLoadingOptions(true);
+        setLoadingMakes(true);
         const { data } = await axios.get("/api/make");
-        console.log("Makes :::", data);
-
-        if (data.success) {
-          const formatted = data.makes.map((item) => ({
-            value: item._id,
-            label: item.name,
-          }));
-
-          setMakes(formatted);
-        }
-      } catch (err) {
-        console.error("Makes fetch error:", err);
-      } finally {
-        setLoadingOptions(false);
-      }
+        if (data.success) setMakes(data.makes.map((m) => ({ value: m._id, label: m.name })));
+      } catch { /* ignore */ }
+      finally { setLoadingMakes(false); }
     };
-    const fetchOptions = async () => {
-      try {
-        setLoadingOptions(true);
-        const { data } = await axios.get("/api/option");
-        console.log("Optıons :::", data);
-
-        if (data.success) {
-          const formatted = data.options.map((opt) => ({
-            value: opt._id,
-            label: opt.title,
-          }));
-
-          setOptions(formatted);
-        }
-      } catch (err) {
-        console.error("Options fetch error:", err);
-      } finally {
-        setLoadingOptions(false);
-      }
-    };
-
     fetchMakes();
   }, []);
 
+  useEffect(() => {
+    if (!masterId) return;
+    const fetchMaster = async () => {
+      try {
+        const { data } = await axios.get(`/api/master/${masterId}`);
+        if (data.success) setInitialValues(mapMasterToForm(data.product));
+      } catch { /* ignore */ }
+    };
+    fetchMaster();
+  }, [masterId]);
+
+  const handleSubmit = async (values, { setSubmitting }) => {
+    setSubmitting(true);
+    try {
+      const { data } = masterId
+        ? await axios.put(`/api/master/${masterId}`, values)
+        : await axios.post("/api/master", values);
+      if (data.success) {
+        setMessage({ text: data.message || "Başarıyla Kaydedildi", type: "success" });
+      }
+    } catch {
+      setMessage({ text: "Bir hata oluştu", type: "error" });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   return (
     <div>
-      <Formik
-        enableReinitialize={true}
-        initialValues={{
-          caption: "",
-          make: "",
-          model: "",
-          year: "",
-          condition: "",
-          currency: "EUR",
-          options: [],
-          variants: [
-            {
-              modelType: "",
-              code: "",
-              priceNet: "",
-              priceOffer: "",
-              priceList: "",
-              stock: "",
-              technicalSpecs: [
-                {
-                  key: "",
-                  value: "",
-                },
-              ],
-            },
-          ],
-        }}
-        onSubmit={async (values, { setSubmitting, resetForm }) => {
-          setSubmitting(true);
-          console.log(
-            "Form submitted with values:",
-            JSON.stringify(values, null, 2),
-          );
-          try {
-            const { data } = await axios.post("/api/master", values);
-            if (data.success) {
-              setMessage({
-                text: data.message || "Başarıyla Kaydedildi",
-                type: "success",
-              });
-            }
-          } catch (err) {
-            console.log("Error during form submission:", err);
-          }
-        }}
-      >
+      <Formik enableReinitialize={true} initialValues={initialValues} onSubmit={handleSubmit}>
         {({ isSubmitting }) => (
           <Form autoComplete="off">
-            <FormFields
-              options={options}
-              loading={loadingOptions}
-              makes={makes}
-            />
+            <FormFields loading={loadingMakes} makes={makes} />
             <MessageBlock message={message} />
             <FormSaveButton isSubmitting={isSubmitting} />
           </Form>

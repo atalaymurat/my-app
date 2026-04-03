@@ -24,6 +24,20 @@ module.exports = {
     }
   },
 
+  find: async (req, res) => {
+    try {
+      const { search = "" } = req.query;
+      if (search.length < 2) return res.json({ success: true, contacts: [] });
+      const contacts = await Contact.find({
+        user: req.user._id,
+        name: { $regex: search, $options: "i" },
+      }).limit(10).select("name phones emails");
+      res.json({ success: true, contacts });
+    } catch (err) {
+      res.status(500).json({ message: "Search failed", error: err.message });
+    }
+  },
+
   show: async (req, res) => {
     try {
       const contact = await Contact.findOne({ _id: req.params.id, user: req.user._id });

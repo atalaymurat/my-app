@@ -1,26 +1,26 @@
-import { Formik, Form, FieldArray, useFormikContext } from "formik";
+import { FieldArray } from "formik";
 import FormikControl from "./FormikControl";
 
-export default function EmailFields({}) {
+export default function EmailFields({ name = "emails" }) {
   return (
-    <FieldArray name="emails">
+    <FieldArray name={name}>
       {({ push, remove, form }) => {
         const { values } = form;
-        const { emails } = values;
+        const emails = values[name] || [];
         return (
           <div className="border border-blue-800 text-gray-500 rounded-lg py-4 px-2 mb-2">
             <div className="font-semibold text-xl text-blue-800">E-Postalar</div>
-            {emails?.map((em, index) => (
+            {emails?.map((_, index) => (
               <div key={index} className="grid grid-cols-5 gap-1">
                 <div className="col-span-4">
                   <FormikControl
                     control="input"
                     type="text"
                     label="Eposta"
-                    name={`emails.${index}`}
+                    name={`${name}.${index}`}
                   />
                 </div>
-                {values.emails.length > 1 && (
+                {emails.length > 1 && (
                   <div className="flex items-end">
                     <button
                       type="button"
@@ -47,7 +47,7 @@ export default function EmailFields({}) {
               </div>
             ))}
 
-            {values.emails.length < 3 && (
+            {emails.length < 3 && (
               <button
                 type="button"
                 className="btn-submit my-2 w-full"

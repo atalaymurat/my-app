@@ -7,27 +7,29 @@ const Schema = mongoose.Schema;
 const lineItemSchema = new Schema(
   {
     productValue: String, // base veya conf ürünün id'si + prefix
+    variantId: String,
     title: String,
     priceList: Number,
+    priceOffer: Number,
+    priceNet: Number,
     currency: String,
-    desc: String,
     selectedOptions: [
       {
         optionId: String,
         quantity: Number,
-        unitPrice: Number,
+        listPrice: Number,
+        offerPrice: Number,
+        netPrice: Number,
         currency: String,
+        desc: String,
       },
-    ], // opsiyonların başlıkları
-    priceNet: Number,
+    ],
     notes: String,
-    make: String, // üretici
-    model: String, // model
-    year: String, // üretim yılı
-    condition: String, // ürün durumu
-    quantity: { type: Number, default: 1 }, // miktar
-    priceNetTotal: { value: Number, currency: String }, // net toplam
-    priceListTotal: { value: Number, currency: String }, // liste fiyatı toplam
+    condition: String,
+    quantity: { type: Number, default: 1 },
+    priceListTotal: { value: Number, currency: String },
+    priceOfferTotal: { value: Number, currency: String },
+    priceNetTotal: { value: Number, currency: String },
   },
   { _id: false },
 ); // _id olmadan gömülü doküman olarak tutulacak
@@ -47,8 +49,9 @@ const offerVersionSchema = new Schema(
 
     lineItems: [lineItemSchema],
 
-    priceNetTotal: { value: Number, currency: String },
     priceListTotal: { value: Number, currency: String },
+    priceOfferTotal: { value: Number, currency: String },
+    priceNetTotal: { value: Number, currency: String },
     priceVat: { value: Number, currency: String },
     priceDiscount: { value: Number, currency: String },
     priceGrandTotal: { value: Number, currency: String },
@@ -74,6 +77,7 @@ const offerSchema = new Schema(
     }, // BURADA
 
     company: { type: Schema.Types.ObjectId, ref: "Company", required: true },
+    contact: { type: Schema.Types.ObjectId, ref: "Contact" },
     user: { type: Schema.Types.ObjectId, ref: "User", required: true },
 
     versions: {

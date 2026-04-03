@@ -13,6 +13,8 @@ router.get("/options/:id", authenticate, masterProductController.optionsByMaster
 router.get("/masterbymake/:id", authenticate, masterProductController.masterByMake);
 router.get("/make", authenticate, masterProductController.makeList);
 router.post("/", authenticate, masterProductController.create);
+router.get("/:id", authenticate, masterProductController.show);
+router.put("/:id", authenticate, masterProductController.update);
 router.delete("/:id", authenticate, masterProductController.destroy);
 
 module.exports = router;

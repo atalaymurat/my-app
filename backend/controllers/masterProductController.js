@@ -4,6 +4,31 @@ const MasterProduct = require("../models/masterProduct/MasterProduct");
 const Option = require("../models/options/Option");
 
 module.exports = {
+  show: async (req, res) => {
+    try {
+      const product = await MasterProduct.findOne({ _id: req.params.id, user: req.user._id }).populate("make", "name");
+      if (!product) return res.status(404).json({ message: "Product not found", success: false });
+      res.status(200).json({ success: true, product });
+    } catch (err) {
+      res.status(500).json({ message: "Failed to get product", error: err.message });
+    }
+  },
+
+  update: async (req, res) => {
+    try {
+      const normalized = normalizeData(req.body, req.user._id);
+      const product = await MasterProduct.findOneAndUpdate(
+        { _id: req.params.id, user: req.user._id },
+        { $set: normalized },
+        { new: true, runValidators: true }
+      );
+      if (!product) return res.status(404).json({ message: "Product not found", success: false });
+      res.status(200).json({ success: true, message: "Güncellendi", product });
+    } catch (err) {
+      res.status(500).json({ message: "Failed to update product", error: err.message });
+    }
+  },
+
   destroy: async (req, res) => {
     try {
       const product = await MasterProduct.findOneAndDelete({ _id: req.params.id, user: req.user._id });
@@ -160,13 +185,17 @@ module.exports = {
     try {
       // Master Product Listesini Çek Ve Opsyonlarını ilave et
       const query = { user: req.user._id };
-      const records = await MasterProduct.find(query);
+      const records = await MasterProduct.find(query).populate("make", "name");
 
       const list = records.map((record) => ({
         value: record._id,
         label: record.title,
         currency: record.currency,
         caption: record.caption,
+        condition: record.condition,
+        makeId: record.make?._id,
+        makeName: record.make?.name,
+        variants: record.variants || [],
       }));
 
       res.status(200).json({

@@ -45,13 +45,15 @@ const OfferPage = () => {
           <PageLinks links={[{ href: "/shield/offer/new", label: "New" }]} />
           <OfferTable offers={offers} />
         </div>
-        <div className="text-white">
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={handlePageChange}
-          />
-        </div>
+        {totalPages > 1 && (
+          <div className="text-white">
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+            />
+          </div>
+        )}
       </div>
     );
   }

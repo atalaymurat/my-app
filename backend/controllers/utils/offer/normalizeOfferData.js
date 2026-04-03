@@ -1,132 +1,89 @@
 const calculateOfferTotals = require("./calcOfferTotals");
 const generateNewCode = require("../generateNewCode");
-const Decimal = require("decimal.js");
+
+// Sadece veri şekillendirme — math yok
+function shapeLineItems(lineItems = []) {
+  return lineItems.map((item) => ({
+    productValue: item.productValue,
+    variantId: item.selectedVariantId || "",
+    title: item.title?.trim() || "",
+    currency: item.currency || "TRY",
+    quantity: Number(item.quantity) || 1,
+    condition: item.condition || "",
+    notes: item.notes?.trim() || "",
+    // Ham fiyat verileri — hesaplama calcOfferTotals'ta yapılır
+    variantPriceList: Number(item.variantPriceList) || 0,
+    variantPriceOffer: Number(item.variantPriceOffer) || 0,
+    variantPriceNet: Number(item.variantPriceNet) || 0,
+    formPriceOffer: Number(item.priceOffer) || 0, // kullanıcı override
+    selectedOptions: (item.selectedOptions || []).map((o) => ({
+      optionId: o.value,
+      quantity: Number(o.quantity) || 1,
+      listPrice: Number(o.listPrice) || 0,
+      offerPrice: Number(o.offerPrice) || 0,
+      netPrice: Number(o.netPrice) || 0,
+      currency: o.currency || item.currency || "TRY",
+      desc: o.desc?.trim() || "",
+    })),
+  }));
+}
 
 function normalizeOfferData(formData = {}, userId) {
   const {
-    companyId,
-    title,
-    vatTitle,
-    email,
-    domain,
-    line1,
-    line2,
-    district,
-    city,
-    country,
-    lineItems = [],
-    showTotals,
-    showVat,
-    docDate: docDateRaw,
-    paymentTerms = "",
-    deliveryTerms = "",
-    warranty = "",
-    priceNetTotal,
-    priceListTotal,
-    priceVat,
-    priceDiscount,
-    priceGrandTotal,
-    docCode = "",
-    docType = "Teklif",
-    validDate: validDateRaw,
-    vatRate,
-    ...rest
+    _id,
+    companyId, title, vatTitle, email, domain,
+    line1, line2, district, city, country,
+    contactId, contactName, contactPhone, contactEmail,
+    lineItems = [], showTotals, showVat,
+    docDate: docDateRaw, validDate: validDateRaw,
+    paymentTerms = "", deliveryTerms = "", warranty = "",
+    docCode = "", docType = "Teklif", vatRate,
   } = formData;
 
-  // ✅ companyData oluşturulacaksa, en az title olmalı
-  const hasCompanyData =
-    title?.trim() || vatTitle?.trim() || email || domain || city;
-
-  // ❌ companyId ve companyData yoksa: işlemi durdur
+  const hasCompanyData = title?.trim() || vatTitle?.trim() || email || domain || city;
   if (!companyId && !hasCompanyData) {
     throw new Error("Firma bilgisi eksik: companyId veya companyData gerekli.");
   }
-
-  const address = {
-    line1: line1?.trim(),
-    line2: line2?.trim(),
-    district: district?.trim(),
-    city: city?.trim(),
-    country: country?.trim(),
-  };
 
   const companyData = {
     title: title?.trim(),
     vatTitle: vatTitle?.trim(),
     emails: email ? [email.trim().toLowerCase()] : [],
     domains: domain ? [domain.trim().toLowerCase()] : [],
-    addresses: [address],
+    addresses: [{
+      line1: line1?.trim(), line2: line2?.trim(),
+      district: district?.trim(), city: city?.trim(), country: country?.trim(),
+    }],
   };
-
-
-  const normalizedLineItems = lineItems.map((item) => {
-    const basePrice = new Decimal(item.basePrice || 0);
-    const quantity = new Decimal(item.quantity || 1);
-
-    const optionsTotal = (item.selectedOptions || []).reduce(
-      (sum, opt) =>
-        sum.plus(
-          new Decimal(opt.listPrice || 0).times(new Decimal(opt.quantity || 1)),
-        ),
-      new Decimal(0),
-    );
-    const priceNet = new Decimal(item.priceNet || 0)
-    const unitPrice = basePrice.plus(optionsTotal);
-
-    return {
-      productValue: item.productValue,
-      title: item.title?.trim(),
-
-      basePrice: basePrice.toNumber(), // saklamak istiyorsan
-      priceList: unitPrice.toNumber(), // backend hesapladı
-      priceNet: priceNet.toNumber(), // şimdilik net = list
-
-      currency: item.currency || "TRY",
-
-      quantity: quantity.toNumber(),
-
-      selectedOptions: (item.selectedOptions || []).map((opt) => ({
-        optionId: opt.value,
-        quantity: opt.quantity || 1,
-        currency: opt.currency,
-        desc: opt.desc,
-        unitPrice: opt.listPrice,
-      })),
-
-      desc: item.desc?.trim(),
-      notes: item.notes?.trim() || "",
-    };
-  });
 
   const docDate = docDateRaw ? new Date(docDateRaw) : new Date();
   const validDate = validDateRaw
     ? new Date(validDateRaw)
     : new Date(Date.now() + 15 * 24 * 60 * 60 * 1000);
 
-  // Dilersen toplamları hesaplayıp buraya ekleyebilirsin
-
   const offerData = {
-    docCode:
-      docCode ||
-      generateNewCode({ type: docType, title: companyData.title, version: 1 }),
+    _id: _id || undefined,
+    docCode: docCode || generateNewCode({ type: docType, title: companyData.title, version: 1 }),
     docType,
     company: companyId,
     user: userId,
   };
 
-  const totals = calculateOfferTotals(normalizedLineItems, {
+  // Tüm hesaplama tek noktadan
+  const totals = calculateOfferTotals(shapeLineItems(lineItems), {
     showVat,
     vatRate: vatRate || 0,
   });
 
   const versionData = {
-    docDate,
-    validDate,
-    paymentTerms,
-    deliveryTerms,
-    warranty,
-    lineItems: normalizedLineItems,
-    ...totals,
+    docDate, validDate, paymentTerms, deliveryTerms, warranty,
+    lineItems: totals.lineItems,
+    priceListTotal: totals.priceListTotal,
+    priceOfferTotal: totals.priceOfferTotal,
+    priceNetTotal: totals.priceNetTotal,
+    priceVat: totals.priceVat,
+    priceDiscount: totals.priceDiscount,
+    priceGrandTotal: totals.priceGrandTotal,
     vatRate: vatRate || 0,
     showTotals: showTotals !== undefined ? showTotals : true,
     showVat: showVat !== undefined ? showVat : true,
@@ -138,6 +95,7 @@ function normalizeOfferData(formData = {}, userId) {
     versionData,
     needsCompanyCreation: !companyId,
     companyData: !companyId ? companyData : null,
+    contactData: { contactId, contactName, contactPhone, contactEmail },
   };
 }
 

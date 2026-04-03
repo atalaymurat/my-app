@@ -1,4 +1,3 @@
-// useProductOptions.js
 import { useState, useEffect, useMemo } from "react";
 import axios from "@/utils/axios";
 
@@ -10,8 +9,7 @@ export function useOfferItems() {
     (async () => {
       try {
         const { data } = await axios.get("/api/master/offer");
-        console.log("MASTER S", JSON.stringify(data.list, null, 2));
-        setMasters(data.list);
+        setMasters(data.list || []);
       } catch (e) {
         console.error("Error fetching products", e);
       } finally {
@@ -20,18 +18,30 @@ export function useOfferItems() {
     })();
   }, []);
 
-  const items = useMemo(
-    () => [
-      ...masters.map((p) => ({
-        value: `${p.value}`,
-        label: `${p.label}`,
-        title: p.caption,
-        currency: p.currency,
-
-      })),
-    ],
-    [masters],
+  const items = useMemo(() =>
+    masters.map((p) => ({
+      value: String(p.value),
+      label: p.label,
+      title: p.caption,
+      desc: p.caption,
+      currency: p.currency,
+      condition: p.condition,
+      makeId: String(p.makeId),
+      makeName: p.makeName,
+      variants: p.variants || [],
+    })),
+    [masters]
   );
 
-  return { items, loading };
+  const makes = useMemo(() => {
+    const map = {};
+    items.forEach((p) => {
+      if (p.makeId && !map[p.makeId]) {
+        map[p.makeId] = { value: p.makeId, label: p.makeName };
+      }
+    });
+    return Object.values(map);
+  }, [items]);
+
+  return { items, makes, loading };
 }
