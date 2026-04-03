@@ -4,10 +4,10 @@ import { useRouter } from "next/navigation";
 import axios from "@/utils/axios";
 import { useAuth } from "@/context/AuthContext";
 
-/* ── tiny sparkline bar chart (pure SVG, no deps) ── */
+/* ── tiny bar chart (pure SVG) ── */
 function BarChart({ bars }) {
   const max = Math.max(...bars.map((b) => b.value), 1);
-  const W = 120, H = 36, gap = 4;
+  const W = 128, H = 40, gap = 5;
   const bw = (W - gap * (bars.length - 1)) / bars.length;
   return (
     <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`} className="overflow-visible">
@@ -15,16 +15,18 @@ function BarChart({ bars }) {
         const bh = Math.max(3, (b.value / max) * H);
         return (
           <g key={i}>
-            <rect
-              x={i * (bw + gap)} y={H - bh} width={bw} height={bh}
-              rx={2} fill={b.color} opacity={b.value === 0 ? 0.2 : 0.85}
-            />
+            <rect x={i * (bw + gap)} y={H - bh} width={bw} height={bh}
+              rx={2} fill={b.color} opacity={b.value === 0 ? 0.2 : 0.85} />
             {b.value > 0 && (
-              <text x={i * (bw + gap) + bw / 2} y={H - bh - 3}
-                textAnchor="middle" fontSize={7} fill={b.color} fontWeight="600">
+              <text x={i * (bw + gap) + bw / 2} y={H - bh - 4}
+                textAnchor="middle" fontSize={8} fill={b.color} fontWeight="700">
                 {b.value}
               </text>
             )}
+            <text x={i * (bw + gap) + bw / 2} y={H + 10}
+              textAnchor="middle" fontSize={7} fill="#78716c">
+              {b.label}
+            </text>
           </g>
         );
       })}
@@ -33,7 +35,7 @@ function BarChart({ bars }) {
 }
 
 /* ── donut ring ── */
-function Ring({ value, max, color, size = 56 }) {
+function Ring({ value, max, color, size = 60 }) {
   const r = (size - 8) / 2;
   const circ = 2 * Math.PI * r;
   const pct = max > 0 ? value / max : 0;
@@ -59,7 +61,7 @@ function StatPill({ label, value, accent }) {
   };
   return (
     <div className={`flex items-center justify-between px-3 py-2 rounded-lg border ${colors[accent] || colors.stone}`}>
-      <span className="text-[10px] font-bold uppercase tracking-widest opacity-70">{label}</span>
+      <span className="text-xs font-bold uppercase tracking-widest opacity-70">{label}</span>
       <span className="text-sm font-bold tabular-nums">{value}</span>
     </div>
   );
@@ -78,7 +80,7 @@ function ActionBtn({ href, children, accent = "stone" }) {
   };
   return (
     <button type="button" onClick={() => router.push(href)} className={`${base} ${variants[accent] || variants.stone}`}>
-      <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
       </svg>
       {children}
@@ -86,17 +88,8 @@ function ActionBtn({ href, children, accent = "stone" }) {
   );
 }
 
-/* ── column card ── */
-function Col({ children }) {
-  return (
-    <div className="flex flex-col gap-3 min-w-0">
-      {children}
-    </div>
-  );
-}
-
 /* ── section block ── */
-function Block({ title, count, accent, ring, actions, chart, pills, viewHref }) {
+function Block({ title, count, accent, actions, chart, pills, viewHref }) {
   const router = useRouter();
   const accentText = {
     amber: "text-amber-400", blue: "text-blue-400",
@@ -107,8 +100,7 @@ function Block({ title, count, accent, ring, actions, chart, pills, viewHref }) 
     emerald: "border-l-emerald-500", violet: "border-l-violet-500", stone: "border-l-stone-500",
   };
   const ringColor = {
-    amber: "#f59e0b", blue: "#60a5fa",
-    emerald: "#34d399", violet: "#a78bfa", stone: "#a8a29e",
+    amber: "#f59e0b", blue: "#60a5fa", emerald: "#34d399", violet: "#a78bfa", stone: "#a8a29e",
   };
 
   return (
@@ -116,17 +108,17 @@ function Block({ title, count, accent, ring, actions, chart, pills, viewHref }) 
       {/* Header */}
       <div className="flex items-start justify-between px-4 pt-4 pb-3">
         <div>
-          <p className="text-[10px] font-bold uppercase tracking-widest text-stone-500">{title}</p>
-          <div className="flex items-baseline gap-2 mt-0.5">
-            <span className={`text-3xl font-black tabular-nums ${accentText[accent]}`}>{count ?? "—"}</span>
-            <span className="text-xs text-stone-600 font-medium">kayıt</span>
+          <p className="text-xs font-bold uppercase tracking-widest text-stone-500">{title}</p>
+          <div className="flex items-baseline gap-2 mt-1">
+            <span className={`text-4xl font-black tabular-nums ${accentText[accent]}`}>{count ?? "—"}</span>
+            <span className="text-sm text-stone-600 font-medium">kayıt</span>
           </div>
         </div>
         <div className="flex flex-col items-end gap-2">
           <Ring value={count ?? 0} max={Math.max(count ?? 0, 10)} color={ringColor[accent]} />
           {viewHref && (
             <button onClick={() => router.push(viewHref)}
-              className="text-[10px] font-semibold text-stone-500 hover:text-stone-300 transition-colors uppercase tracking-widest">
+              className="text-xs font-semibold text-stone-500 hover:text-stone-200 transition-colors uppercase tracking-widest cursor-pointer">
               Tümü →
             </button>
           )}
@@ -135,7 +127,7 @@ function Block({ title, count, accent, ring, actions, chart, pills, viewHref }) 
 
       {/* Chart */}
       {chart && (
-        <div className="px-4 pb-3">
+        <div className="px-4 pb-5">
           <BarChart bars={chart} />
         </div>
       )}
@@ -176,30 +168,34 @@ export default function Dashboard() {
     { label: "Sipariş",  value: s.offersByType.Siparis,   color: "#a78bfa" },
   ] : null;
 
+  const offerPills = offerChart?.filter(b => b.value > 0).map(b => ({
+    label: b.label, value: b.value,
+    accent: b.label === "Teklif" ? "amber" : b.label === "Proforma" ? "blue" : b.label === "Fatura" ? "emerald" : "violet",
+  }));
+
   return (
-    <div className="p-6 space-y-5">
-      {/* Welcome */}
+    <div className="p-6 space-y-6">
+      {/* Welcome header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-black text-stone-100 tracking-tight">
+          <h1 className="text-2xl font-black text-stone-100 tracking-tight">
             {user?.name ? `Merhaba, ${user.name.split(" ")[0]}` : "Dashboard"}
           </h1>
-          <p className="text-xs text-stone-500 mt-0.5">
+          <p className="text-sm text-stone-500 mt-0.5">
             {new Date().toLocaleDateString("tr-TR", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
           </p>
         </div>
-        {/* global summary pills */}
         {s && (
           <div className="hidden sm:flex items-center gap-2">
             {[
-              { v: s.offers,   c: "text-amber-400",   label: "Teklif" },
-              { v: s.products, c: "text-blue-400",     label: "Ürün" },
-              { v: s.companies,c: "text-emerald-400",  label: "Firma" },
-              { v: s.contacts, c: "text-violet-400",   label: "Kişi" },
+              { v: s.offers,    c: "text-amber-400",  label: "Teklif" },
+              { v: s.products,  c: "text-blue-400",   label: "Ürün" },
+              { v: s.companies, c: "text-emerald-400", label: "Firma" },
+              { v: s.contacts,  c: "text-violet-400", label: "Kişi" },
             ].map((x) => (
-              <div key={x.label} className="flex flex-col items-center px-3 py-1.5 rounded-xl bg-stone-900 border border-stone-800">
-                <span className={`text-lg font-black tabular-nums ${x.c}`}>{x.v}</span>
-                <span className="text-[9px] font-bold uppercase tracking-widest text-stone-600">{x.label}</span>
+              <div key={x.label} className="flex flex-col items-center px-3 py-2 rounded-xl bg-stone-900 border border-stone-800">
+                <span className={`text-xl font-black tabular-nums ${x.c}`}>{x.v}</span>
+                <span className="text-[10px] font-bold uppercase tracking-widest text-stone-600 mt-0.5">{x.label}</span>
               </div>
             ))}
           </div>
@@ -209,21 +205,21 @@ export default function Dashboard() {
       {/* 3-column grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
 
-        {/* ── Col 1: Teklifler ── */}
-        <Col>
+        {/* Col 1: Teklifler */}
+        <div className="flex flex-col gap-3">
           <Block
             title="Teklifler"
             count={s?.offers}
             accent="amber"
             viewHref="/shield/offer"
             chart={offerChart}
-            pills={offerChart?.filter(b => b.value > 0).map(b => ({ label: b.label, value: b.value, accent: b.label === "Teklif" ? "amber" : b.label === "Proforma" ? "blue" : b.label === "Fatura" ? "emerald" : "violet" }))}
+            pills={offerPills}
             actions={[{ label: "Yeni Teklif", href: "/shield/offer/new" }]}
           />
-        </Col>
+        </div>
 
-        {/* ── Col 2: Ürünler + Opsiyonlar ── */}
-        <Col>
+        {/* Col 2: Ürünler + Opsiyonlar */}
+        <div className="flex flex-col gap-3">
           <Block
             title="Master Ürünler"
             count={s?.products}
@@ -238,10 +234,10 @@ export default function Dashboard() {
             viewHref="/shield/option"
             actions={[{ label: "Yeni Opsiyon", href: "/shield/option/new" }]}
           />
-        </Col>
+        </div>
 
-        {/* ── Col 3: Firmalar + Kişiler ── */}
-        <Col>
+        {/* Col 3: Firmalar + Kişiler */}
+        <div className="flex flex-col gap-3">
           <Block
             title="Firmalar"
             count={s?.companies}
@@ -256,7 +252,7 @@ export default function Dashboard() {
             viewHref="/shield/contact"
             actions={[{ label: "Yeni Kişi", href: "/shield/contact/new" }]}
           />
-        </Col>
+        </div>
 
       </div>
     </div>
