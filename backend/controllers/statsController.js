@@ -1,5 +1,5 @@
 const Company = require("../models/company/Company");
-const Contact = require("../models/contact/Contact");
+const Contact = require("../models/contact/userContact");
 const MasterProduct = require("../models/masterProduct/MasterProduct");
 const Option = require("../models/options/Option");
 const Offer = require("../models/offer/Offer");
