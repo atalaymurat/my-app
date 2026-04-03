@@ -113,7 +113,6 @@ function normalizeOfferData(formData = {}, userId) {
     company: companyId,
     user: userId,
   };
-  console.log("Normalized Line İtems", normalizedLineItems)
 
   const totals = calculateOfferTotals(normalizedLineItems, {
     showVat,

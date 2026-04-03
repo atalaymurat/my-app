@@ -2,8 +2,6 @@ const createOffer = require("./utils/offer/createOffer");
 const {
   normalizeCompanyData,
   handleCompanyCreateOrUpdate,
-  linkCompany,
-  updateUserCompanyLink,
 } = require("./services/companyServices");
 
 const Offer = require("../models/offer/Offer");

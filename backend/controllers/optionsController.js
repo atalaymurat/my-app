@@ -1,5 +1,5 @@
 const Option = require("../models/options/Option");
-const normalizeData = require("./utils/options/normalizeData");
+const { normalizeOption } = require("../utils/normalize");
 const createOption = require("./utils/options/createOption");
 
 module.exports = {
@@ -13,6 +13,7 @@ module.exports = {
       const totalRecords = await Option.countDocuments(filter);
       const records = await Option.find(filter)
         .populate("make", "name")
+        .populate({ path: "masterProducts", select: "title make", populate: { path: "make", select: "name" } })
         .skip(skip)
         .limit(limit)
         .sort({ createdAt: -1 });
@@ -40,9 +41,9 @@ module.exports = {
       const data = req.body;
       const userId = req.user._id;
 
-      const normalized = normalizeData(data, userId);
+      const normalized = normalizeOption(data, userId);
 
-      const newOption = createOption(normalized);
+      const newOption = await createOption(normalized);
 
       return res.status(200).json({
         message: "Product created successfully.",
@@ -53,6 +54,33 @@ module.exports = {
       res.status(500).json({ error: error.message, success: false });
     }
   },
+  show: async (req, res) => {
+    try {
+      const option = await Option.findOne({ _id: req.params.id, user: req.user._id })
+        .populate("make", "name")
+        .populate({ path: "masterProducts", select: "title make", populate: { path: "make", select: "name" } });
+      if (!option) return res.status(404).json({ message: "Option not found" });
+      res.status(200).json({ success: true, option });
+    } catch (err) {
+      res.status(500).json({ message: "Failed to fetch option", error: err.message });
+    }
+  },
+
+  update: async (req, res) => {
+    try {
+      const normalized = normalizeOption(req.body, req.user._id);
+      const option = await Option.findOneAndUpdate(
+        { _id: req.params.id, user: req.user._id },
+        normalized,
+        { new: true }
+      );
+      if (!option) return res.status(404).json({ message: "Option not found" });
+      res.status(200).json({ success: true, option });
+    } catch (err) {
+      res.status(400).json({ message: "Failed to update option", error: err.message });
+    }
+  },
+
   destroy: async (req, res) => {
     try {
       const option = await Option.findOneAndDelete({ _id: req.params.id, user: req.user._id });
@@ -71,7 +99,6 @@ module.exports = {
       make: makeId,
     });
 
-    console.log("Options by Make:", records);
 
     res.status(200).json({
       message: "Options by make ıd",
@@ -81,10 +108,8 @@ module.exports = {
   },
   list: async (req, res) => {
     // Master Product ait Opsyonları Getiriyor
-    console.log("OPTION LIST CONTROLLER ", req.params);
     try {
       const masterProductId = req.params.id;
-      console.log("Base Product ID:", masterProductId);
       const records = await Option.find({
         user: req.user._id,
         masterProducts: { $in: [masterProductId] },
@@ -96,7 +121,6 @@ module.exports = {
         currency: record.priceList?.currency,
         desc: record.description,
       }));
-      console.log("OPTION LIST", list);
       res.status(200).json({
         message: "Option list retrieved successfully.",
         success: true,

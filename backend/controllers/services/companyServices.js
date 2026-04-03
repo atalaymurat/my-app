@@ -6,10 +6,8 @@ const updateCompany = require("../utils/company/updateCompany");
 const handleCompanyCreateOrUpdate = async (normalizedData, rawData) => {
   let company = await findExistingCompany(
     normalizedData.vatNo,
-    normalizedData.domains
+    normalizedData.domains,
   );
-
-  company && console.log("Step 1 Find Existing Company :", company.title);
 
   company = company
     ? await updateCompany(company, normalizedData, rawData)
@@ -17,7 +15,6 @@ const handleCompanyCreateOrUpdate = async (normalizedData, rawData) => {
 
   return company;
 };
-
 
 module.exports = {
   normalizeCompanyData,

@@ -64,11 +64,8 @@ const updateCompany = async (company, normalizedData, rawData) => {
   if (Object.keys(updates).length > 0) {
     await Company.findByIdAndUpdate(company._id, { $set: updates });
 
-    console.log(`📝 [Company Update Log] Company ID: ${company._id}`);
     for (const log of updateLogs) {
-      console.log(
-        `→ ${log.field} updated\n   - Previous: ${JSON.stringify(log.previous, null, 2)}\n   - New:      ${JSON.stringify(log.updated, null, 2)}`
-      );
+      void log;
     }
 
     return await Company.findById(company._id);

@@ -1,4 +1,4 @@
-const normalizeData = require("./utils/masterProduct/normalizeData");
+const { normalizeMasterProduct: normalizeData } = require("../utils/normalize");
 const createMasterProduct = require("./utils/masterProduct/createMasterProduct");
 const MasterProduct = require("../models/masterProduct/MasterProduct");
 const Option = require("../models/options/Option");
@@ -29,7 +29,6 @@ module.exports = {
 
       const totalRecords = await MasterProduct.countDocuments(filter);
       let query = MasterProduct.find(filter)
-      .populate("options", "title")
       .populate("make", "name")
       .sort({ createdAt: -1 });
       if (limit !== 0) query = query.skip(skip).limit(limit); // pagination only if needed
@@ -197,7 +196,6 @@ module.exports = {
         .populate("make", "name") // sadece name getir
         .sort({ createdAt: -1 });
 
-      console.log("Masters By Make Id", masters);
       return res.status(200).json({
         success: true,
         message: "Masters by make id",

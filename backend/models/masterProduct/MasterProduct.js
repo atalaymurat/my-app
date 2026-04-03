@@ -45,14 +45,6 @@ const masterProductSchema = new Schema(
     // ✅ ALT MODELLER
     variants: [variantSchema],
 
-    // ✅ OPTIONLAR AYRI COLLECTION
-    options: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: "Option",
-      },
-    ],
-
     visibilityScope: {
       type: String,
       enum: ["adminOnly", "group", "public", "custom"],

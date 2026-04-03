@@ -46,7 +46,6 @@ function normalizeCompanyData(data = {}, userId) {
     user: userId
   };
 
-  console.log("NORMALIZED DATA", normalized);
 
   return normalized;
 }

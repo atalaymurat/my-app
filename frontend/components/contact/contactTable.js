@@ -1,22 +1,4 @@
-const formatPhone = (phone) => {
-  const d = phone.replace(/\D/g, "");
-  if (!d) return phone;
-  // Try to detect country code: 1 digit (US/CA), 2 digits (TR/DE/etc), 3 digits
-  // Heuristic: Turkish numbers are 12 digits total (90 + 10)
-  let cc, local;
-  if (d.length >= 11 && d.length <= 13) {
-    const ccLen = d.length === 11 ? 1 : d.length === 12 ? 2 : 3;
-    cc = d.slice(0, ccLen);
-    local = d.slice(ccLen);
-  } else {
-    return "+" + d;
-  }
-  const l = local;
-  const formatted = l.length === 10
-    ? `${l.slice(0, 3)} ${l.slice(3, 6)} ${l.slice(6, 8)} ${l.slice(8, 10)}`
-    : l;
-  return `+${cc} ${formatted}`;
-};
+import { formatPhone } from "@/utils/formatPhone";
 
 const genderIcon = (gender) => {
   if (gender === "male") return "♂";

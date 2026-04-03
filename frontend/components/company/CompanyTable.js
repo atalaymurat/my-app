@@ -1,19 +1,4 @@
-const formatPhone = (phone) => {
-  const d = phone.replace(/\D/g, "");
-  if (!d) return phone;
-  let cc, local;
-  if (d.length >= 11 && d.length <= 13) {
-    const ccLen = d.length === 11 ? 1 : d.length === 12 ? 2 : 3;
-    cc = d.slice(0, ccLen);
-    local = d.slice(ccLen);
-  } else {
-    return "+" + d;
-  }
-  const formatted = local.length === 10
-    ? `${local.slice(0, 3)} ${local.slice(3, 6)} ${local.slice(6, 8)} ${local.slice(8, 10)}`
-    : local;
-  return `+${cc} ${formatted}`;
-};
+import { formatPhone } from "@/utils/formatPhone";
 
 const CompanyTable = ({ companies, onEdit, onDelete }) => {
   return (

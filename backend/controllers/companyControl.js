@@ -36,7 +36,6 @@ module.exports = {
     const companies = await Company.find({
       title: { $regex: normalized, $options: "i" }, user: req.user._id,
     }).limit(5);
-    console.log("Company Find", companies);
 
     if (!companies.length) {
       return res.json({ success: false, message: "Company not found" });

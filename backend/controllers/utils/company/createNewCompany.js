@@ -1,7 +1,6 @@
 const  Company  = require("../../../models/company/Company");
 
 const createNewCompany = async (normalizedData, rawData) => {
-  console.log("Step 1 Creating New Company:", normalizedData.title);
   return await Company.create({
     title: normalizedData.title,
     vatTitle: normalizedData.vatTitle, // full title for vat

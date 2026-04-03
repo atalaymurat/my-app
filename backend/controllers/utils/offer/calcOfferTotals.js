@@ -35,7 +35,6 @@ function calculateOfferTotals(lineItems = [], options = {}) {
   let listTotal = new Decimal(0);
 
   const updatedItems = lineItems.map((item) => {
-    console.log("Processing item:", item);
     const quantity = new Decimal(item.quantity || 1);
     const priceNet = new Decimal(item.priceNet || 0);
     const priceList = new Decimal(item.priceList || 0);
