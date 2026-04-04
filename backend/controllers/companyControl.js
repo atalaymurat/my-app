@@ -91,6 +91,9 @@ module.exports = {
   },
 
   create: async (req, res) => {
+    if (!req.user.orgId) {
+      return res.status(403).json({ success: false, message: "Bu işlem için bir organizasyona bağlı olmanız gerekiyor." });
+    }
     try {
       const normalizedData = normalizeCompanyData(req.body, req.user._id, req.user.orgId);
       const record = await createNewCompany(normalizedData, req.body);

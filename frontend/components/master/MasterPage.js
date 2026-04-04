@@ -45,7 +45,26 @@ const BasePage = () => {
   };
 
   if (masterProducts === null) {
-    return <div className="p-8">Loading data from server...</div>;
+    return (
+      <div className="px-2 py-2 grid grid-cols-1 lg:grid-cols-2 gap-2">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <div key={i} className="flex border border-stone-700/40 rounded-xl overflow-hidden bg-stone-900/30 animate-pulse">
+            <div className="w-14 sm:w-20 flex-shrink-0 bg-stone-800/60" style={{ minHeight: 72 }} />
+            <div className="flex-1 p-3 flex flex-col gap-2">
+              <div className="flex justify-between">
+                <div className="h-3.5 w-36 bg-stone-700/60 rounded" />
+                <div className="h-3 w-12 bg-stone-800/60 rounded" />
+              </div>
+              <div className="h-2.5 w-20 bg-stone-800/40 rounded" />
+              <div className="flex gap-1.5 mt-1">
+                <div className="h-6 w-24 bg-stone-800/60 rounded-lg" />
+                <div className="h-6 w-20 bg-stone-800/60 rounded-lg" />
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
   }
 
   return (

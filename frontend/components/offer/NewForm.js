@@ -1,11 +1,38 @@
 "use client";
 import { useState, useEffect } from "react";
 import { Formik, Form } from "formik";
+import * as Yup from "yup";
 import FormFields from "./FormFields";
 import FormSaveButton from "@/components/formSaveButton";
 import MessageBlock from "@/components/messageBlock";
 import DebugJson from "@/components/DebugJson";
 import axios from "@/utils/axios";
+
+const validationSchema = Yup.object({
+  // Firma bağlıysa (companyId dolu) bu alanlar validate edilmez
+  title: Yup.string().when("companyId", {
+    is: (val) => !val,
+    then: (s) => s.trim().required("Firma adı zorunludur"),
+    otherwise: (s) => s,
+  }),
+  city: Yup.string().when("companyId", {
+    is: (val) => !val,
+    then: (s) => s.trim().required("Şehir zorunludur"),
+    otherwise: (s) => s,
+  }),
+  country: Yup.string().when("companyId", {
+    is: (val) => !val,
+    then: (s) => s.trim().required("Ülke zorunludur"),
+    otherwise: (s) => s,
+  }),
+  lineItems: Yup.array()
+    .min(1, "En az bir ürün/hizmet eklemelisiniz")
+    .of(
+      Yup.object({
+        title: Yup.string().trim().required("Ürün adı zorunludur"),
+      })
+    ),
+});
 
 const DEFAULT_VALUES = {
   docType: "Teklif",
@@ -130,6 +157,7 @@ const NewForm = ({ offerId }) => {
       <Formik
         enableReinitialize={true}
         initialValues={initialValues}
+        validationSchema={validationSchema}
         onSubmit={async (values, { setSubmitting }) => {
           setSubmitting(true);
           try {

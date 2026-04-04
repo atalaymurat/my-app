@@ -5,6 +5,18 @@ import FormikControl from "../formik/FormikControl";
 import LineItems from "./LineItems";
 import ContactFields from "@/components/company/ContactFields";
 
+function FieldError({ name }) {
+  const { errors, touched } = useFormikContext();
+  if (!touched[name] || !errors[name]) return null;
+  return <p className="text-xs text-red-400 mt-0.5">{errors[name]}</p>;
+}
+
+function LineItemsError() {
+  const { errors, submitCount } = useFormikContext();
+  if (submitCount === 0 || typeof errors.lineItems !== "string") return null;
+  return <p className="text-xs text-red-400 mb-2 px-1">{errors.lineItems}</p>;
+}
+
 function CompanyLinkedCard({ values, onClear }) {
   return (
     <div className="flex items-center gap-3 px-3 py-2.5 bg-blue-950/30 border border-blue-800/50 rounded-xl">
@@ -132,7 +144,10 @@ export default function FormFields() {
               {/* Firma Detayları */}
               <div className="space-y-1 pt-1">
                 <div className="grid grid-cols-2 gap-2">
-                  <FormikControl control="input" type="text" label="Firma Adı" name="title" />
+                  <div>
+                    <FormikControl control="input" type="text" label="Firma Adı" name="title" />
+                    <FieldError name="title" />
+                  </div>
                   <FormikControl control="input" type="text" label="Tam Unvan" name="vatTitle" />
                 </div>
                 <div className="grid grid-cols-2 gap-2">
@@ -148,8 +163,14 @@ export default function FormFields() {
                 </div>
                 <div className="grid grid-cols-3 gap-2">
                   <FormikControl control="input" type="text" label="İlçe" name="district" />
-                  <FormikControl control="input" type="text" label="Şehir" name="city" />
-                  <FormikControl control="input" type="text" label="Ülke" name="country" />
+                  <div>
+                    <FormikControl control="input" type="text" label="Şehir" name="city" />
+                    <FieldError name="city" />
+                  </div>
+                  <div>
+                    <FormikControl control="input" type="text" label="Ülke" name="country" />
+                    <FieldError name="country" />
+                  </div>
                 </div>
               </div>
             </>
@@ -158,6 +179,7 @@ export default function FormFields() {
       </div>
 
       <ContactFields />
+      <LineItemsError />
       <LineItems />
 
       {/* ── Ayarlar Kartı ── */}

@@ -74,6 +74,9 @@ module.exports = {
   },
 
   create: async (req, res) => {
+    if (!req.user.orgId) {
+      return res.status(403).json({ success: false, message: "Bu işlem için bir organizasyona bağlı olmanız gerekiyor." });
+    }
     try {
       const normalized = normalizeData(req.body, req.user._id, req.user.orgId);
       const newMasterProduct = await createMasterProduct(normalized);
