@@ -31,7 +31,8 @@ const companySchema = new Schema(
     ogImage: String,
     favicon: String,
     description: String,
-    user: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    organization: { type: Schema.Types.ObjectId, required: true },
+    createdBy: { type: Schema.Types.ObjectId, required: true },
   },
   { timestamps: true },
 );

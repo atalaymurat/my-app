@@ -8,17 +8,15 @@ module.exports = {
       const page = parseInt(req.query.page) || 1;
       const limit = parseInt(req.query.limit) || 10;
       const skip = (page - 1) * limit;
-      const filter = { user: req.user._id };
 
-      const totalCompanies = await Company.countDocuments(filter);
-      const companies = await Company.find(filter)
+      const totalCompanies = await Company.countDocuments(req.orgFilter);
+      const companies = await Company.find(req.orgFilter)
         .skip(skip)
         .limit(limit)
         .sort({ createdAt: -1 });
 
       res.json({
-        succuess: true,
-        message: "User companies fetched successfully.",
+        success: true,
         companies,
         totalPages: Math.ceil(totalCompanies / limit),
         currentPage: page,
@@ -27,19 +25,18 @@ module.exports = {
       res.status(500).json({ error: error.message });
     }
   },
+
   search: async (req, res) => {
     const search = req.query.search;
-
     if (!search) return res.status(400).json({ success: false });
 
-    const normalized = search.trim()?.toLowerCase();
+    const normalized = search.trim().toLowerCase();
     const companies = await Company.find({
-      title: { $regex: normalized, $options: "i" }, user: req.user._id,
+      ...req.orgFilter,
+      title: { $regex: normalized, $options: "i" },
     }).limit(5);
 
-    if (!companies.length) {
-      return res.json({ success: false, message: "Company not found" });
-    }
+    if (!companies.length) return res.json({ success: false, message: "Company not found" });
 
     res.json({
       success: true,
@@ -60,7 +57,7 @@ module.exports = {
 
   show: async (req, res) => {
     try {
-      const company = await Company.findOne({ _id: req.params.id, user: req.user._id });
+      const company = await Company.findOne({ _id: req.params.id, ...req.orgFilter });
       if (!company) return res.status(404).json({ message: "Company not found" });
       res.status(200).json({ success: true, company });
     } catch (err) {
@@ -70,10 +67,9 @@ module.exports = {
 
   update: async (req, res) => {
     try {
-      const userId = req.user._id;
-      const normalizedData = normalizeCompanyData(req.body, userId);
+      const normalizedData = normalizeCompanyData(req.body, req.user._id, req.user.orgId);
       const company = await Company.findOneAndUpdate(
-        { _id: req.params.id, user: userId },
+        { _id: req.params.id, ...req.orgFilter },
         normalizedData,
         { new: true }
       );
@@ -86,7 +82,7 @@ module.exports = {
 
   destroy: async (req, res) => {
     try {
-      const company = await Company.findOneAndDelete({ _id: req.params.id, user: req.user._id });
+      const company = await Company.findOneAndDelete({ _id: req.params.id, ...req.orgFilter });
       if (!company) return res.status(404).json({ message: "Company not found" });
       res.status(200).json({ success: true, message: "Company deleted" });
     } catch (err) {
@@ -96,30 +92,11 @@ module.exports = {
 
   create: async (req, res) => {
     try {
-      if (!req.user || !req.body) {
-        return res
-          .status(400)
-          .json({ message: "No valid user or data found." });
-      }
-
-      const userId = req.user._id;
-      const rawData = req.body;
-      const normalizedData = normalizeCompanyData(rawData, userId);
-
-      const record = await createNewCompany(normalizedData, rawData);
-
-      return res.status(200).json({
-        message: "Company creation success.",
-        record,
-        success: true,
-      });
+      const normalizedData = normalizeCompanyData(req.body, req.user._id, req.user.orgId);
+      const record = await createNewCompany(normalizedData, req.body);
+      return res.status(200).json({ success: true, record });
     } catch (err) {
-      console.error(err);
-      return res.status(500).json({
-        message: "An error occurred while creating the company.",
-        error: err.message,
-        success: false,
-      });
+      return res.status(500).json({ message: err.message, success: false });
     }
   },
 };

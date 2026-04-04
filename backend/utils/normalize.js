@@ -11,7 +11,7 @@ const normalizePhone = (phone) => {
 const normalizeText = (str) =>
   str ? transliterate(str.trim().toLowerCase()) : "";
 
-const normalizeCompany = (data = {}, userId) => ({
+const normalizeCompany = (data = {}, userId, orgId) => ({
   title: data.title?.trim()?.toLowerCase() || "",
   vatTitle: data.vatTitle?.trim()?.toLowerCase() || "",
   phones: Array.isArray(data.phones)
@@ -31,10 +31,11 @@ const normalizeCompany = (data = {}, userId) => ({
   vd: data.vd?.trim()?.toLowerCase() || undefined,
   tags: data.tags || [],
   notes: data.notes || "",
-  user: userId,
+  createdBy: userId,
+  organization: orgId,
 });
 
-const normalizeOption = (data = {}, userId) => ({
+const normalizeOption = (data = {}, userId, orgId) => ({
   title: data.title?.trim() || "",
   nTitle: normalizeText(data.title),
   masterProducts: Array.isArray(data.masterProducts)
@@ -47,10 +48,11 @@ const normalizeOption = (data = {}, userId) => ({
   priceOffer: data.priceOffer,
   currency: data.currency,
   make: data.make,
-  user: userId,
+  createdBy: userId,
+  organization: orgId,
 });
 
-const normalizeMasterProduct = (data = {}, userId) => ({
+const normalizeMasterProduct = (data = {}, userId, orgId) => ({
   title: data.model?.trim()?.toLowerCase() || "",
   nTitle: normalizeText(data.model),
   description: data.description || "",
@@ -63,7 +65,8 @@ const normalizeMasterProduct = (data = {}, userId) => ({
   currency: data.currency,
   condition: data.condition,
   year: data.year,
-  user: userId,
+  createdBy: userId,
+  organization: orgId,
 });
 
 module.exports = {

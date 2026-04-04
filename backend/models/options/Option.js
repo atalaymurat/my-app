@@ -19,10 +19,8 @@ const optionsSchema = new Schema(
     priceList: Number,
     priceOffer: Number,
     currency: String,
-    user: {
-      type: Schema.Types.ObjectId,
-      ref: "User",
-    },
+    organization: { type: Schema.Types.ObjectId, required: true },
+    createdBy: { type: Schema.Types.ObjectId, required: true },
   },
   { timestamps: true },
 );

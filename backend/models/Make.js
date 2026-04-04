@@ -11,6 +11,8 @@ const makeSchema = new Schema(
     description: String,
 
     isActive: { type: Boolean, default: true },
+    organization: { type: Schema.Types.ObjectId, required: true },
+    createdBy: { type: Schema.Types.ObjectId, required: true },
   },
   { timestamps: true }
 );

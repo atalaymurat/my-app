@@ -1,7 +1,7 @@
 const Contact = require("../../../models/contact/userContact");
 
 // contactId varsa doğrula ve döndür, yoksa yeni kayıt oluştur
-async function createOrFindContact({ contactId, contactName, contactPhone, contactEmail, companyId, userId }) {
+async function createOrFindContact({ contactId, contactName, contactPhone, contactEmail, companyId, userId, orgId }) {
   if (contactId) {
     const existing = await Contact.findById(contactId);
     if (existing) return existing._id;
@@ -14,7 +14,8 @@ async function createOrFindContact({ contactId, contactName, contactPhone, conta
     phones: contactPhone ? [contactPhone] : [],
     emails: contactEmail ? [contactEmail.trim().toLowerCase()] : [],
     company: companyId || undefined,
-    user: userId,
+    createdBy: userId,
+    organization: orgId,
   });
 
   return contact._id;

@@ -1,9 +1,5 @@
 const createOffer = require("./utils/offer/createOffer");
-const {
-  normalizeCompanyData,
-  handleCompanyCreateOrUpdate,
-} = require("./services/companyServices");
-
+const { normalizeCompanyData, handleCompanyCreateOrUpdate } = require("./services/companyServices");
 const Offer = require("../models/offer/Offer");
 const normalizeOfferData = require("./utils/offer/normalizeOfferData");
 const createNewCompany = require("./utils/company/createNewCompany");
@@ -13,58 +9,36 @@ module.exports = {
   create: async (req, res) => {
     try {
       const userId = req.user?._id;
-      if (!userId) {
-        return res
-          .status(401)
-          .json({ message: "Yetkisiz erişim.", success: false });
-      }
+      const orgId = req.user?.orgId;
+      if (!userId) return res.status(401).json({ message: "Yetkisiz erişim.", success: false });
 
-      const rawData = req.body;
-
-      // Veriyi normalize et
       const { offerData, versionData, needsCompanyCreation, companyData, contactData } =
-        normalizeOfferData(rawData, userId);
+        normalizeOfferData(req.body, userId, orgId);
 
-      // Eğer companyId yoksa, şirketi oluştur
       if (needsCompanyCreation && companyData) {
-        const normalized = normalizeCompanyData(companyData, userId);
+        const normalized = normalizeCompanyData(companyData, userId, orgId);
         const company = await createNewCompany(normalized, companyData);
         offerData.company = company._id;
       }
 
-      // İletişim kişisini bul veya oluştur
       const contactId = await createOrFindContact({
         ...contactData,
         companyId: offerData.company,
         userId,
+        orgId,
       });
       if (contactId) offerData.contact = contactId;
 
-      // user bilgisini ekle
-      offerData.user = userId;
-
-      // Teklif kaydını oluştur
-      console.log("Yeni Teklif Offer Data:", offerData);
-      console.log("Yeni Teklif  Versyon Data:", versionData);
       const record = await createOffer({ ...offerData, ...versionData });
-      return res.status(201).json({
-        message: "Teklif oluşturuldu.",
-        record,
-        success: true,
-      });
+      return res.status(201).json({ message: "Teklif oluşturuldu.", record, success: true });
     } catch (error) {
-      console.error("Teklif oluşturma hatası:", error);
-      return res.status(500).json({
-        message: "Teklif oluşturulurken bir hata oluştu.",
-        error: error.message,
-        success: false,
-      });
+      return res.status(500).json({ message: error.message, success: false });
     }
   },
 
   destroy: async (req, res) => {
     try {
-      const record = await Offer.findByIdAndDelete(req.params.id);
+      const record = await Offer.findOneAndDelete({ _id: req.params.id, ...req.orgFilter });
       if (!record) return res.status(404).json({ message: "Teklif bulunamadı.", success: false });
       return res.status(200).json({ message: "Teklif silindi.", success: true });
     } catch (error) {
@@ -74,7 +48,7 @@ module.exports = {
 
   show: async (req, res) => {
     try {
-      const record = await Offer.findById(req.params.id)
+      const record = await Offer.findOne({ _id: req.params.id, ...req.orgFilter })
         .populate("company")
         .populate("contact")
         .exec();
@@ -86,12 +60,14 @@ module.exports = {
   },
 
   index: async (req, res) => {
-    const records = await Offer.find({})
-      .populate("company")
-      .sort({ createdAt: -1 })
-      .exec();
-    return res
-      .status(200)
-      .json({ message: "Teklif kayıtları", success: true, records });
+    try {
+      const records = await Offer.find(req.orgFilter)
+        .populate("company")
+        .sort({ createdAt: -1 })
+        .exec();
+      return res.status(200).json({ success: true, records });
+    } catch (error) {
+      return res.status(500).json({ message: error.message, success: false });
+    }
   },
 };

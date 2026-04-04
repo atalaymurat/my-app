@@ -15,7 +15,8 @@ const createNewCompany = async (normalizedData, rawData) => {
     favicon: rawData.favicon || "",
     description: rawData.description || "",
     tags: rawData.tags || [],
-    user: normalizedData.user, // Ensure userId is passed correctly
+    createdBy: normalizedData.createdBy,
+    organization: normalizedData.organization,
   });
 };
 

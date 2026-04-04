@@ -6,7 +6,7 @@ const Option = require("../models/options/Option");
 module.exports = {
   show: async (req, res) => {
     try {
-      const product = await MasterProduct.findOne({ _id: req.params.id, user: req.user._id }).populate("make", "name");
+      const product = await MasterProduct.findOne({ _id: req.params.id, ...req.orgFilter }).populate("make", "name");
       if (!product) return res.status(404).json({ message: "Product not found", success: false });
       res.status(200).json({ success: true, product });
     } catch (err) {
@@ -16,9 +16,9 @@ module.exports = {
 
   update: async (req, res) => {
     try {
-      const normalized = normalizeData(req.body, req.user._id);
+      const normalized = normalizeData(req.body, req.user._id, req.user.orgId);
       const product = await MasterProduct.findOneAndUpdate(
-        { _id: req.params.id, user: req.user._id },
+        { _id: req.params.id, ...req.orgFilter },
         { $set: normalized },
         { new: true, runValidators: true }
       );
@@ -31,7 +31,7 @@ module.exports = {
 
   destroy: async (req, res) => {
     try {
-      const product = await MasterProduct.findOneAndDelete({ _id: req.params.id, user: req.user._id });
+      const product = await MasterProduct.findOneAndDelete({ _id: req.params.id, ...req.orgFilter });
       if (!product) return res.status(404).json({ message: "Product not found" });
       res.status(200).json({ success: true, message: "Product deleted" });
     } catch (err) {
@@ -42,25 +42,17 @@ module.exports = {
   index: async (req, res) => {
     try {
       const rawLimit = req.query.limit;
-      const limit =
-        rawLimit && (rawLimit === "all" || Number(rawLimit) === 0)
-          ? 0
-          : parseInt(rawLimit, 10) || 10; // default: 10 per page
-
+      const limit = rawLimit && (rawLimit === "all" || Number(rawLimit) === 0)
+        ? 0 : parseInt(rawLimit, 10) || 10;
       const page = parseInt(req.query.page, 10) || 1;
       const skip = limit === 0 ? 0 : (page - 1) * limit;
 
-      const filter = { user: req.user._id };
-
-      const totalRecords = await MasterProduct.countDocuments(filter);
-      let query = MasterProduct.find(filter)
-      .populate("make", "name")
-      .sort({ createdAt: -1 });
-      if (limit !== 0) query = query.skip(skip).limit(limit); // pagination only if needed
+      const totalRecords = await MasterProduct.countDocuments(req.orgFilter);
+      let query = MasterProduct.find(req.orgFilter).populate("make", "name").sort({ createdAt: -1 });
+      if (limit !== 0) query = query.skip(skip).limit(limit);
       const records = await query.exec();
 
       return res.status(200).json({
-        message: "Base products List.",
         success: true,
         totalPages: limit === 0 ? 1 : Math.ceil(totalRecords / limit),
         currentPage: limit === 0 ? 1 : page,
@@ -70,39 +62,22 @@ module.exports = {
       res.status(500).json({ error: error.message, success: false });
     }
   },
+
   create: async (req, res) => {
     try {
-      if (!req.user?._id || !req.body) {
-        return res.status(401).json({
-          message: "No user or No data",
-          success: false,
-        });
-      }
-
-      const data = req.body;
-      const userId = req.user._id;
-
-      const normalized = normalizeData(data, userId);
-
+      const normalized = normalizeData(req.body, req.user._id, req.user.orgId);
       const newMasterProduct = await createMasterProduct(normalized);
-
-      return res.status(200).json({
-        message: "Product created successfully.",
-        product: newMasterProduct,
-        success: true,
-      });
+      return res.status(200).json({ success: true, product: newMasterProduct });
     } catch (error) {
       res.status(500).json({ error: error.message, success: false });
     }
   },
+
   list: async (req, res) => {
     try {
-      const make = req.query.make;
-      const query = { user: req.user._id, condition: "new" };
+      const query = { ...req.orgFilter, condition: "new" };
+      if (req.query.make) query.nMake = req.query.make;
 
-      if (make) {
-        query.nMake = make;
-      }
       const records = await MasterProduct.find(query);
       const list = records.map((record) => ({
         value: record._id,
@@ -111,19 +86,9 @@ module.exports = {
         label: record.title,
         year: record.year,
         model: record.model,
-        priceNet: record.priceNet?.value,
-        listPrice: record.priceList?.value,
-        currency: record.priceList?.currency,
         desc: record.description,
       }));
-
-      res.status(200).json({
-        message: make
-          ? `Base product list filtered by make '${make}' retrieved successfully.`
-          : "Base product list retrieved successfully.",
-        success: true,
-        list,
-      });
+      res.status(200).json({ success: true, list });
     } catch (error) {
       res.status(500).json({ error: error.message, success: false });
     }
@@ -131,30 +96,12 @@ module.exports = {
 
   optionsByMaster: async (req, res) => {
     try {
-      const { id } = req.params;
+      const master = await MasterProduct.findOne({ _id: req.params.id, ...req.orgFilter }).lean();
+      if (!master) return res.status(404).json({ success: false, message: "Master product not found" });
 
-      // 1️⃣ Güvenlik: Master gerçekten bu user’a mı ait?
-      const master = await MasterProduct.findOne({
-        _id: id,
-        user: req.user._id,
-      }).lean();
+      const options = await Option.find({ ...req.orgFilter, masterProducts: req.params.id })
+        .select("title description priceNet priceList").lean();
 
-      if (!master) {
-        return res.status(404).json({
-          success: false,
-          message: "Master product not found",
-        });
-      }
-
-      // 2️⃣ Bu master’a bağlı optionları çek
-      const options = await Option.find({
-        user: req.user._id,
-        masterProducts: id,
-      })
-        .select("title description priceNet priceList")
-        .lean();
-
-      // 3️⃣ Response sadeleştir
       const formattedOptions = options.map((opt) => ({
         _id: opt._id,
         title: opt.title,
@@ -165,28 +112,17 @@ module.exports = {
 
       res.status(200).json({
         success: true,
-        master: {
-          _id: master._id,
-          title: master.title,
-          basePrice: master.priceNet?.value || 0,
-          currency: master.priceNet?.currency,
-        },
+        master: { _id: master._id, title: master.title },
         options: formattedOptions,
       });
     } catch (error) {
-      res.status(500).json({
-        success: false,
-        error: error.message,
-      });
+      res.status(500).json({ success: false, error: error.message });
     }
   },
 
-  offerList: async (req, res, next) => {
+  offerList: async (req, res) => {
     try {
-      // Master Product Listesini Çek Ve Opsyonlarını ilave et
-      const query = { user: req.user._id };
-      const records = await MasterProduct.find(query).populate("make", "name");
-
+      const records = await MasterProduct.find(req.orgFilter).populate("make", "name");
       const list = records.map((record) => ({
         value: record._id,
         label: record.title,
@@ -197,66 +133,29 @@ module.exports = {
         makeName: record.make?.name,
         variants: record.variants || [],
       }));
-
-      res.status(200).json({
-        message: "List Of Masters With Options",
-        success: true,
-        list,
-      });
+      res.status(200).json({ success: true, list });
     } catch (error) {
       res.status(500).json({ error: error.message, success: false });
     }
   },
+
   masterByMake: async (req, res) => {
     try {
-      const makeId = req.params.id;
-
-      if (!makeId) {
-        return res.status(400).json({
-          success: false,
-          message: "Make id is required",
-        });
-      }
-
-      const masters = await MasterProduct.find({
-        user: req.user._id,
-        make: makeId,
-      })
-        .populate("make", "name") // sadece name getir
-        .sort({ createdAt: -1 });
-
-      return res.status(200).json({
-        success: true,
-        message: "Masters by make id",
-        masters,
-      });
+      if (!req.params.id) return res.status(400).json({ success: false, message: "Make id is required" });
+      const masters = await MasterProduct.find({ ...req.orgFilter, make: req.params.id })
+        .populate("make", "name").sort({ createdAt: -1 });
+      return res.status(200).json({ success: true, masters });
     } catch (error) {
-      console.error("masterByMake error:", error);
-
-      return res.status(500).json({
-        success: false,
-        message: "Server error",
-      });
+      return res.status(500).json({ success: false, message: "Server error" });
     }
   },
 
   makeList: async (req, res) => {
     try {
-      const records = await MasterProduct.find({
-        user: req.user._id,
-        condition: "new",
-      });
+      const records = await MasterProduct.find({ ...req.orgFilter, condition: "new" });
       const list = [...new Set(records.map((record) => record.make))];
-      const makes = list.map((make) => ({
-        value: make,
-        label: make,
-      }));
-
-      res.status(200).json({
-        message: "Master product makes retrieved successfully.",
-        success: true,
-        makes,
-      });
+      const makes = list.map((make) => ({ value: make, label: make }));
+      res.status(200).json({ success: true, makes });
     } catch (error) {
       res.status(500).json({ error: error.message, success: false });
     }

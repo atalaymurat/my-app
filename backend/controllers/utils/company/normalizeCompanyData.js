@@ -2,7 +2,7 @@ const formatDomain = require("../formatDomain");
 const normalizeAddress = require("../normalizeAddress");
 const { transliterate } = require("transliteration");
 
-function normalizeCompanyData(data = {}, userId) {
+function normalizeCompanyData(data = {}, userId, orgId) {
   function isMaskedEmpty(value) {
     return !value || value.replace(/[_\s\-\(\)\+]/g, "") === "";
   }
@@ -43,7 +43,8 @@ function normalizeCompanyData(data = {}, userId) {
 
     tags: data.tags || [],
     notes: data.notes || "",
-    user: userId
+    createdBy: userId,
+    organization: orgId,
   };
 
 

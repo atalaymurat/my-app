@@ -8,7 +8,8 @@ async function createOffer(data) {
     company,
     contact,
     docType,
-    user,
+    createdBy,
+    organization,
     title,
     version,
     ...versionData
@@ -59,7 +60,8 @@ async function createOffer(data) {
       docType,
       company,
       contact: contact || undefined,
-      user,
+      createdBy,
+      organization,
       versions: [versionData],
     });
   }

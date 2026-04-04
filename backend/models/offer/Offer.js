@@ -81,7 +81,8 @@ const offerSchema = new Schema(
 
     company: { type: Schema.Types.ObjectId, ref: "Company", required: true },
     contact: { type: Schema.Types.ObjectId, ref: "Contact" },
-    user: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    organization: { type: Schema.Types.ObjectId, required: true },
+    createdBy: { type: Schema.Types.ObjectId, required: true },
 
     versions: {
       type: [offerVersionSchema],

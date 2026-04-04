@@ -8,12 +8,13 @@ const contactSchema = new mongoose.Schema(
     emails: [String],
     image: String,
     company: { type: mongoose.Schema.Types.ObjectId, ref: "Company" },
-    user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+    organization: { type: mongoose.Schema.Types.ObjectId, required: true },
+    createdBy: { type: mongoose.Schema.Types.ObjectId, required: true },
   },
   { timestamps: true }
 );
 
-contactSchema.index({ user: 1 });
+contactSchema.index({ organization: 1 });
 
 const Contact = mongoose.model("Contact", contactSchema);
 module.exports = Contact;

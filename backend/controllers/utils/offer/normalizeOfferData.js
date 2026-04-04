@@ -31,7 +31,7 @@ function shapeLineItems(lineItems = []) {
   }));
 }
 
-function normalizeOfferData(formData = {}, userId) {
+function normalizeOfferData(formData = {}, userId, orgId) {
   const {
     _id,
     companyId, title, vatTitle, email, domain,
@@ -69,7 +69,8 @@ function normalizeOfferData(formData = {}, userId) {
     docCode: docCode || generateNewCode({ type: docType, title: companyData.title, version: 1 }),
     docType,
     company: companyId,
-    user: userId,
+    createdBy: userId,
+    organization: orgId,
   };
 
   // Tüm hesaplama tek noktadan

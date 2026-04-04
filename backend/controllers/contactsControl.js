@@ -7,18 +7,13 @@ module.exports = {
       const limit = parseInt(req.query.limit) || 10;
       const skip = (page - 1) * limit;
 
-      const total = await Contact.countDocuments({ user: req.user._id });
-      const contacts = await Contact.find({ user: req.user._id })
+      const total = await Contact.countDocuments(req.orgFilter);
+      const contacts = await Contact.find(req.orgFilter)
         .skip(skip)
         .limit(limit)
         .sort({ createdAt: -1 });
 
-      res.json({
-        success: true,
-        contacts,
-        totalPages: Math.ceil(total / limit),
-        currentPage: page,
-      });
+      res.json({ success: true, contacts, totalPages: Math.ceil(total / limit), currentPage: page });
     } catch (err) {
       res.status(500).json({ message: "Failed to retrieve contacts", error: err.message });
     }
@@ -29,7 +24,7 @@ module.exports = {
       const { search = "" } = req.query;
       if (search.length < 2) return res.json({ success: true, contacts: [] });
       const contacts = await Contact.find({
-        user: req.user._id,
+        ...req.orgFilter,
         name: { $regex: search, $options: "i" },
       }).limit(10).select("name phones emails");
       res.json({ success: true, contacts });
@@ -40,7 +35,7 @@ module.exports = {
 
   show: async (req, res) => {
     try {
-      const contact = await Contact.findOne({ _id: req.params.id, user: req.user._id });
+      const contact = await Contact.findOne({ _id: req.params.id, ...req.orgFilter });
       if (!contact) return res.status(404).json({ message: "Contact not found" });
       res.status(200).json({ success: true, contact });
     } catch (err) {
@@ -56,7 +51,8 @@ module.exports = {
         gender: gender || "none",
         phones: formattedPhones?.filter(Boolean) || phones?.filter(Boolean) || [],
         emails: emails?.filter(Boolean) || [],
-        user: req.user._id,
+        organization: req.user.orgId,
+        createdBy: req.user._id,
       });
       res.status(200).json({ success: true, contact, message: "Kaydedildi" });
     } catch (err) {
@@ -76,7 +72,7 @@ module.exports = {
         }),
       };
       const contact = await Contact.findOneAndUpdate(
-        { _id: req.params.id, user: req.user._id },
+        { _id: req.params.id, ...req.orgFilter },
         updateData,
         { new: true }
       );
@@ -89,7 +85,7 @@ module.exports = {
 
   destroy: async (req, res) => {
     try {
-      const contact = await Contact.findOneAndDelete({ _id: req.params.id, user: req.user._id });
+      const contact = await Contact.findOneAndDelete({ _id: req.params.id, ...req.orgFilter });
       if (!contact) return res.status(404).json({ message: "Contact not found" });
       res.status(200).json({ success: true, message: "Contact deleted" });
     } catch (err) {
