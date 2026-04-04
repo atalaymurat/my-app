@@ -7,17 +7,17 @@ const Offer = require("../models/offer/Offer");
 module.exports = {
   summary: async (req, res) => {
     try {
-      const uid = req.user._id;
+      const filter = req.orgFilter;
 
       const [companies, contacts, products, options, offers, offersByType] =
         await Promise.all([
-          Company.countDocuments({ user: uid }),
-          Contact.countDocuments({ user: uid }),
-          MasterProduct.countDocuments({ user: uid }),
-          Option.countDocuments({ user: uid }),
-          Offer.countDocuments({ user: uid }),
+          Company.countDocuments(filter),
+          Contact.countDocuments(filter),
+          MasterProduct.countDocuments(filter),
+          Option.countDocuments(filter),
+          Offer.countDocuments(filter),
           Offer.aggregate([
-            { $match: { user: uid } },
+            { $match: filter },
             { $group: { _id: "$docType", count: { $sum: 1 } } },
           ]),
         ]);

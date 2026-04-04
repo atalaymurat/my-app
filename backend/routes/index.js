@@ -10,5 +10,6 @@ router.use("/scrape", require("./scrape"));
 router.use("/offer", require("./offers"));
 router.use("/pdf", require("./pdf"));
 router.use("/stats", require("./stats"));
+router.use("/upload", require("./upload"));
 
 module.exports = router;

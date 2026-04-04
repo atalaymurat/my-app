@@ -151,6 +151,7 @@ function Block({ title, count, accent, actions, chart, pills, viewHref }) {
 
 export default function Dashboard() {
   const { user } = useAuth();
+  const router = useRouter();
   const [stats, setStats] = useState(null);
 
   useEffect(() => {
@@ -201,6 +202,22 @@ export default function Dashboard() {
           </div>
         )}
       </div>
+
+      {/* Org card */}
+      {user?.orgId && (
+        <div
+          onClick={() => router.push("/shield/organization")}
+          className="flex items-center justify-between px-5 py-3 rounded-2xl border border-l-4 border-stone-800 border-l-amber-500 bg-stone-950/80 cursor-pointer hover:bg-stone-900/60 transition-colors"
+        >
+          <div>
+            <p className="text-xs font-bold uppercase tracking-widest text-stone-500">Organizasyon</p>
+            <p className="text-sm font-semibold text-stone-200 mt-0.5">
+              {user?.orgRole === "owner" ? "Sahip" : user?.orgRole === "admin" ? "Yönetici" : "Üye"}
+            </p>
+          </div>
+          <span className="text-xs font-semibold text-amber-400 uppercase tracking-widest">Yönet →</span>
+        </div>
+      )}
 
       {/* 3-column grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
