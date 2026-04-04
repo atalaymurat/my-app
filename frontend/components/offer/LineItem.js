@@ -91,11 +91,12 @@ export function LineItem({ item, index, isLocked = false }) {
                       className="flex items-start gap-3 flex-1 min-w-0 cursor-pointer"
                       onClick={() => handleOptionToggle(index, option)}
                     >
-                      {/* Image Placeholder */}
-                      <div className="shrink-0 w-10 h-10 rounded-lg bg-stone-800 border border-stone-700 flex items-center justify-center mt-0.5">
-                        <svg className="w-5 h-5 text-stone-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3 21h18M3 3h18" />
-                        </svg>
+                      {/* Görsel */}
+                      <div className="shrink-0 w-[45px] h-[45px] rounded-lg bg-stone-800 border border-stone-700 overflow-hidden flex items-center justify-center mt-0.5">
+                        {option.image
+                          ? <img src={option.image} alt={option.label} className="w-full h-full object-cover" />
+                          : <svg className="w-5 h-5 text-stone-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                        }
                       </div>
 
                       {/* Text: title + desc stacked */}

@@ -6,7 +6,9 @@ const Option = require("../models/options/Option");
 module.exports = {
   show: async (req, res) => {
     try {
-      const product = await MasterProduct.findOne({ _id: req.params.id, ...req.orgFilter }).populate("make", "name");
+      const product = await MasterProduct.findOne({ _id: req.params.id, ...req.orgFilter })
+        .populate("make", "name")
+        .populate("options", "_id title");
       if (!product) return res.status(404).json({ message: "Product not found", success: false });
       res.status(200).json({ success: true, product });
     } catch (err) {
@@ -33,6 +35,14 @@ module.exports = {
     try {
       const product = await MasterProduct.findOneAndDelete({ _id: req.params.id, ...req.orgFilter });
       if (!product) return res.status(404).json({ message: "Product not found" });
+
+      // Cloudinary'den görseli sil
+      if (product.image) {
+        const cloudinary = require("../config/cloudinary");
+        const match = product.image.match(/\/upload\/(?:v\d+\/)?(.+)\.\w+$/);
+        if (match?.[1]) cloudinary.uploader.destroy(match[1]).catch(() => {});
+      }
+
       res.status(200).json({ success: true, message: "Product deleted" });
     } catch (err) {
       res.status(500).json({ message: "Failed to delete product", error: err.message });
@@ -99,8 +109,9 @@ module.exports = {
       const master = await MasterProduct.findOne({ _id: req.params.id, ...req.orgFilter }).lean();
       if (!master) return res.status(404).json({ success: false, message: "Master product not found" });
 
-      const options = await Option.find({ ...req.orgFilter, masterProducts: req.params.id })
-        .select("title description priceNet priceList").lean();
+      const masterWithOptions = await MasterProduct.findOne({ _id: req.params.id, ...req.orgFilter })
+        .populate("options", "title description priceNet priceList").lean();
+      const options = masterWithOptions?.options || [];
 
       const formattedOptions = options.map((opt) => ({
         _id: opt._id,
@@ -126,6 +137,7 @@ module.exports = {
       const list = records.map((record) => ({
         value: record._id,
         label: record.title,
+        image: record.image || "",
         currency: record.currency,
         caption: record.caption,
         condition: record.condition,

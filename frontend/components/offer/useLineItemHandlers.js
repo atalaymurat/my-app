@@ -26,6 +26,7 @@ export function useLineItemHandlers(items, makes = []) {
       productValue: master.value,
       title: master.label,
       caption: master.title || "",
+      image: master.image || "",
       currency: master.currency,
 
       options: [],

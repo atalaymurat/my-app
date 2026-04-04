@@ -22,6 +22,7 @@ export function useOfferItems() {
     masters.map((p) => ({
       value: String(p.value),
       label: p.label,
+      image: p.image || "",
       title: p.caption,
       desc: p.caption,
       currency: p.currency,

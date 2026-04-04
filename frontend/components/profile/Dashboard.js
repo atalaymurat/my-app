@@ -68,22 +68,21 @@ function StatPill({ label, value, accent }) {
 }
 
 /* ── action button ── */
-function ActionBtn({ href, children, accent = "stone" }) {
+function ActionBtn({ href, accent = "stone" }) {
   const router = useRouter();
-  const base = "flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-semibold transition-colors cursor-pointer";
   const variants = {
-    amber:   "border-amber-700/60 bg-amber-900/20 text-amber-400 hover:bg-amber-900/40 hover:border-amber-600",
-    blue:    "border-blue-700/60 bg-blue-900/20 text-blue-400 hover:bg-blue-900/40 hover:border-blue-600",
-    emerald: "border-emerald-700/60 bg-emerald-900/20 text-emerald-400 hover:bg-emerald-900/40 hover:border-emerald-600",
-    violet:  "border-violet-700/60 bg-violet-900/20 text-violet-400 hover:bg-violet-900/40 hover:border-violet-600",
-    stone:   "border-stone-600 bg-stone-800 text-stone-300 hover:bg-stone-700 hover:text-white",
+    amber:   "border-amber-700/60 bg-amber-900/20 text-amber-400 hover:bg-amber-500 hover:text-white hover:border-amber-500",
+    blue:    "border-blue-700/60 bg-blue-900/20 text-blue-400 hover:bg-blue-500 hover:text-white hover:border-blue-500",
+    emerald: "border-emerald-700/60 bg-emerald-900/20 text-emerald-400 hover:bg-emerald-500 hover:text-white hover:border-emerald-500",
+    violet:  "border-violet-700/60 bg-violet-900/20 text-violet-400 hover:bg-violet-500 hover:text-white hover:border-violet-500",
+    stone:   "border-stone-600 bg-stone-800 text-stone-300 hover:bg-stone-600 hover:text-white",
   };
   return (
-    <button type="button" onClick={() => router.push(href)} className={`${base} ${variants[accent] || variants.stone}`}>
+    <button type="button" onClick={() => router.push(href)}
+      className={`w-7 h-7 rounded-lg border flex items-center justify-center transition-colors cursor-pointer ${variants[accent] || variants.stone}`}>
       <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
       </svg>
-      {children}
     </button>
   );
 }
@@ -235,8 +234,15 @@ export default function Dashboard() {
           />
         </div>
 
-        {/* Col 2: Ürünler + Opsiyonlar */}
+        {/* Col 2: Markalar + Ürünler + Opsiyonlar */}
         <div className="flex flex-col gap-3">
+          <Block
+            title="Markalar"
+            count={s?.makes}
+            accent="stone"
+            viewHref="/shield/make"
+            actions={[{ label: "Yeni Marka", href: "/shield/make/new" }]}
+          />
           <Block
             title="Master Ürünler"
             count={s?.products}

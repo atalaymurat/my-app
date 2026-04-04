@@ -38,9 +38,6 @@ const normalizeCompany = (data = {}, userId, orgId) => ({
 const normalizeOption = (data = {}, userId, orgId) => ({
   title: data.title?.trim() || "",
   nTitle: normalizeText(data.title),
-  masterProducts: Array.isArray(data.masterProducts)
-    ? data.masterProducts.filter(Boolean)
-    : [],
   image: data.image?.trim() || "",
   description: data.description ? normalizeText(data.description) : "",
   priceNet: data.priceNet,
@@ -62,9 +59,11 @@ const normalizeMasterProduct = (data = {}, userId, orgId) => ({
   nModel: data.model ? normalizeText(data.model) : "",
   variants: data.variants,
   caption: data.caption ? transliterate(data.caption) : "",
+  image: data.image || "",
   currency: data.currency,
   condition: data.condition,
   year: data.year,
+  options: Array.isArray(data.options) ? data.options.filter(Boolean) : [],
   createdBy: userId,
   organization: orgId,
 });

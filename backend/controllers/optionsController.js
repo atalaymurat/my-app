@@ -6,21 +6,21 @@ module.exports = {
   index: async (req, res) => {
     try {
       const page = parseInt(req.query.page) || 1;
-      const limit = parseInt(req.query.limit) || 10;
+      const limit = parseInt(req.query.limit) || 30;
       const skip = (page - 1) * limit;
 
       const totalRecords = await Option.countDocuments(req.orgFilter);
       const records = await Option.find(req.orgFilter)
-        .populate("make", "name")
-        .populate({ path: "masterProducts", select: "title make", populate: { path: "make", select: "name" } })
+        .populate("make", "name logo")
         .skip(skip)
         .limit(limit)
-        .sort({ createdAt: -1 });
+        .sort({ make: 1, title: 1 });
 
       return res.status(200).json({
         success: true,
         totalPages: Math.ceil(totalRecords / limit),
         currentPage: page,
+        total: totalRecords,
         options: records,
       });
     } catch (error) {
@@ -41,8 +41,7 @@ module.exports = {
   show: async (req, res) => {
     try {
       const option = await Option.findOne({ _id: req.params.id, ...req.orgFilter })
-        .populate("make", "name")
-        .populate({ path: "masterProducts", select: "title make", populate: { path: "make", select: "name" } });
+        .populate("make", "name");
       if (!option) return res.status(404).json({ message: "Option not found" });
       res.status(200).json({ success: true, option });
     } catch (err) {
@@ -86,18 +85,19 @@ module.exports = {
 
   list: async (req, res) => {
     try {
-      const records = await Option.find({
-        ...req.orgFilter,
-        masterProducts: { $in: [req.params.id] },
-      });
-      const list = records.map((record) => ({
-        value: record._id.toString(),
-        label: record.title,
-        listPrice: record.priceList || 0,
-        offerPrice: record.priceOffer || 0,
-        netPrice: record.priceNet || 0,
-        currency: record.currency,
-        desc: record.description,
+      const MasterProduct = require("../models/masterProduct/MasterProduct");
+      const master = await MasterProduct.findOne({ _id: req.params.id, ...req.orgFilter })
+        .populate("options").lean();
+      if (!master) return res.status(404).json({ success: false, message: "Ürün bulunamadı." });
+      const list = (master.options || []).map((opt) => ({
+        value: opt._id.toString(),
+        label: opt.title,
+        image: opt.image || "",
+        listPrice: opt.priceList || 0,
+        offerPrice: opt.priceOffer || 0,
+        netPrice: opt.priceNet || 0,
+        currency: opt.currency,
+        desc: opt.description,
       }));
       res.status(200).json({ success: true, list });
     } catch (error) {

@@ -51,7 +51,17 @@ const BasePage = () => {
   return (
     <div className="flex flex-col h-[calc(100vh-80px)] text-white">
       <div className="flex-1">
-        <PageLinks links={[{ href: "/shield/master/new", label: "Yeni Ekle" }]} />
+        <div className="flex items-center gap-3 px-4 py-4">
+          <button onClick={() => router.push("/shield/profile")}
+            className="p-1.5 rounded-lg bg-stone-800 hover:bg-stone-700 border border-stone-700 text-stone-400 hover:text-stone-200 transition-colors">
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
+          </button>
+          <h1 className="text-xl font-black text-stone-100 flex-1">Master Ürünler</h1>
+          <button onClick={() => router.push("/shield/master/new")}
+            className="w-8 h-8 rounded-lg bg-amber-600 hover:bg-amber-500 text-white flex items-center justify-center transition-colors">
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
+          </button>
+        </div>
         {masterProducts.length === 0 ? (
           <div className="p-8 text-stone-400">Henüz ürün eklenmemiş.</div>
         ) : (

@@ -31,6 +31,7 @@ const masterProductSchema = new Schema(
 
     caption: String,
     nCaption: String,
+    image: String,
 
     make: {
       type: Schema.Types.ObjectId,
@@ -44,6 +45,8 @@ const masterProductSchema = new Schema(
     currency: String, // master ve opstion tek currency
     // ✅ ALT MODELLER
     variants: [variantSchema],
+
+    options: [{ type: Schema.Types.ObjectId, ref: "Option" }],
 
     visibilityScope: {
       type: String,

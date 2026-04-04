@@ -9,7 +9,7 @@ module.exports = {
   create: async (req, res) => {
     try {
       const userId = req.user?._id;
-      const orgId = req.user?.orgId;
+      const orgId = req.user?.orgId || null;
       if (!userId) return res.status(401).json({ message: "Yetkisiz erişim.", success: false });
 
       const { offerData, versionData, needsCompanyCreation, companyData, contactData } =

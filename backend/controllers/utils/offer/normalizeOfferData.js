@@ -8,6 +8,7 @@ function shapeLineItems(lineItems = []) {
     variantId: item.selectedVariantId || "",
     title: item.title?.trim() || "",
     caption: item.caption?.trim() || "",
+    image: item.image?.trim() || "",
     currency: item.currency || "TRY",
     quantity: Number(item.quantity) || 1,
     condition: item.condition || "",

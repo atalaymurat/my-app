@@ -164,7 +164,12 @@ export default function LineItemsFields() {
                                 <input type="radio" className="sr-only"
                                   name={`lineItems.${idx}.productValue`} value={product.value}
                                   checked={sel} onChange={() => handleProductSelect(idx, product.value)} />
-                                <ImagePlaceholder />
+                                <div className="shrink-0 w-[45px] h-[45px] rounded-lg bg-stone-800 border border-stone-700 overflow-hidden flex items-center justify-center">
+                                  {product.image
+                                    ? <img src={product.image} alt={product.label} className="w-full h-full object-cover" />
+                                    : <svg className="w-5 h-5 text-stone-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                                  }
+                                </div>
                                 <div className="flex-1 min-w-0">
                                   <p className={`text-sm font-semibold leading-snug ${sel ? "text-white" : "text-stone-200"}`}>{product.label}</p>
                                   {product.desc && <p className="text-xs text-stone-500 mt-0.5 line-clamp-2 leading-relaxed">{product.desc}</p>}

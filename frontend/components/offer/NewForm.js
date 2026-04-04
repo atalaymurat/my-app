@@ -80,7 +80,7 @@ function mapOfferToForm(offer) {
       options: [],
       selectedOptions: (item.selectedOptions || []).map((o) => ({
         value: o.optionId,
-        label: "",
+        label: o.label || o.title || "",
         listPrice: o.listPrice,
         offerPrice: o.offerPrice,
         netPrice: o.netPrice,
@@ -98,8 +98,8 @@ function mapOfferToForm(offer) {
       quantity: item.quantity || 1,
       notes: item.notes || "",
       condition: item.condition || "",
-      image: "",
-      caption: "",
+      image: item.image || "",
+      caption: item.caption || "",
     })),
   };
 }

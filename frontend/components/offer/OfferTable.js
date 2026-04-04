@@ -26,16 +26,6 @@ function DocTypeBadge({ type }) {
   );
 }
 
-function ProductPlaceholder() {
-  return (
-    <div className="shrink-0 w-10 h-10 rounded-lg bg-stone-800 border border-stone-700 flex items-center justify-center">
-      <svg className="w-5 h-5 text-stone-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-        <path strokeLinecap="round" strokeLinejoin="round"
-          d="M21 7.5l-9-5.25L3 7.5m18 0l-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9" />
-      </svg>
-    </div>
-  );
-}
 
 const downloadPdf = async (offerId) => {
   try {
@@ -110,7 +100,12 @@ export default function OfferTable({ offers: initialOffers }) {
             <div className="divide-y divide-stone-800/60">
               {v.lineItems?.map((item, idx) => (
                 <div key={idx} className="flex items-center gap-3 px-4 py-2.5">
-                  <ProductPlaceholder />
+                  <div className="shrink-0 w-10 h-10 rounded-lg bg-stone-800 border border-stone-700 overflow-hidden flex items-center justify-center">
+                    {item.image
+                      ? <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
+                      : <svg className="w-5 h-5 text-stone-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M21 7.5l-9-5.25L3 7.5m18 0l-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9" /></svg>
+                    }
+                  </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-stone-200 capitalize truncate">{item.title}</p>
                     {item.notes && (

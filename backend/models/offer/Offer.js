@@ -6,10 +6,11 @@ const Schema = mongoose.Schema;
 --------------------------------*/
 const lineItemSchema = new Schema(
   {
-    productValue: String, // base veya conf ürünün id'si + prefix
+    productValue: String,
     variantId: String,
     title: String,
     caption: String,
+    image: String,
     priceList: Number,
     priceOffer: Number,
     priceNet: Number,
@@ -81,8 +82,8 @@ const offerSchema = new Schema(
 
     company: { type: Schema.Types.ObjectId, ref: "Company", required: true },
     contact: { type: Schema.Types.ObjectId, ref: "Contact" },
-    organization: { type: Schema.Types.ObjectId, required: true },
-    createdBy: { type: Schema.Types.ObjectId, required: true },
+    organization: { type: Schema.Types.ObjectId },
+    createdBy: { type: Schema.Types.ObjectId },
 
     versions: {
       type: [offerVersionSchema],

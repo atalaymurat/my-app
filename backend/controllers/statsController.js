@@ -3,19 +3,21 @@ const Contact = require("../models/contact/userContact");
 const MasterProduct = require("../models/masterProduct/MasterProduct");
 const Option = require("../models/options/Option");
 const Offer = require("../models/offer/Offer");
+const Make = require("../models/Make");
 
 module.exports = {
   summary: async (req, res) => {
     try {
       const filter = req.orgFilter;
 
-      const [companies, contacts, products, options, offers, offersByType] =
+      const [companies, contacts, products, options, offers, makes, offersByType] =
         await Promise.all([
           Company.countDocuments(filter),
           Contact.countDocuments(filter),
           MasterProduct.countDocuments(filter),
           Option.countDocuments(filter),
           Offer.countDocuments(filter),
+          Make.countDocuments(filter),
           Offer.aggregate([
             { $match: filter },
             { $group: { _id: "$docType", count: { $sum: 1 } } },
@@ -29,7 +31,7 @@ module.exports = {
 
       res.status(200).json({
         success: true,
-        stats: { companies, contacts, products, options, offers, offersByType: byType },
+        stats: { companies, contacts, products, options, offers, makes, offersByType: byType },
       });
     } catch (err) {
       res.status(500).json({ success: false, error: err.message });

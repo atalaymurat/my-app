@@ -7,12 +7,6 @@ const optionsSchema = new Schema(
     title: String,
     nTitle: String,
     image: String,
-    masterProducts: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: "MasterProduct",
-      },
-    ],
     make: { type: Schema.Types.ObjectId, ref: "Make" },
     description: String,
     priceNet: Number,
