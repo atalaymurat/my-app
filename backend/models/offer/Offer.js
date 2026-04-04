@@ -9,6 +9,7 @@ const lineItemSchema = new Schema(
     productValue: String, // base veya conf ürünün id'si + prefix
     variantId: String,
     title: String,
+    caption: String,
     priceList: Number,
     priceOffer: Number,
     priceNet: Number,
@@ -16,6 +17,8 @@ const lineItemSchema = new Schema(
     selectedOptions: [
       {
         optionId: String,
+        title: String,
+        label: String,
         quantity: Number,
         listPrice: Number,
         offerPrice: Number,

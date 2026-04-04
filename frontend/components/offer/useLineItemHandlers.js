@@ -25,6 +25,7 @@ export function useLineItemHandlers(items, makes = []) {
       ...values.lineItems[index],
       productValue: master.value,
       title: master.label,
+      caption: master.title || "",
       currency: master.currency,
 
       options: [],

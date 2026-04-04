@@ -14,9 +14,11 @@ lerna-debug.log*
 /backend/.node_modules
 /backend/.env
 /backend/.env*
+/backend/.env.local-network
 /backend/.env.test
 /frontend/.node_modules
 /frontend/.env.local
+/frontend/.env.local-network
 /frontend/.env.production
 /frontend/.env*
 /frontend/.*

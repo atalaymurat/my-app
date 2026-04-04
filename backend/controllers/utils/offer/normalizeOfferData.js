@@ -7,6 +7,7 @@ function shapeLineItems(lineItems = []) {
     productValue: item.productValue,
     variantId: item.selectedVariantId || "",
     title: item.title?.trim() || "",
+    caption: item.caption?.trim() || "",
     currency: item.currency || "TRY",
     quantity: Number(item.quantity) || 1,
     condition: item.condition || "",
@@ -23,6 +24,8 @@ function shapeLineItems(lineItems = []) {
       offerPrice: Number(o.offerPrice) || 0,
       netPrice: Number(o.netPrice) || 0,
       currency: o.currency || item.currency || "TRY",
+      title: o.label?.trim() || "",
+      label: o.label?.trim() || "",
       desc: o.desc?.trim() || "",
     })),
   }));
