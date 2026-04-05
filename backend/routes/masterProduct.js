@@ -11,6 +11,7 @@ router.get("/list", authenticate, masterProductController.list);
 router.get("/offer", authenticate, masterProductController.offerList);
 router.get("/options/:id", authenticate, masterProductController.optionsByMaster);
 router.get("/masterbymake/:id", authenticate, masterProductController.masterByMake);
+router.get("/byoption/:optionId", authenticate, masterProductController.byOption);
 router.get("/make", authenticate, masterProductController.makeList);
 router.post("/", authenticate, masterProductController.create);
 router.get("/:id", authenticate, masterProductController.show);

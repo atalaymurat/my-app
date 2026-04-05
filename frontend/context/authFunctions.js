@@ -2,12 +2,25 @@ import axiosAuth from "@/utils/axiosAuth";
 import { auth } from "@/lib/firebase";
 import { signOut as firebaseSignOut } from "firebase/auth";
 
+const doVerify = () =>
+  axiosAuth.post("/verify", { applicationId: process.env.NEXT_PUBLIC_APPLICATION_ID });
+
 export const checkSession = async ({ setUser, setAuthChecked, setLoading }) => {
   setLoading(true);
   try {
-    const response = await axiosAuth.post("/verify", {
-      applicationId: process.env.NEXT_PUBLIC_APPLICATION_ID,
-    });
+    let response = await doVerify();
+
+    // accessToken süresi dolmuşsa refresh dene
+    if (response.status === 401) {
+      try {
+        await axiosAuth.post("/refresh");
+        response = await doVerify();
+      } catch {
+        setUser(null);
+        setAuthChecked(true);
+        return null;
+      }
+    }
 
     if (response.status === 200 && response.data?.success && response.data.user) {
       setUser(response.data.user);

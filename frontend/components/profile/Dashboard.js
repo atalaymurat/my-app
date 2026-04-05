@@ -114,7 +114,7 @@ function Block({ title, count, accent, actions, chart, pills, viewHref }) {
           </div>
         </div>
         <div className="flex flex-col items-end gap-2">
-          <Ring value={count ?? 0} max={Math.max(count ?? 0, 10)} color={ringColor[accent]} />
+          <Ring value={count ?? 0} max={Math.max(count ?? 0, 100)} color={ringColor[accent]} />
           {viewHref && (
             <button onClick={() => router.push(viewHref)}
               className="text-xs font-semibold text-stone-500 hover:text-stone-200 transition-colors uppercase tracking-widest cursor-pointer">

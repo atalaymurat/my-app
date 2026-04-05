@@ -10,6 +10,7 @@ import { toSquareImage } from "@/utils/squareImage";
 const INITIAL = {
   title: "", make: "", description: "",
   currency: "TRY", priceNet: "", priceList: "", priceOffer: "", image: "",
+  products: [],
 };
 
 const NewForm = () => {

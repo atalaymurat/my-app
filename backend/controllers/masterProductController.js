@@ -165,6 +165,15 @@ module.exports = {
     }
   },
 
+  byOption: async (req, res) => {
+    try {
+      const masters = await MasterProduct.find({ ...req.orgFilter, options: req.params.optionId }, "_id");
+      res.status(200).json({ success: true, masterIds: masters.map(m => m._id.toString()) });
+    } catch (error) {
+      res.status(500).json({ success: false, error: error.message });
+    }
+  },
+
   makeList: async (req, res) => {
     try {
       const records = await MasterProduct.find({ ...req.orgFilter, condition: "new" });

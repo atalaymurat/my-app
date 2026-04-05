@@ -33,8 +33,18 @@ module.exports = {
       return res.status(403).json({ success: false, message: "Bu işlem için bir organizasyona bağlı olmanız gerekiyor." });
     }
     try {
-      const normalized = normalizeOption(req.body, req.user._id, req.user.orgId);
+      const { products = [], ...rest } = req.body;
+      const normalized = normalizeOption(rest, req.user._id, req.user.orgId);
       const newOption = await createOption(normalized);
+
+      if (products.length > 0) {
+        const MasterProduct = require("../models/masterProduct/MasterProduct");
+        await MasterProduct.updateMany(
+          { _id: { $in: products }, ...req.orgFilter },
+          { $addToSet: { options: newOption._id } }
+        );
+      }
+
       return res.status(200).json({ success: true, option: newOption });
     } catch (error) {
       res.status(500).json({ error: error.message, success: false });
@@ -54,13 +64,25 @@ module.exports = {
 
   update: async (req, res) => {
     try {
-      const normalized = normalizeOption(req.body, req.user._id, req.user.orgId);
+      const { products = [], ...rest } = req.body;
+      const normalized = normalizeOption(rest, req.user._id, req.user.orgId);
       const option = await Option.findOneAndUpdate(
         { _id: req.params.id, ...req.orgFilter },
         normalized,
         { new: true }
       );
       if (!option) return res.status(404).json({ message: "Option not found" });
+
+      // Master product ilişkisini güncelle: önce tümünden çıkar, sonra seçililere ekle
+      const MasterProduct = require("../models/masterProduct/MasterProduct");
+      await MasterProduct.updateMany({ ...req.orgFilter, options: option._id }, { $pull: { options: option._id } });
+      if (products.length > 0) {
+        await MasterProduct.updateMany(
+          { _id: { $in: products }, ...req.orgFilter },
+          { $addToSet: { options: option._id } }
+        );
+      }
+
       res.status(200).json({ success: true, option });
     } catch (err) {
       res.status(400).json({ message: "Failed to update option", error: err.message });

@@ -18,7 +18,12 @@ module.exports = {
           const authBase = process.env.AUTH_SERVICE_URL.replace(/\/api\/auth\/?$/, "");
           const orgRes = await axios.get(
             `${authBase}/api/org/me`,
-            { headers: { Authorization: `Bearer ${token}` } }
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+                "x-internal-api-key": process.env.INTERNAL_API_KEY,
+              },
+            }
           );
           logoUrl = orgRes.data?.logo || null;
         }
@@ -29,7 +34,10 @@ module.exports = {
       const pdfResponse = await axios.post(
         `${process.env.PDF_SERVICE_URL}/generate`,
         { template: "quotation", data: { ...offer.toObject(), logoUrl } },
-        { responseType: "arraybuffer" },
+        {
+          responseType: "arraybuffer",
+          headers: { "x-internal-api-key": process.env.INTERNAL_API_KEY },
+        },
       );
 
       res.set({

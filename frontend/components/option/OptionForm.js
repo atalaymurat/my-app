@@ -10,6 +10,7 @@ import { toSquareImage } from "@/utils/squareImage";
 const EMPTY_VALUES = {
   title: "", make: "", description: "",
   currency: "TRY", priceNet: "", priceList: "", priceOffer: "", image: "",
+  products: [],
 };
 
 const OptionForm = ({ option }) => {
@@ -17,6 +18,19 @@ const OptionForm = ({ option }) => {
   const [makes, setMakes] = useState([]);
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(option?.image || null);
+  const [initialValues, setInitialValues] = useState(
+    option ? {
+      title: option.title || "",
+      make: option.make?._id || option.make || "",
+      description: option.description || "",
+      currency: option.currency || "TRY",
+      priceNet: option.priceNet || "",
+      priceList: option.priceList || "",
+      priceOffer: option.priceOffer || "",
+      image: option.image || "",
+      products: [],
+    } : EMPTY_VALUES
+  );
 
   useEffect(() => {
     axios.get("/api/make")
@@ -26,22 +40,21 @@ const OptionForm = ({ option }) => {
       .catch(() => {});
   }, []);
 
+  // Edit modda: bu option'ı içeren master product ID'lerini yükle
+  useEffect(() => {
+    if (!option?._id) return;
+    axios.get(`/api/master/byoption/${option._id}`)
+      .then(({ data }) => {
+        if (data.success) setInitialValues(prev => ({ ...prev, products: data.masterIds }));
+      })
+      .catch(() => {});
+  }, [option?._id]);
+
   const handleImageChange = async (file) => {
     const squared = await toSquareImage(file);
     setImageFile(squared);
     setImagePreview(URL.createObjectURL(squared));
   };
-
-  const initialValues = option ? {
-    title: option.title || "",
-    make: option.make?._id || option.make || "",
-    description: option.description || "",
-    currency: option.currency || "TRY",
-    priceNet: option.priceNet || "",
-    priceList: option.priceList || "",
-    priceOffer: option.priceOffer || "",
-    image: option.image || "",
-  } : EMPTY_VALUES;
 
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     setSubmitting(true);
