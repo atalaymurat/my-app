@@ -1,15 +1,57 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Formik, Form, useFormikContext } from "formik";
+import * as Yup from "yup";
 import FormFields from "./FormFields";
 import FormSaveButton from "@/components/formSaveButton";
 import MessageBlock from "@/components/messageBlock";
 import axios from "@/utils/axios";
+import { toSquareImage } from "@/utils/squareImage";
 
 const DEFAULT_VALUES = {
-  image: "", caption: "", make: "", model: "", year: "", condition: "", currency: "EUR", options: [],
-  variants: [{ modelType: "", code: "", priceNet: "", priceOffer: "", priceList: "", stock: "", technicalSpecs: [{ key: "", value: "" }] }],
+  image: "", caption: "", make: "", model: "", year: "", currency: "EUR", options: [],
+  variants: [{ modelType: "", code: "", priceNet: "", priceOffer: "", priceList: "", technicalSpecs: [{ key: "", value: "" }] }],
 };
+
+const variantSchema = Yup.object({
+  priceOffer: Yup.number().typeError("Geçerli fiyat girin").required("Teklif fiyatı zorunlu"),
+});
+
+const validationSchema = Yup.object({
+  make: Yup.string().required("Marka zorunlu"),
+  model: Yup.string().required("Model ailesi zorunlu"),
+  caption: Yup.string().required("Alt başlık zorunlu"),
+  currency: Yup.string().required("Döviz zorunlu"),
+  variants: Yup.array().of(variantSchema),
+});
+
+// Hata alanlarını okunabilir mesaja çevirir
+function buildValidationMessage(errors) {
+  const fields = [];
+  if (errors.make) fields.push("Marka");
+  if (errors.model) fields.push("Model Ailesi");
+  if (errors.caption) fields.push("Alt Başlık");
+  if (errors.currency) fields.push("Döviz");
+  if (errors.variants?.some?.(v => v?.priceOffer)) fields.push("Teklif Fiyatı");
+  return {
+    text: "Zorunlu alanlar eksik",
+    detail: `Lütfen şu alanları doldurun: ${fields.join(", ")}`,
+    type: "error",
+  };
+}
+
+// Formik submit denemesini izler; validation fail olunca callback çağırır
+function ValidationWatcher({ onFail }) {
+  const { submitCount, isValid, errors } = useFormikContext();
+  const prevCount = useRef(0);
+  useEffect(() => {
+    if (submitCount > prevCount.current && !isValid) {
+      onFail(errors);
+    }
+    prevCount.current = submitCount;
+  }, [submitCount, isValid]); // eslint-disable-line react-hooks/exhaustive-deps
+  return null;
+}
 
 function mapMasterToForm(product) {
   return {
@@ -18,7 +60,6 @@ function mapMasterToForm(product) {
     make: product.make?._id || product.make || "",
     model: product.model || "",
     year: product.year || "",
-    condition: product.condition || "",
     currency: product.currency || "EUR",
     options: (product.options || []).map(o => o._id?.toString() || o.toString()),
     variants: product.variants?.length > 0
@@ -28,7 +69,6 @@ function mapMasterToForm(product) {
           priceNet: v.priceNet ?? "",
           priceOffer: v.priceOffer ?? "",
           priceList: v.priceList ?? "",
-          stock: v.stock ?? "",
           technicalSpecs: v.technicalSpecs?.length > 0 ? v.technicalSpecs : [{ key: "", value: "" }],
         }))
       : DEFAULT_VALUES.variants,
@@ -42,11 +82,15 @@ const NewForm = ({ masterId }) => {
   const [initialValues, setInitialValues] = useState(DEFAULT_VALUES);
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
+  // Cloudinary'de kayıtlı güncel URL — save başarılı olduktan sonra güncellenir
+  const cloudinaryUrlRef = useRef(null);
 
   useEffect(() => {
     setLoadingMakes(true);
     axios.get("/api/make")
-      .then(({ data }) => { if (data.success) setMakes(data.makes.map((m) => ({ value: m._id, label: m.name, logo: m.logo }))); })
+      .then(({ data }) => {
+        if (data.success) setMakes(data.makes.map((m) => ({ value: m._id, label: m.name, logo: m.logo })));
+      })
       .catch(() => {})
       .finally(() => setLoadingMakes(false));
   }, []);
@@ -57,21 +101,67 @@ const NewForm = ({ masterId }) => {
       .then(({ data }) => {
         if (data.success) {
           setInitialValues(mapMasterToForm(data.product));
-          if (data.product.image) setImagePreview(data.product.image);
+          if (data.product.image) {
+            setImagePreview(data.product.image);
+            cloudinaryUrlRef.current = data.product.image;
+          }
         }
       })
       .catch(() => {});
   }, [masterId]);
 
-  const handleSubmit = async (values, { setSubmitting }) => {
+  // Cloudinary'den sil — fire-and-forget, save sonrası çağrılır
+  const deleteFromCloudinary = useCallback((url) => {
+    if (!url || !url.includes("cloudinary")) return;
+    axios.delete("/api/upload", { data: { url } }).catch(() => {});
+  }, []);
+
+  const handleImageChange = useCallback(async (file) => {
+    const squared = await toSquareImage(file);
+    setImageFile(squared);
+    setImagePreview(URL.createObjectURL(squared));
+    // Eski URL'i silme; save başarılı olunca handleSubmit içinde silineceğiz
+  }, []);
+
+  const handleImageRemove = useCallback(() => {
+    setImageFile(null);
+    setImagePreview(null);
+    // Cloudinary silmesi save başarılı olunca yapılacak (pending işaret)
+    // Burada sadece imageFile null → submit'te imageUrl = "" gider, backend temizler
+  }, []);
+
+  const handleMakeCreated = useCallback((newMake) => {
+    setMakes(prev => [...prev, newMake]);
+  }, []);
+
+  const handleValidationFail = useCallback((errors) => {
+    setMessage(buildValidationMessage(errors));
+    // Sayfanın üstüne scroll — ilk hatalı alana yönlendir
+    const firstError = document.querySelector("[data-field-error]");
+    if (firstError) firstError.scrollIntoView({ behavior: "smooth", block: "center" });
+  }, []);
+
+  const handleSubmit = useCallback(async (values, { setSubmitting }) => {
     setSubmitting(true);
     try {
       let imageUrl = values.image;
+      const prevCloudinaryUrl = cloudinaryUrlRef.current;
+
       if (imageFile) {
         const fd = new FormData();
         fd.append("image", imageFile);
         const { data: up } = await axios.post("/api/upload?folder=products", fd);
         imageUrl = up.url;
+        // Yeni görsel başarıyla yüklendi → artık eskiyi Cloudinary'den silebiliriz
+        if (prevCloudinaryUrl && prevCloudinaryUrl !== imageUrl) {
+          deleteFromCloudinary(prevCloudinaryUrl);
+        }
+        cloudinaryUrlRef.current = imageUrl;
+      } else if (!imagePreview && prevCloudinaryUrl) {
+        // Kullanıcı görseli kaldırdı ve yeni bir şey seçmedi
+        deleteFromCloudinary(prevCloudinaryUrl);
+        cloudinaryUrlRef.current = null;
+        imageUrl = "";
       }
 
       const payload = { ...values, image: imageUrl };
@@ -79,25 +169,35 @@ const NewForm = ({ masterId }) => {
         ? await axios.put(`/api/master/${masterId}`, payload)
         : await axios.post("/api/master", payload);
 
-      if (data.success) setMessage({ text: "Başarıyla Kaydedildi", type: "success" });
+      if (data.success) {
+        setMessage({ text: "Başarıyla kaydedildi", type: "success" });
+        setImageFile(null); // artık file'a gerek yok
+      }
     } catch {
-      setMessage({ text: "Bir hata oluştu", type: "error" });
+      setMessage({ text: "Sunucu hatası, lütfen tekrar deneyin", type: "error" });
     } finally {
       setSubmitting(false);
     }
-  };
+  }, [imageFile, imagePreview, masterId, deleteFromCloudinary]);
 
   return (
-    <Formik enableReinitialize initialValues={initialValues} onSubmit={handleSubmit}>
+    <Formik
+      enableReinitialize
+      initialValues={initialValues}
+      validationSchema={validationSchema}
+      onSubmit={handleSubmit}
+    >
       {({ isSubmitting, values }) => (
         <Form autoComplete="off">
+          <ValidationWatcher onFail={handleValidationFail} />
           <FormFields
             loading={loadingMakes}
             makes={makes}
             isEdit={!!masterId}
             imagePreview={imagePreview}
-            onImageChange={(file) => { setImageFile(file); setImagePreview(URL.createObjectURL(file)); }}
-            onImageRemove={() => { setImageFile(null); setImagePreview(null); }}
+            onImageChange={handleImageChange}
+            onImageRemove={handleImageRemove}
+            onMakeCreated={handleMakeCreated}
           />
           <div className="px-4 sm:px-0 mt-4">
             <MessageBlock message={message} />

@@ -146,7 +146,7 @@ export default function ContactFields() {
             </div>
 
             {/* Telefon + Email tek satır */}
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid md:grid-cols-2 gap-2">
               <div>
                 <label className="block text-xs font-semibold text-gray-500 mb-1">Telefon</label>
                 <PhoneInput name="contactPhone" />

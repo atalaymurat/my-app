@@ -1,10 +1,11 @@
 "use client";
+import { memo, useState, useEffect, useCallback, useRef } from "react";
 import FormikControl from "../formik/FormikControl";
 import { FieldArray, useFormikContext } from "formik";
-import { useState, useEffect } from "react";
 import axios from "@/utils/axios";
+import InlineMakeCreate from "./InlineMakeCreate";
 
-const EMPTY_VARIANT = { modelType: "", code: "", priceNet: "", priceOffer: "", priceList: "", stock: "", technicalSpecs: [{ key: "", value: "" }] };
+const EMPTY_VARIANT = { modelType: "", code: "", priceNet: "", priceOffer: "", priceList: "", technicalSpecs: [{ key: "", value: "" }] };
 const EMPTY_SPEC = { key: "", value: "" };
 
 function Section({ title, children }) {
@@ -29,25 +30,49 @@ function PillButton({ active, onClick, children }) {
   );
 }
 
-function OptionCard({ option, checked, onChange }) {
+const MakeCard = memo(function MakeCard({ mk, active, onClick }) {
+  return (
+    <button type="button" onClick={onClick}
+      className={`group flex flex-col items-center gap-2 px-4 py-3 rounded-xl border transition-all ${
+        active
+          ? "bg-amber-600/10 border-amber-500 shadow-[0_0_0_1px_rgba(217,119,6,0.4)]"
+          : "bg-stone-800/60 border-stone-600 hover:border-stone-400 hover:bg-stone-800"
+      }`}>
+      {/* Logo alanı — kare, tam dolu */}
+      <div className="w-10 h-10 rounded-lg overflow-hidden shrink-0">
+        {mk.logo
+          ? <img src={mk.logo} alt={mk.label} className="w-full h-full object-cover" />
+          : <div className={`w-full h-full flex items-center justify-center transition-colors ${active ? "bg-amber-600/20" : "bg-stone-700/60 group-hover:bg-stone-700"}`}>
+              <span className={`text-sm font-bold ${active ? "text-amber-300" : "text-stone-400"}`}>{mk.label?.charAt(0)}</span>
+            </div>
+        }
+      </div>
+      <span className={`text-[11px] font-semibold leading-tight text-center ${active ? "text-amber-300" : "text-stone-300"}`}>
+        {mk.label}
+      </span>
+      {active && (
+        <div className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+      )}
+    </button>
+  );
+});
+
+const OptionCard = memo(function OptionCard({ option, checked, onChange }) {
   return (
     <label className={`flex items-center gap-2 p-2 rounded-lg border cursor-pointer transition-all select-none ${
       checked ? "border-amber-500 bg-amber-900/15" : "border-stone-700 bg-stone-900/40 hover:border-stone-600"
     }`}>
-      {/* Checkbox */}
       <div className={`w-4 h-4 rounded flex items-center justify-center border flex-shrink-0 transition-colors ${
         checked ? "bg-amber-500 border-amber-500" : "border-stone-600 bg-stone-800"
       }`}>
         {checked && <svg className="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>}
       </div>
-      {/* Görsel */}
       <div className="w-[45px] h-[45px] rounded bg-stone-800 border border-stone-700 flex-shrink-0 overflow-hidden">
         {option.image
           ? <img src={option.image} alt={option.label} className="w-full h-full object-cover" />
           : <div className="w-full h-full flex items-center justify-center text-stone-600 text-[10px] font-bold">{option.label?.charAt(0)?.toUpperCase()}</div>
         }
       </div>
-      {/* Bilgi */}
       <div className="flex-1 min-w-0">
         <p className={`text-xs font-semibold leading-tight truncate ${checked ? "text-amber-300" : "text-stone-300"}`}>{option.label}</p>
         {option.description && <p className="text-[10px] text-stone-500 leading-tight truncate">{option.description}</p>}
@@ -55,13 +80,14 @@ function OptionCard({ option, checked, onChange }) {
       <input type="checkbox" className="hidden" checked={checked} onChange={onChange} />
     </label>
   );
-}
+});
 
-const FormFields = ({ loading, makes, isEdit, imagePreview, onImageChange, onImageRemove }) => {
-  const { values, setFieldValue } = useFormikContext();
+const FormFields = ({ loading, makes, isEdit, imagePreview, onImageChange, onImageRemove, onMakeCreated }) => {
+  const { values, setFieldValue, errors, touched } = useFormikContext();
   const [options, setOptions] = useState([]);
   const [loadingOptions, setLoadingOptions] = useState(false);
-  const [prevMake, setPrevMake] = useState(null);
+  const [showMakeCreate, setShowMakeCreate] = useState(false);
+  const prevMakeRef = useRef(null);
 
   useEffect(() => {
     if (!values.make) { setOptions([]); setFieldValue("options", []); return; }
@@ -70,15 +96,15 @@ const FormFields = ({ loading, makes, isEdit, imagePreview, onImageChange, onIma
       .then(({ data }) => { if (data.success) setOptions(data.options.map((o) => ({ value: o._id, label: o.title, image: o.image || "", description: o.description || "" }))); })
       .catch(() => {})
       .finally(() => setLoadingOptions(false));
-    // Kullanıcı make'i değiştirdiyse sıfırla, ilk yüklemede değil
-    if (prevMake !== null && prevMake !== values.make) setFieldValue("options", []);
-    setPrevMake(values.make);
-  }, [values.make]);
+    if (prevMakeRef.current !== null && prevMakeRef.current !== values.make) setFieldValue("options", []);
+    prevMakeRef.current = values.make;
+  }, [values.make]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const toggleOption = (val) => {
-    const cur = values.options || [];
-    setFieldValue("options", cur.includes(val) ? cur.filter(v => v !== val) : [...cur, val]);
-  };
+  const toggleOption = useCallback((val) => {
+    setFieldValue("options", (values.options || []).includes(val)
+      ? (values.options || []).filter(v => v !== val)
+      : [...(values.options || []), val]);
+  }, [values.options, setFieldValue]);
 
   return (
     <div className="space-y-3">
@@ -86,10 +112,11 @@ const FormFields = ({ loading, makes, isEdit, imagePreview, onImageChange, onIma
       {/* Ürün Görseli */}
       <Section title="Ürün Görseli">
         <div className="flex items-center gap-4">
-          <div className="w-20 h-20 rounded-xl bg-stone-900 border border-stone-700 flex items-center justify-center overflow-hidden flex-shrink-0">
+          {/* Kare thumbnail — beyaz zemin, aspect ratio korunur */}
+          <div className="w-24 h-24 rounded-xl bg-white border border-stone-600 flex items-center justify-center overflow-hidden flex-shrink-0 shadow-inner">
             {imagePreview
-              ? <img src={imagePreview} alt="ürün" className="w-full h-full object-contain p-1" />
-              : <svg className="w-8 h-8 text-stone-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+              ? <img src={imagePreview} alt="ürün" className="w-full h-full object-contain" />
+              : <svg className="w-8 h-8 text-stone-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
             }
           </div>
           <div className="flex flex-col gap-2">
@@ -98,51 +125,72 @@ const FormFields = ({ loading, makes, isEdit, imagePreview, onImageChange, onIma
               <input type="file" accept="image/*" onChange={(e) => e.target.files[0] && onImageChange(e.target.files[0])} className="hidden" />
             </label>
             {imagePreview && (
-              <button type="button" onClick={onImageRemove} className="text-xs text-red-400 hover:text-red-300">Kaldır</button>
+              <button type="button" onClick={onImageRemove} className="text-xs text-red-400 hover:text-red-300 transition-colors">Kaldır</button>
             )}
+            <p className="text-[10px] text-stone-600">Görsel otomatik 1:1 kare formatına dönüştürülür</p>
           </div>
         </div>
       </Section>
 
       {/* Marka — sadece yeni formda */}
-      {!isEdit && <Section title="Marka">
-        {loading ? <p className="text-stone-500 text-xs">Yükleniyor...</p> : (
-          <div className="flex flex-wrap gap-2">
-            {makes.map((mk) => (
-              <button key={mk.value} type="button" onClick={() => setFieldValue("make", mk.value)}
-                className={`flex items-center gap-2 px-3 py-1.5 text-xs font-semibold rounded-lg border transition-colors ${
-                  values.make === mk.value ? "bg-amber-600 border-amber-500 text-white" : "bg-stone-800 border-stone-600 text-stone-300 hover:border-amber-500"
-                }`}>
-                {mk.logo && <img src={mk.logo} alt={mk.label} className="w-4 h-4 object-contain" />}
-                {mk.label}
-              </button>
-            ))}
-          </div>
+      {!isEdit && (
+        <Section title="Marka">
+          {errors.make && touched.make && (
+            <p data-field-error className="text-xs text-red-400 mb-2">{errors.make}</p>
+          )}
+          {loading ? (
+            <p className="text-stone-500 text-xs">Yükleniyor...</p>
+          ) : (
+            <>
+              <div className="flex flex-wrap gap-2">
+                {makes.map((mk) => (
+                  <MakeCard key={mk.value} mk={mk} active={values.make === mk.value} onClick={() => { setFieldValue("make", mk.value); setShowMakeCreate(false); }} />
+                ))}
+                {/* Yeni Marka Ekle butonu */}
+                {!showMakeCreate && (
+                  <button type="button" onClick={() => setShowMakeCreate(true)}
+                    className="flex flex-col items-center gap-2 px-4 py-3 rounded-xl border border-dashed border-stone-600 hover:border-amber-500 text-stone-500 hover:text-amber-400 transition-all">
+                    <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-stone-800/60">
+                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                      </svg>
+                    </div>
+                    <span className="text-[11px] font-semibold">Yeni Marka</span>
+                  </button>
+                )}
+              </div>
+              {showMakeCreate && (
+                <InlineMakeCreate
+                  onSuccess={(newMake) => {
+                    onMakeCreated?.(newMake);
+                    setFieldValue("make", newMake.value);
+                    setShowMakeCreate(false);
+                  }}
+                  onCancel={() => setShowMakeCreate(false)}
+                />
+              )}
+            </>
+          )}
+        </Section>
+      )}
+
+      {/* Döviz — marka kartından hemen sonra */}
+      <Section title="Döviz">
+        {errors.currency && touched.currency && (
+          <p data-field-error className="text-xs text-red-400 mb-2">{errors.currency}</p>
         )}
-      </Section>}
+        <div className="flex gap-2">
+          {[{ label: "TL", value: "TRY" }, { label: "EUR", value: "EUR" }, { label: "USD", value: "USD" }].map((o) => (
+            <PillButton key={o.value} active={values.currency === o.value} onClick={() => setFieldValue("currency", o.value)}>{o.label}</PillButton>
+          ))}
+        </div>
+      </Section>
 
       {/* Temel Bilgiler */}
       <Section title="Temel Bilgiler">
         <div className="space-y-3">
           <FormikControl control="input" type="text" label="Model Ailesi" name="model" />
           <FormikControl control="input" type="text" label="Alt Başlık" name="caption" />
-        </div>
-      </Section>
-
-      {/* Durum & Döviz */}
-      <Section title="Durum">
-        <div className="flex flex-wrap gap-2">
-          {[{ label: "Yeni", value: "new" }, { label: "Kullanılmış", value: "used" }, { label: "Sıfırlanmış", value: "refurbished" }].map((o) => (
-            <PillButton key={o.value} active={values.condition === o.value} onClick={() => setFieldValue("condition", o.value)}>{o.label}</PillButton>
-          ))}
-        </div>
-      </Section>
-
-      <Section title="Döviz">
-        <div className="flex gap-2">
-          {[{ label: "TL", value: "TRY" }, { label: "EUR", value: "EUR" }, { label: "USD", value: "USD" }].map((o) => (
-            <PillButton key={o.value} active={values.currency === o.value} onClick={() => setFieldValue("currency", o.value)}>{o.label}</PillButton>
-          ))}
         </div>
       </Section>
 
@@ -184,14 +232,12 @@ const FormFields = ({ loading, makes, isEdit, imagePreview, onImageChange, onIma
                 </div>
 
                 <div className="p-4 space-y-3">
-                  {/* Model tipi + kodu — tek kolon mobil, 2 kolon md+ */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <FormikControl control="input" type="text" label="Model Tipi" name={`variants.${index}.modelType`} />
                     <FormikControl control="input" type="text" label="Model Kodu" name={`variants.${index}.code`} />
                   </div>
-                  <FormikControl control="input" type="number" label="Stok Adedi" name={`variants.${index}.stock`} />
 
-                  {/* Fiyatlandırma — tek kolon mobil, 3 kolon md+ */}
+                  {/* Fiyatlandırma */}
                   <div className="rounded-xl border border-stone-700 overflow-hidden">
                     <div className="px-3 py-2 border-b border-stone-700 bg-stone-900/60">
                       <p className="text-xs font-semibold uppercase tracking-widest text-stone-500">Fiyatlandırma</p>
@@ -202,8 +248,11 @@ const FormFields = ({ loading, makes, isEdit, imagePreview, onImageChange, onIma
                         <FormikControl control="price" name={`variants.${index}.priceList`} />
                       </div>
                       <div className="flex flex-col gap-1 p-3 border-t-2 border-t-amber-500 border-b border-stone-800 md:border-b-0">
-                        <span className="text-xs text-amber-500 font-medium">Teklif Fiyatı</span>
+                        <span className="text-xs text-amber-500 font-medium">Teklif Fiyatı *</span>
                         <FormikControl control="price" name={`variants.${index}.priceOffer`} />
+                        {errors.variants?.[index]?.priceOffer && touched.variants?.[index]?.priceOffer && (
+                          <p className="text-[10px] text-red-400">{errors.variants[index].priceOffer}</p>
+                        )}
                       </div>
                       <div className="flex flex-col gap-1 p-3 border-t-2 border-t-emerald-500">
                         <span className="text-xs text-emerald-500 font-medium">Net Fiyat</span>

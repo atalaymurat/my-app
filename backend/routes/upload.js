@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const authenticate = require("../middleware/authenticate");
 const upload = require("../middleware/upload");
-const { uploadImage } = require("../controllers/uploadController");
+const { uploadImage, deleteImage } = require("../controllers/uploadController");
 
 // POST /api/upload?folder=logos
 router.post("/", authenticate, (req, res, next) => {
@@ -11,5 +11,8 @@ router.post("/", authenticate, (req, res, next) => {
     next();
   });
 }, uploadImage);
+
+// DELETE /api/upload
+router.delete("/", authenticate, deleteImage);
 
 module.exports = router;

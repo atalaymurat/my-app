@@ -237,13 +237,6 @@ export default function Dashboard() {
         {/* Col 2: Markalar + Ürünler + Opsiyonlar */}
         <div className="flex flex-col gap-3">
           <Block
-            title="Markalar"
-            count={s?.makes}
-            accent="stone"
-            viewHref="/shield/make"
-            actions={[{ label: "Yeni Marka", href: "/shield/make/new" }]}
-          />
-          <Block
             title="Master Ürünler"
             count={s?.products}
             accent="blue"
@@ -256,6 +249,13 @@ export default function Dashboard() {
             accent="violet"
             viewHref="/shield/option"
             actions={[{ label: "Yeni Opsiyon", href: "/shield/option/new" }]}
+          />
+          <Block
+            title="Markalar"
+            count={s?.makes}
+            accent="stone"
+            viewHref="/shield/make"
+            actions={[{ label: "Yeni Marka", href: "/shield/make/new" }]}
           />
         </div>
 

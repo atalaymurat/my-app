@@ -1,8 +1,11 @@
 "use client";
-import { useState, useEffect } from "react";
+import { memo, useState, useEffect, useCallback, useRef } from "react";
 import FormikControl from "../formik/FormikControl";
 import { useFormikContext } from "formik";
 import axios from "@/utils/axios";
+
+// Statik objeler render dışında — gereksiz yeniden oluşturma yok
+const CURRENCIES = ["TRY", "EUR", "USD", "GBP"];
 
 function Section({ title, children }) {
   return (
@@ -15,26 +18,51 @@ function Section({ title, children }) {
   );
 }
 
-function PillButton({ active, onClick, children }) {
-  return (
-    <button type="button" onClick={onClick}
-      className={`px-3 py-1.5 text-xs font-semibold rounded-lg border transition-colors ${
-        active ? "bg-amber-600 border-amber-500 text-white" : "bg-stone-800 border-stone-600 text-stone-300 hover:border-amber-500"
-      }`}>
-      {children}
-    </button>
-  );
+function FieldError({ msg }) {
+  if (!msg) return null;
+  return <p data-field-error className="text-xs text-red-400 mt-1">{msg}</p>;
 }
 
-const CURRENCIES = ["TRY", "EUR", "USD", "GBP"];
+const MakeButton = memo(function MakeButton({ mk, active, onClick }) {
+  return (
+    <button type="button" onClick={onClick}
+      className={`flex items-center gap-2 px-3 py-1.5 text-xs font-semibold rounded-lg border transition-colors ${
+        active ? "bg-amber-600 border-amber-500 text-white" : "bg-stone-800 border-stone-600 text-stone-300 hover:border-amber-500"
+      }`}>
+      {mk.logo && <img src={mk.logo} alt={mk.label} className="w-4 h-4 object-cover rounded" />}
+      {mk.label}
+    </button>
+  );
+});
+
+const ProductItem = memo(function ProductItem({ item, selected, onToggle }) {
+  return (
+    <button type="button" onClick={onToggle}
+      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border text-left transition-colors ${
+        selected ? "bg-amber-950/30 border-amber-700/50 text-amber-300" : "bg-stone-800/60 border-stone-700 text-stone-400 hover:border-stone-500 hover:text-stone-300"
+      }`}>
+      <div className={`w-4 h-4 rounded border-2 flex items-center justify-center shrink-0 transition-colors ${
+        selected ? "bg-amber-500 border-amber-500" : "border-stone-500"
+      }`}>
+        {selected && (
+          <svg className="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+          </svg>
+        )}
+      </div>
+      <span className="text-xs font-semibold truncate">{item.label}</span>
+    </button>
+  );
+});
 
 const FormFields = ({ makes, imagePreview, onImageChange, onImageRemove }) => {
-  const { values, setFieldValue } = useFormikContext();
+  const { values, setFieldValue, errors, touched } = useFormikContext();
   const [masters, setMasters] = useState([]);
   const [loadingMasters, setLoadingMasters] = useState(false);
+  const prevMakeRef = useRef(null);
 
   useEffect(() => {
-    if (!values.make) { setMasters([]); setFieldValue("products", []); return; }
+    if (!values.make) { setMasters([]); return; }
     setLoadingMasters(true);
     axios.get(`/api/master/masterbymake/${values.make}`)
       .then(({ data }) => {
@@ -42,13 +70,15 @@ const FormFields = ({ makes, imagePreview, onImageChange, onImageRemove }) => {
       })
       .catch(() => {})
       .finally(() => setLoadingMasters(false));
-  }, [values.make]);
+    if (prevMakeRef.current !== null && prevMakeRef.current !== values.make)
+      setFieldValue("products", []);
+    prevMakeRef.current = values.make;
+  }, [values.make]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const toggleProduct = (id) => {
+  const toggleProduct = useCallback((id) => {
     const cur = values.products || [];
-    const updated = cur.includes(id) ? cur.filter(p => p !== id) : [...cur, id];
-    setFieldValue("products", updated);
-  };
+    setFieldValue("products", cur.includes(id) ? cur.filter(p => p !== id) : [...cur, id]);
+  }, [values.products, setFieldValue]);
 
   return (
     <div className="space-y-3">
@@ -56,10 +86,10 @@ const FormFields = ({ makes, imagePreview, onImageChange, onImageRemove }) => {
       {/* Görsel */}
       <Section title="Görsel">
         <div className="flex items-center gap-4">
-          <div className="w-20 h-20 rounded-xl bg-stone-900 border border-stone-700 flex items-center justify-center overflow-hidden flex-shrink-0">
+          <div className="w-20 h-20 rounded-xl bg-white border border-stone-600 flex items-center justify-center overflow-hidden flex-shrink-0">
             {imagePreview
-              ? <img src={imagePreview} alt="opsiyon" className="w-full h-full object-cover" />
-              : <svg className="w-8 h-8 text-stone-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+              ? <img src={imagePreview} alt="opsiyon" className="w-full h-full object-contain" />
+              : <svg className="w-8 h-8 text-stone-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
             }
           </div>
           <div className="flex flex-col gap-2">
@@ -68,8 +98,9 @@ const FormFields = ({ makes, imagePreview, onImageChange, onImageRemove }) => {
               <input type="file" accept="image/*" onChange={(e) => e.target.files[0] && onImageChange(e.target.files[0])} className="hidden" />
             </label>
             {imagePreview && (
-              <button type="button" onClick={onImageRemove} className="text-xs text-red-400 hover:text-red-300">Kaldır</button>
+              <button type="button" onClick={onImageRemove} className="text-xs text-red-400 hover:text-red-300 transition-colors">Kaldır</button>
             )}
+            <p className="text-[10px] text-stone-600">Otomatik 1:1 kare formatına dönüştürülür</p>
           </div>
         </div>
       </Section>
@@ -77,73 +108,37 @@ const FormFields = ({ makes, imagePreview, onImageChange, onImageRemove }) => {
       {/* Opsiyon Bilgileri */}
       <Section title="Opsiyon Bilgileri">
         <div className="space-y-3">
-          <FormikControl control="input" type="text" label="Başlık" name="title" />
+          <div>
+            <FormikControl control="input" type="text" label="Başlık *" name="title" />
+            <FieldError msg={touched.title && errors.title} />
+          </div>
           <FormikControl control="textArea" label="Açıklama" name="description" />
         </div>
       </Section>
 
       {/* Marka */}
-      <Section title="Marka">
-        <div className="flex flex-wrap gap-2">
+      <Section title="Marka *">
+        <FieldError msg={touched.make && errors.make} />
+        <div className="flex flex-wrap gap-2 mt-1">
           {makes.map((mk) => (
-            <button key={mk.value} type="button"
-              onClick={() => { setFieldValue("make", mk.value); setFieldValue("products", []); }}
-              className={`flex items-center gap-2 px-3 py-1.5 text-xs font-semibold rounded-lg border transition-colors ${
-                values.make === mk.value ? "bg-amber-600 border-amber-500 text-white" : "bg-stone-800 border-stone-600 text-stone-300 hover:border-amber-500"
-              }`}>
-              {mk.logo && <img src={mk.logo} alt={mk.label} className="w-4 h-4 object-contain" />}
-              {mk.label}
-            </button>
+            <MakeButton key={mk.value} mk={mk} active={values.make === mk.value}
+              onClick={() => setFieldValue("make", mk.value)} />
           ))}
         </div>
       </Section>
 
-      {/* Master Ürünler */}
-      {values.make && (
-        <Section title="Ürünler">
-          {loadingMasters ? (
-            <p className="text-xs text-stone-500">Yükleniyor...</p>
-          ) : masters.length === 0 ? (
-            <p className="text-xs text-stone-500 italic">Bu markaya ait ürün bulunamadı.</p>
-          ) : (
-            <div className="space-y-1.5">
-              {masters.map((m) => {
-                const selected = (values.products || []).includes(m.value);
-                return (
-                  <button key={m.value} type="button" onClick={() => toggleProduct(m.value)}
-                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border text-left transition-colors ${
-                      selected
-                        ? "bg-amber-950/30 border-amber-700/50 text-amber-300"
-                        : "bg-stone-800/60 border-stone-700 text-stone-400 hover:border-stone-500 hover:text-stone-300"
-                    }`}>
-                    <div className={`w-4 h-4 rounded border-2 flex items-center justify-center shrink-0 transition-colors ${
-                      selected ? "bg-amber-500 border-amber-500" : "border-stone-500"
-                    }`}>
-                      {selected && (
-                        <svg className="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                        </svg>
-                      )}
-                    </div>
-                    <span className="text-xs font-semibold truncate">{m.label}</span>
-                  </button>
-                );
-              })}
-            </div>
-          )}
-          {(values.products?.length > 0) && (
-            <p className="text-[10px] text-amber-500 font-semibold mt-2">
-              {values.products.length} ürün seçildi
-            </p>
-          )}
-        </Section>
-      )}
-
-      {/* Döviz */}
-      <Section title="Döviz">
-        <div className="flex gap-2">
+      {/* Döviz — kasıtlı boş başlar, seçim zorunlu */}
+      <Section title="Döviz *">
+        <FieldError msg={touched.currency && errors.currency} />
+        <div className="flex gap-2 mt-1">
           {CURRENCIES.map((c) => (
-            <PillButton key={c} active={values.currency === c} onClick={() => setFieldValue("currency", c)}>{c}</PillButton>
+            <button key={c} type="button"
+              onClick={() => setFieldValue("currency", values.currency === c ? "" : c)}
+              className={`px-3 py-1.5 text-xs font-semibold rounded-lg border transition-colors ${
+                values.currency === c ? "bg-amber-600 border-amber-500 text-white" : "bg-stone-800 border-stone-600 text-stone-300 hover:border-amber-500"
+              }`}>
+              {c}
+            </button>
           ))}
         </div>
       </Section>
@@ -156,8 +151,9 @@ const FormFields = ({ makes, imagePreview, onImageChange, onImageRemove }) => {
             <FormikControl control="price" name="priceList" currency={values.currency} />
           </div>
           <div className="flex flex-col gap-1 p-3 border-t-2 border-t-amber-500 border-b border-stone-800 md:border-b-0">
-            <span className="text-xs text-amber-500 font-medium">Teklif Fiyatı</span>
+            <span className="text-xs text-amber-500 font-medium">Teklif Fiyatı *</span>
             <FormikControl control="price" name="priceOffer" currency={values.currency} />
+            <FieldError msg={touched.priceOffer && errors.priceOffer} />
           </div>
           <div className="flex flex-col gap-1 p-3 border-t-2 border-t-emerald-500">
             <span className="text-xs text-emerald-500 font-medium">Net Fiyat</span>
@@ -165,6 +161,25 @@ const FormFields = ({ makes, imagePreview, onImageChange, onImageRemove }) => {
           </div>
         </div>
       </Section>
+
+      {/* Master Ürünler */}
+      {values.make && (
+        <Section title={`Ürünler${values.products?.length ? ` — ${values.products.length} seçili` : ""}`}>
+          {loadingMasters ? (
+            <p className="text-xs text-stone-500">Yükleniyor...</p>
+          ) : masters.length === 0 ? (
+            <p className="text-xs text-stone-500 italic">Bu markaya ait ürün bulunamadı.</p>
+          ) : (
+            <div className="space-y-1.5">
+              {masters.map((m) => (
+                <ProductItem key={m.value} item={m}
+                  selected={(values.products || []).includes(m.value)}
+                  onToggle={() => toggleProduct(m.value)} />
+              ))}
+            </div>
+          )}
+        </Section>
+      )}
 
     </div>
   );

@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import axiosOrg from "@/utils/axiosOrg";
 import axios from "@/utils/axios";
 import { useAuth } from "@/context/AuthContext";
@@ -209,6 +210,24 @@ export default function OrgPanel() {
           </form>
         </div>
       )}
+
+      {/* Satış Koşulları */}
+      <div className="rounded-2xl border border-stone-800 bg-stone-950/80 p-5">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-widest text-stone-500 mb-0.5">
+              Satış Koşulları
+            </p>
+            <p className="text-sm text-stone-300">
+              Tekliflere otomatik eklenen satış koşullarını yönetin
+            </p>
+          </div>
+          <Link href="/shield/offer-terms"
+            className="px-4 py-2 bg-amber-600 hover:bg-amber-500 disabled:opacity-50 text-white text-sm font-bold rounded-lg transition-colors">
+            Düzenle →
+          </Link>
+        </div>
+      </div>
 
       {/* Members List */}
       <div className="rounded-2xl border border-stone-800 bg-stone-950/80 overflow-hidden">

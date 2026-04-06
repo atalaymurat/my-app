@@ -42,7 +42,7 @@ module.exports = {
 
       res.set({
         "Content-Type": "application/pdf",
-        "Content-Disposition": `inline; filename="offer-${offer.docCode}.pdf"`,
+        "Content-Disposition": `inline; filename="offer-${offer.versions[offer.versions.length - 1].docCode}.pdf"`,
       });
       res.send(pdfResponse.data);
     } catch (err) {

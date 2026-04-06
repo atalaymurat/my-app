@@ -4,7 +4,6 @@ const generateNewDocCode = require("../generateNewCode");
 async function createOffer(data) {
   let {
     _id,
-    docCode,
     company,
     contact,
     docType,
@@ -29,35 +28,20 @@ async function createOffer(data) {
     const lastVersion = offer.versions[offer.versions.length - 1];
     const newVersionNumber = lastVersion?.version ? lastVersion.version + 1 : 1;
 
-    versionData.version = newVersionNumber;
+    versionData.version   = newVersionNumber;
+    versionData.docType   = docType;
+    versionData.docCode   = generateNewDocCode({ type: docType, title, version: newVersionNumber });
     versionData.createdAt = new Date();
-
-    // Yeni docCode versiyonlu
-    const newDocCode = generateNewDocCode({
-      type: docType,
-      title,
-      version: newVersionNumber,
-    });
-
-    offer.docCode = newDocCode;  // docCode güncelle
 
     offer.versions.push(versionData);
   } else {
     // Yeni teklif
-    versionData.version = 1;
+    versionData.version   = 1;
+    versionData.docType   = docType;
+    versionData.docCode   = generateNewDocCode({ type: docType, title, version: 1 });
     versionData.createdAt = new Date();
 
-    if (!docCode) {
-      docCode = generateNewDocCode({
-        type: docType,
-        title,
-        version: 1,
-      });
-    }
-
     offer = new Offer({
-      docCode,
-      docType,
       company,
       contact: contact || undefined,
       createdBy,
@@ -67,7 +51,6 @@ async function createOffer(data) {
   }
 
   await offer.save();
-
   return offer;
 }
 

@@ -20,11 +20,12 @@ module.exports = {
           Make.countDocuments(filter),
           Offer.aggregate([
             { $match: filter },
-            { $group: { _id: "$docType", count: { $sum: 1 } } },
+            { $addFields: { currentDocType: { $last: "$versions.docType" } } },
+            { $group: { _id: "$currentDocType", count: { $sum: 1 } } },
           ]),
         ]);
 
-      const byType = { Teklif: 0, Proforma: 0, Fatura: 0, Siparis: 0 };
+      const byType = { Teklif: 0, Proforma: 0, Fatura: 0, Sipariş: 0, Sözleşme: 0 };
       offersByType.forEach(({ _id, count }) => {
         if (_id in byType) byType[_id] = count;
       });

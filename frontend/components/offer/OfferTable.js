@@ -9,13 +9,15 @@ const TYPE_STYLE = {
   Teklif:   "bg-amber-900/40 text-amber-400 border-amber-700/50",
   Proforma: "bg-blue-900/40 text-blue-400 border-blue-700/50",
   Fatura:   "bg-emerald-900/40 text-emerald-400 border-emerald-700/50",
-  Siparis:  "bg-violet-900/40 text-violet-400 border-violet-700/50",
+  Sipariş:  "bg-violet-900/40 text-violet-400 border-violet-700/50",
+  Sözleşme: "bg-rose-900/40 text-rose-400 border-rose-700/50",
 };
 const TYPE_BORDER = {
   Teklif:   "border-l-amber-500",
   Proforma: "border-l-blue-500",
   Fatura:   "border-l-emerald-500",
-  Siparis:  "border-l-violet-500",
+  Sipariş:  "border-l-violet-500",
+  Sözleşme: "border-l-rose-500",
 };
 
 function DocTypeBadge({ type }) {
@@ -64,12 +66,12 @@ export default function OfferTable({ offers: initialOffers }) {
 
         return (
           <div key={off._id}
-            className={`rounded-xl border border-stone-700 border-l-4 ${TYPE_BORDER[off.docType] || TYPE_BORDER.Teklif} overflow-hidden bg-stone-950/60`}>
+            className={`rounded-xl border border-stone-700 border-l-4 ${TYPE_BORDER[v.docType] || TYPE_BORDER.Teklif} overflow-hidden bg-stone-950/60`}>
 
             {/* ── Header ── */}
             <div className="px-4 py-3 flex items-center gap-3 border-b border-stone-800">
-              <span className="font-mono text-sm font-bold text-stone-200 tracking-tight">{off.docCode}</span>
-              <DocTypeBadge type={off.docType} />
+              <span className="font-mono text-sm font-bold text-stone-200 tracking-tight">{v.docCode}</span>
+              <DocTypeBadge type={v.docType} />
               {vCount > 1 && (
                 <span className="text-[10px] font-semibold text-stone-500 bg-stone-800 border border-stone-700 px-1.5 py-0.5 rounded-full">
                   v{vCount}

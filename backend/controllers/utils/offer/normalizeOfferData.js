@@ -1,7 +1,5 @@
 const calculateOfferTotals = require("./calcOfferTotals");
-const generateNewCode = require("../generateNewCode");
 
-// Sadece veri şekillendirme — math yok
 function shapeLineItems(lineItems = []) {
   return lineItems.map((item) => ({
     productValue: item.productValue,
@@ -13,21 +11,20 @@ function shapeLineItems(lineItems = []) {
     quantity: Number(item.quantity) || 1,
     condition: item.condition || "",
     notes: item.notes?.trim() || "",
-    // Ham fiyat verileri — hesaplama calcOfferTotals'ta yapılır
-    variantPriceList: Number(item.variantPriceList) || 0,
+    variantPriceList:  Number(item.variantPriceList) || 0,
     variantPriceOffer: Number(item.variantPriceOffer) || 0,
-    variantPriceNet: Number(item.variantPriceNet) || 0,
-    formPriceOffer: Number(item.priceOffer) || 0, // kullanıcı override
+    variantPriceNet:   Number(item.variantPriceNet) || 0,
+    formPriceOffer:    Number(item.priceOffer) || 0,
     selectedOptions: (item.selectedOptions || []).map((o) => ({
-      optionId: o.value,
-      quantity: Number(o.quantity) || 1,
+      optionId:  o.value,
+      quantity:  Number(o.quantity) || 1,
       listPrice: Number(o.listPrice) || 0,
       offerPrice: Number(o.offerPrice) || 0,
-      netPrice: Number(o.netPrice) || 0,
-      currency: o.currency || item.currency || "TRY",
+      netPrice:  Number(o.netPrice) || 0,
+      currency:  o.currency || item.currency || "TRY",
       title: o.label?.trim() || "",
       label: o.label?.trim() || "",
-      desc: o.desc?.trim() || "",
+      desc:  o.desc?.trim() || "",
     })),
   }));
 }
@@ -40,8 +37,8 @@ function normalizeOfferData(formData = {}, userId, orgId) {
     contactId, contactName, contactPhone, contactEmail,
     lineItems = [], showTotals, showVat,
     docDate: docDateRaw, validDate: validDateRaw,
-    paymentTerms = "", deliveryTerms = "", warranty = "",
-    docCode = "", docType = "Teklif", vatRate,
+    offerTerms,
+    docType = "Teklif", vatRate,
   } = formData;
 
   const hasCompanyData = title?.trim() || vatTitle?.trim() || email || domain || city;
@@ -52,47 +49,48 @@ function normalizeOfferData(formData = {}, userId, orgId) {
   const companyData = {
     title: title?.trim(),
     vatTitle: vatTitle?.trim(),
-    emails: email ? [email.trim().toLowerCase()] : [],
-    domains: domain ? [domain.trim().toLowerCase()] : [],
+    emails:   email  ? [email.trim().toLowerCase()]  : [],
+    domains:  domain ? [domain.trim().toLowerCase()] : [],
     addresses: [{
       line1: line1?.trim(), line2: line2?.trim(),
       district: district?.trim(), city: city?.trim(), country: country?.trim(),
     }],
   };
 
-  const docDate = docDateRaw ? new Date(docDateRaw) : new Date();
+  const docDate  = docDateRaw  ? new Date(docDateRaw)  : new Date();
   const validDate = validDateRaw
     ? new Date(validDateRaw)
     : new Date(Date.now() + 15 * 24 * 60 * 60 * 1000);
 
+  // docCode and docType are handled by createOffer; pass title for code generation
   const offerData = {
-    _id: _id || undefined,
-    docCode: docCode || generateNewCode({ type: docType, title: companyData.title, version: 1 }),
-    docType,
-    company: companyId,
-    createdBy: userId,
+    _id:          _id || undefined,
+    title:        companyData.title,   // used by createOffer for docCode generation
+    docType,                           // used by createOffer
+    company:      companyId,
+    createdBy:    userId,
     organization: orgId,
   };
 
-  // Tüm hesaplama tek noktadan
   const totals = calculateOfferTotals(shapeLineItems(lineItems), {
     showVat,
     vatRate: vatRate || 0,
   });
 
   const versionData = {
-    docDate, validDate, paymentTerms, deliveryTerms, warranty,
-    lineItems: totals.lineItems,
-    priceListTotal: totals.priceListTotal,
+    docDate, validDate,
+    offerTerms: offerTerms || [],
+    lineItems:       totals.lineItems,
+    priceListTotal:  totals.priceListTotal,
     priceOfferTotal: totals.priceOfferTotal,
-    priceNetTotal: totals.priceNetTotal,
-    priceVat: totals.priceVat,
-    priceDiscount: totals.priceDiscount,
+    priceNetTotal:   totals.priceNetTotal,
+    priceVat:        totals.priceVat,
+    priceDiscount:   totals.priceDiscount,
     priceGrandTotal: totals.priceGrandTotal,
-    vatRate: vatRate || 0,
+    vatRate:    vatRate || 0,
     showTotals: showTotals !== undefined ? showTotals : true,
-    showVat: showVat !== undefined ? showVat : true,
-    createdAt: new Date(),
+    showVat:    showVat   !== undefined ? showVat   : true,
+    createdAt:  new Date(),
   };
 
   return {

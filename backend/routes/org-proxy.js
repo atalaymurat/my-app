@@ -39,5 +39,6 @@ router.get("/me",                       (req, res) => proxy(req, res, "/api/org/
 router.post("/invite",                  (req, res) => proxy(req, res, "/api/org/invite"));
 router.patch("/member/:userId/role",    (req, res) => proxy(req, res, `/api/org/member/${req.params.userId}/role`));
 router.patch("/update",                 (req, res) => proxy(req, res, "/api/org/update"));
+router.patch("/:id/offer-defaults",     (req, res) => proxy(req, res, `/api/org/${req.params.id}/offer-defaults`));
 
 module.exports = router;

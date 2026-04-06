@@ -31,4 +31,18 @@ const uploadImage = async (req, res) => {
   }
 };
 
-module.exports = { uploadImage, uploadToCloudinary };
+// DELETE /api/upload — Cloudinary'den görseli sil
+const deleteImage = async (req, res) => {
+  try {
+    const { url } = req.body;
+    if (!url) return res.status(400).json({ success: false, message: "URL gerekli." });
+    const match = url.match(/\/upload\/(?:v\d+\/)?(.+)\.\w+$/);
+    if (!match) return res.status(400).json({ success: false, message: "Geçersiz URL." });
+    await cloudinary.uploader.destroy(match[1]);
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+module.exports = { uploadImage, uploadToCloudinary, deleteImage };

@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
 import axios from "@/utils/axios";
+import axiosOrg from "@/utils/axiosOrg";
 import ProgressBar from "./wizard/ProgressBar";
 import StepCompany from "./wizard/StepCompany";
 import StepProducts from "./wizard/StepProducts";
@@ -40,6 +41,7 @@ const DEFAULT_VALUES = {
     quantity: 1, options: [], selectedOptions: [], selectedMakeId: "", selectedVariantId: "",
   }],
   vatRate: 20, showVat: true, showTotals: true,
+  offerTerms: [],
 };
 
 function mapOfferToForm(offer) {
@@ -47,7 +49,7 @@ function mapOfferToForm(offer) {
   const co = offer.company || {};
   const addr = co.addresses?.[0] || {};
   return {
-    _id: offer._id, docType: offer.docType || "Teklif", search: "",
+    _id: offer._id, docType: lastVersion?.docType || "Teklif", search: "",
     companyId: co._id || "", title: co.title || "", vatTitle: co.vatTitle || "",
     email: co.emails?.[0] || "", domain: co.domains?.[0] || "",
     line1: addr.line1 || "", line2: addr.line2 || "",
@@ -72,24 +74,45 @@ function mapOfferToForm(offer) {
       notes: item.notes || "", condition: item.condition || "",
       image: item.image || "", caption: item.caption || "",
     })),
+    offerTerms: (offer.versions?.[offer.versions.length - 1]?.offerTerms || []).map(t => ({
+      key: t.key,
+      label: t.label,
+      fieldType: t.fieldType,
+      options: t.options || [],
+      value: t.value,
+      isEditable: t.isEditable,
+      isVisible: t.isVisible,
+      visibleIn: t.visibleIn || [],
+    })),
   };
 }
 
 export default function NewForm({ offerId }) {
   const [message, setMessage] = useState(null);
   const [initialValues, setInitialValues] = useState(DEFAULT_VALUES);
-  const [loading, setLoading] = useState(!!offerId);
+  const [loading, setLoading] = useState(true);
   const [currentStep, setCurrentStep] = useState(0);
 
   useEffect(() => {
-    if (!offerId) return;
-    (async () => {
-      try {
-        const { data } = await axios.get(`/api/offer/${offerId}`);
-        if (data.success) setInitialValues(mapOfferToForm(data.record));
-      } catch { setMessage({ type: "error", text: "Teklif yüklenemedi." }); }
-      finally { setLoading(false); }
-    })();
+    if (offerId) {
+      (async () => {
+        try {
+          const { data } = await axios.get(`/api/offer/${offerId}`);
+          if (data.success) setInitialValues(mapOfferToForm(data.record));
+        } catch { setMessage({ type: "error", text: "Teklif yüklenemedi." }); }
+        finally { setLoading(false); }
+      })();
+    } else {
+      axiosOrg.get("/me")
+        .then(({ data }) => {
+          setInitialValues(prev => ({
+            ...prev,
+            offerTerms: data.offerDefaults || []
+          }));
+        })
+        .catch(() => {})
+        .finally(() => setLoading(false));
+    }
   }, [offerId]);
 
   if (loading) return <div className="text-stone-400 py-12 text-center text-sm">Yükleniyor...</div>;
@@ -121,7 +144,7 @@ export default function NewForm({ offerId }) {
         <Form autoComplete="off" className="space-y-2">
           <ProgressBar currentStep={currentStep} />
 
-          <div className="flex flex-col min-h-[60vh]">
+          <div className="flex flex-col min-h-[60vh] w-full">
             {currentStep === 0 && (
               <>
                 <StepCompany />
@@ -130,7 +153,7 @@ export default function NewForm({ offerId }) {
                     const ok = await validateStep1(validateForm, setTouched, values);
                     if (ok) setCurrentStep(1);
                   }}
-                  className="mt-auto py-3 rounded-xl bg-blue-600 hover:bg-blue-500 border border-blue-500 text-sm font-bold text-white transition-colors shadow-lg shadow-blue-900/20">
+                  className="mt-5 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 border border-blue-500 text-sm font-bold text-white transition-colors shadow-lg shadow-blue-900/20">
                   Ürünlere Geç →
                 </button>
               </>
@@ -158,6 +181,12 @@ export default function NewForm({ offerId }) {
               />
             )}
           </div>
+
+          {process.env.NODE_ENV !== "production" && (
+            <pre className="mt-6 p-4 rounded-xl bg-stone-900 border border-stone-700 text-xs text-stone-300 overflow-auto max-h-96">
+              {JSON.stringify(values, null, 2)}
+            </pre>
+          )}
         </Form>
       )}
     </Formik>
