@@ -5,7 +5,7 @@ import { FieldArray, useFormikContext } from "formik";
 import axios from "@/utils/axios";
 import InlineMakeCreate from "./InlineMakeCreate";
 
-const EMPTY_VARIANT = { modelType: "", code: "", priceNet: "", priceOffer: "", priceList: "", technicalSpecs: [{ key: "", value: "" }] };
+const EMPTY_VARIANT = { modelType: "", code: "", desc: "", priceNet: "", priceOffer: "", priceList: "", technicalSpecs: [{ key: "", value: "" }] };
 const EMPTY_SPEC = { key: "", value: "" };
 
 function Section({ title, children }) {
@@ -191,6 +191,7 @@ const FormFields = ({ loading, makes, isEdit, imagePreview, onImageChange, onIma
         <div className="space-y-3">
           <FormikControl control="input" type="text" label="Model Ailesi" name="model" />
           <FormikControl control="input" type="text" label="Alt Başlık" name="caption" />
+          <FormikControl control="textArea" label="Açıklama" name="desc" />
         </div>
       </Section>
 
@@ -236,6 +237,7 @@ const FormFields = ({ loading, makes, isEdit, imagePreview, onImageChange, onIma
                     <FormikControl control="input" type="text" label="Model Tipi" name={`variants.${index}.modelType`} />
                     <FormikControl control="input" type="text" label="Model Kodu" name={`variants.${index}.code`} />
                   </div>
+                  <FormikControl control="textArea" label="Açıklama" name={`variants.${index}.desc`} />
 
                   {/* Fiyatlandırma */}
                   <div className="rounded-xl border border-stone-700 overflow-hidden">

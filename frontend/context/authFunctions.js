@@ -8,21 +8,32 @@ const doVerify = () =>
 export const checkSession = async ({ setUser, setAuthChecked, setLoading }) => {
   setLoading(true);
   try {
-    let response = await doVerify();
-
-    // accessToken süresi dolmuşsa refresh dene
-    if (response.status === 401) {
-      try {
-        await axiosAuth.post("/refresh");
-        response = await doVerify();
-      } catch {
-        setUser(null);
-        setAuthChecked(true);
-        return null;
+    let response;
+    try {
+      response = await doVerify();
+    } catch (verifyError) {
+      const status = verifyError.response?.status;
+      // 401 = token expired/invalid, 400 = token cookie eksik (silinmiş)
+      // Her iki durumda da refresh dene
+      if (status === 401 || status === 400) {
+        try {
+          await axiosAuth.post("/refresh");
+          response = await doVerify();
+        } catch (refreshError) {
+          console.warn(
+            "checkSession: refresh başarısız",
+            refreshError?.response?.data || refreshError?.message
+          );
+          setUser(null);
+          setAuthChecked(true);
+          return null;
+        }
+      } else {
+        throw verifyError;
       }
     }
 
-    if (response.status === 200 && response.data?.success && response.data.user) {
+    if (response?.data?.success && response.data.user) {
       setUser(response.data.user);
       setAuthChecked(true);
       return response.data.user;
@@ -32,6 +43,10 @@ export const checkSession = async ({ setUser, setAuthChecked, setLoading }) => {
     setAuthChecked(true);
     return null;
   } catch (error) {
+    console.warn(
+      "checkSession: beklenmedik hata",
+      error?.response?.data || error?.message
+    );
     setUser(null);
     setAuthChecked(true);
     return null;

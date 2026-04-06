@@ -149,7 +149,7 @@ export default function OfferTable({ offers: initialOffers }) {
             )}
 
             {/* ── Actions ── */}
-            <div className="px-4 py-2 border-t border-stone-800/60 flex gap-3 justify-end items-center">
+            <div className="px-4 py-2 border-t border-stone-800/60 flex gap-8 justify-end items-center">
               {/* Edit */}
               <button onClick={() => router.push(`/shield/offer/${off._id}/edit`)}
                 title="Düzenle"

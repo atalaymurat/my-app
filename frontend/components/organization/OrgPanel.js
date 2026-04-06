@@ -229,6 +229,24 @@ export default function OrgPanel() {
         </div>
       </div>
 
+      {/* Banka Hesapları */}
+      <div className="rounded-2xl border border-stone-800 bg-stone-950/80 p-5">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-widest text-stone-500 mb-0.5">
+              Banka Hesapları
+            </p>
+            <p className="text-sm text-stone-300">
+              PDF belgelerinde görünecek banka hesaplarını yönetin
+            </p>
+          </div>
+          <Link href="/shield/bank-accounts"
+            className="px-4 py-2 bg-amber-600 hover:bg-amber-500 disabled:opacity-50 text-white text-sm font-bold rounded-lg transition-colors">
+            Düzenle →
+          </Link>
+        </div>
+      </div>
+
       {/* Members List */}
       <div className="rounded-2xl border border-stone-800 bg-stone-950/80 overflow-hidden">
         <div className="px-5 py-3 border-b border-stone-800">

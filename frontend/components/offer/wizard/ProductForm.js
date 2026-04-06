@@ -57,7 +57,7 @@ export default function ProductForm({ idx }) {
     const exists = cur.find(o => o.value === option.value);
     const updated = exists
       ? cur.filter(o => o.value !== option.value)
-      : [...cur, { value: option.value, label: option.label, listPrice: option.listPrice, offerPrice: option.offerPrice, netPrice: option.netPrice, currency: option.currency, desc: option.desc, quantity: 1 }];
+      : [...cur, { value: option.value, label: option.label, listPrice: option.listPrice, offerPrice: option.offerPrice, netPrice: option.netPrice, currency: option.currency, desc: option.desc, image: option.image || "", quantity: 1 }];
     setFieldValue(`lineItems.${idx}.selectedOptions`, updated);
     recalcPrice(updated);
   };

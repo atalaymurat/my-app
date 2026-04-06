@@ -28,10 +28,10 @@ const masterProductSchema = new Schema(
   {
     title: { type: String, required: true },
     nTitle: String,
-
     caption: String,
     nCaption: String,
     image: String,
+    desc:String,
 
     make: {
       type: Schema.Types.ObjectId,

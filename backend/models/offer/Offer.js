@@ -5,10 +5,11 @@ const termSchema = require("../termSchema");
 const lineItemSchema = new Schema(
   {
     productValue: String, variantId: String, title: String, caption: String,
+    productDesc: String, variantDesc: String,
     image: String, priceList: Number, priceOffer: Number, priceNet: Number, currency: String,
     selectedOptions: [{
       optionId: String, title: String, label: String, quantity: Number,
-      listPrice: Number, offerPrice: Number, netPrice: Number, currency: String, desc: String,
+      listPrice: Number, offerPrice: Number, netPrice: Number, currency: String, desc: String, image: String,
     }],
     notes: String, condition: String,
     quantity: { type: Number, default: 1 },

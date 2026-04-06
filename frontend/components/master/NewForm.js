@@ -9,8 +9,8 @@ import axios from "@/utils/axios";
 import { toSquareImage } from "@/utils/squareImage";
 
 const DEFAULT_VALUES = {
-  image: "", caption: "", make: "", model: "", year: "", currency: "EUR", options: [],
-  variants: [{ modelType: "", code: "", priceNet: "", priceOffer: "", priceList: "", technicalSpecs: [{ key: "", value: "" }] }],
+  image: "", caption: "", desc: "", make: "", model: "", year: "", currency: "EUR", options: [],
+  variants: [{ modelType: "", code: "", desc: "", priceNet: "", priceOffer: "", priceList: "", technicalSpecs: [{ key: "", value: "" }] }],
 };
 
 const variantSchema = Yup.object({
@@ -57,6 +57,7 @@ function mapMasterToForm(product) {
   return {
     image: product.image || "",
     caption: product.caption || "",
+    desc: product.desc || "",
     make: product.make?._id || product.make || "",
     model: product.model || "",
     year: product.year || "",
@@ -66,6 +67,7 @@ function mapMasterToForm(product) {
       ? product.variants.map((v) => ({
           modelType: v.modelType || "",
           code: v.code || "",
+          desc: v.desc || "",
           priceNet: v.priceNet ?? "",
           priceOffer: v.priceOffer ?? "",
           priceList: v.priceList ?? "",

@@ -6,6 +6,8 @@ function shapeLineItems(lineItems = []) {
     variantId: item.selectedVariantId || "",
     title: item.title?.trim() || "",
     caption: item.caption?.trim() || "",
+    productDesc: item.productDesc?.trim() || "",
+    variantDesc: item.variantDesc?.trim() || "",
     image: item.image?.trim() || "",
     currency: item.currency || "TRY",
     quantity: Number(item.quantity) || 1,
@@ -25,6 +27,7 @@ function shapeLineItems(lineItems = []) {
       title: o.label?.trim() || "",
       label: o.label?.trim() || "",
       desc:  o.desc?.trim() || "",
+      image: o.image?.trim() || "",
     })),
   }));
 }

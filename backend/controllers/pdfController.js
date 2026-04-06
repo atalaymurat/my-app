@@ -12,6 +12,7 @@ module.exports = {
 
       // Organizasyon logosunu auth-service'ten çek
       let logoUrl = null;
+      let bankAccounts = [];
       try {
         const token = req.cookies?.accessToken;
         if (token && process.env.AUTH_SERVICE_URL) {
@@ -26,14 +27,15 @@ module.exports = {
             }
           );
           logoUrl = orgRes.data?.logo || null;
+          bankAccounts = orgRes.data?.bankAccounts || [];
         }
       } catch {
-        // logo yoksa devam et
+        // org verisi alınamazsa devam et
       }
 
       const pdfResponse = await axios.post(
         `${process.env.PDF_SERVICE_URL}/generate`,
-        { template: "quotation", data: { ...offer.toObject(), logoUrl } },
+        { template: "quotation", data: { ...offer.toObject(), logoUrl, bankAccounts } },
         {
           responseType: "arraybuffer",
           headers: { "x-internal-api-key": process.env.INTERNAL_API_KEY },

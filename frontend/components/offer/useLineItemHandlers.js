@@ -26,12 +26,14 @@ export function useLineItemHandlers(items, makes = []) {
       productValue: master.value,
       title: master.label,
       caption: master.title || "",
+      productDesc: master.desc || "",
       image: master.image || "",
       currency: master.currency,
 
       options: [],
       selectedOptions: [],
       selectedVariantId: "",
+      variantDesc: "",
       variantPriceList: 0,
       variantPriceOffer: 0,
       variantPriceNet: 0,
@@ -70,6 +72,7 @@ export function useLineItemHandlers(items, makes = []) {
       setFieldValue(`lineItems.${index}.priceNet`, variant.priceNet || 0);
       setFieldValue(`lineItems.${index}.variantCode`, variant.code || "");
       setFieldValue(`lineItems.${index}.variantModel`, variantModel);
+      setFieldValue(`lineItems.${index}.variantDesc`, variant.desc || "");
     }
   };
 

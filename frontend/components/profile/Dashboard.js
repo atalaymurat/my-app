@@ -162,15 +162,16 @@ export default function Dashboard() {
   const s = stats;
 
   const offerChart = s ? [
-    { label: "Teklif",   value: s.offersByType.Teklif,   color: "#f59e0b" },
-    { label: "Proforma", value: s.offersByType.Proforma,  color: "#60a5fa" },
-    { label: "Fatura",   value: s.offersByType.Fatura,    color: "#34d399" },
-    { label: "Sipariş",  value: s.offersByType.Siparis,   color: "#a78bfa" },
+    { label: "Teklif",    value: s.offersByType?.Teklif    ?? 0, color: "#f59e0b" },
+    { label: "Proforma",  value: s.offersByType?.Proforma  ?? 0, color: "#60a5fa" },
+    { label: "Fatura",    value: s.offersByType?.Fatura    ?? 0, color: "#34d399" },
+    { label: "Sipariş",   value: s.offersByType?.["Sipariş"]   ?? 0, color: "#a78bfa" },
+    { label: "Sözleşme",  value: s.offersByType?.["Sözleşme"]  ?? 0, color: "#c084fc" },
   ] : null;
 
   const offerPills = offerChart?.filter(b => b.value > 0).map(b => ({
     label: b.label, value: b.value,
-    accent: b.label === "Teklif" ? "amber" : b.label === "Proforma" ? "blue" : b.label === "Fatura" ? "emerald" : "violet",
+    accent: b.label === "Teklif" ? "amber" : b.label === "Proforma" ? "blue" : b.label === "Fatura" ? "emerald" : b.label === "Sözleşme" ? "purple" : "violet",
   }));
 
   return (

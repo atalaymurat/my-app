@@ -52,8 +52,7 @@ const normalizeOption = (data = {}, userId, orgId) => ({
 const normalizeMasterProduct = (data = {}, userId, orgId) => ({
   title: data.model?.trim()?.toLowerCase() || "",
   nTitle: normalizeText(data.model),
-  description: data.description || "",
-  nDescription: normalizeText(data.description),
+  desc: data.desc || "",
   make: data.make,
   model: data.model?.trim()?.toLowerCase() || "",
   nModel: data.model ? normalizeText(data.model) : "",
