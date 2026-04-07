@@ -1,5 +1,21 @@
 const Offer = require("../models/offer/Offer");
 const axios = require("axios");
+const axiosRetry = require("axios-retry").default;
+
+// PDF service için ayrı axios instance
+const pdfAxios = axios.create({
+  timeout: 35000,
+});
+
+axiosRetry(pdfAxios, {
+  retries: 2,
+  retryDelay: (retryCount) => retryCount * 3000,
+  retryCondition: (error) =>
+    error.code === "ECONNABORTED" || axiosRetry.isNetworkError(error),
+  onRetry: (retryCount) => {
+    console.log(`[pdf-service] retry attempt: ${retryCount}`);
+  },
+});
 
 module.exports = {
   offerPdf: async (req, res) => {
@@ -8,24 +24,28 @@ module.exports = {
         .populate("company")
         .populate("contact")
         .exec();
-      if (!offer) return res.status(404).json({ message: "Teklif bulunamadı.", success: false });
 
-      // Organizasyon logosunu auth-service'ten çek
+      if (!offer)
+        return res
+          .status(404)
+          .json({ message: "Teklif bulunamadı.", success: false });
+
+      // Organizasyon logosunu ve banka hesaplarını auth-service'ten çek
       let logoUrl = null;
       let bankAccounts = [];
       try {
         const token = req.cookies?.accessToken;
         if (token && process.env.AUTH_SERVICE_URL) {
-          const authBase = process.env.AUTH_SERVICE_URL.replace(/\/api\/auth\/?$/, "");
-          const orgRes = await axios.get(
-            `${authBase}/api/org/me`,
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-                "x-internal-api-key": process.env.INTERNAL_API_KEY,
-              },
-            }
+          const authBase = process.env.AUTH_SERVICE_URL.replace(
+            /\/api\/auth\/?$/,
+            "",
           );
+          const orgRes = await axios.get(`${authBase}/api/org/me`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "x-internal-api-key": process.env.INTERNAL_API_KEY,
+            },
+          });
           logoUrl = orgRes.data?.logo || null;
           bankAccounts = orgRes.data?.bankAccounts || [];
         }
@@ -33,22 +53,29 @@ module.exports = {
         // org verisi alınamazsa devam et
       }
 
-      const pdfResponse = await axios.post(
+      const pdfResponse = await pdfAxios.post(
         `${process.env.PDF_SERVICE_URL}/generate`,
-        { template: "quotation", data: { ...offer.toObject(), logoUrl, bankAccounts } },
+        {
+          template: "quotation",
+          data: { ...offer.toObject(), logoUrl, bankAccounts },
+        },
         {
           responseType: "arraybuffer",
           headers: { "x-internal-api-key": process.env.INTERNAL_API_KEY },
         },
       );
+
+      const lastVersion = offer.versions[offer.versions.length - 1];
+
       res.set({
         "Content-Type": "application/pdf",
-        "Content-Disposition": `inline; filename="offer-${offer.versions[offer.versions.length - 1].docCode}.pdf"`,
+        "Content-Disposition": `inline; filename="offer-${lastVersion.docCode}.pdf"`,
       });
+
       res.send(pdfResponse.data);
     } catch (err) {
-      console.error(err);
-      res.status(500).json({ message: err, success: false });
+      console.error("[offerPdf] error:", err.message);
+      res.status(500).json({ message: err.message, success: false });
     }
   },
 };
