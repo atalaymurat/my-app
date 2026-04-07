@@ -1,10 +1,18 @@
 const Offer = require("../models/offer/Offer");
 const axios = require("axios");
 const axiosRetry = require("axios-retry").default;
+const authAxios = axios.create({ timeout: 15000 });
 
 // PDF service için ayrı axios instance
 const pdfAxios = axios.create({
   timeout: 35000,
+});
+
+axiosRetry(authAxios, {
+  retries: 2,
+  retryDelay: (retryCount) => retryCount * 2000,
+  retryCondition: (error) =>
+    error.code === "ECONNABORTED" || axiosRetry.isNetworkError(error),
 });
 
 axiosRetry(pdfAxios, {
@@ -40,7 +48,7 @@ module.exports = {
             /\/api\/auth\/?$/,
             "",
           );
-          const orgRes = await axios.get(`${authBase}/api/org/me`, {
+          const orgRes = await authAxios.get(`${authBase}/api/org/me`, {
             headers: {
               Authorization: `Bearer ${token}`,
               "x-internal-api-key": process.env.INTERNAL_API_KEY,
