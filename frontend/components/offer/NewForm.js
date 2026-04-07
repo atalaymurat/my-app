@@ -158,7 +158,28 @@ export default function NewForm({ offerId }) {
       (async () => {
         try {
           const { data } = await axios.get(`/api/offer/${offerId}`);
-          if (data.success) setInitialValues(mapOfferToForm(data.record));
+          if (!data.success) return;
+
+          const mapped = mapOfferToForm(data.record);
+          const lastVersion =
+            data.record.versions[data.record.versions.length - 1];
+
+          const lineItemsWithOptions = await Promise.all(
+            mapped.lineItems.map(async (item, i) => {
+              const productValue = lastVersion.lineItems[i]?.productValue;
+              if (!productValue) return item;
+              try {
+                const { data: optData } = await axios.get(
+                  `/api/option/list/${productValue}`,
+                );
+                return { ...item, options: optData.list || [] };
+              } catch {
+                return item;
+              }
+            }),
+          );
+
+          setInitialValues({ ...mapped, lineItems: lineItemsWithOptions });
         } catch {
           setMessage({ type: "error", text: "Teklif yüklenemedi." });
         } finally {
