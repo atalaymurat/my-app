@@ -28,19 +28,52 @@ const validationSchema = Yup.object({
   }),
   lineItems: Yup.array()
     .min(1, "En az bir ürün/hizmet eklemelisiniz")
-    .of(Yup.object({ title: Yup.string().trim().required("Ürün adı zorunludur") })),
+    .of(
+      Yup.object({
+        title: Yup.string().trim().required("Ürün adı zorunludur"),
+      }),
+    ),
 });
 
 const DEFAULT_VALUES = {
-  docType: "Teklif", search: "", companyId: "", contactId: "", contactName: "",
-  contactPhone: "", contactEmail: "", title: "", vatTitle: "", email: "", domain: "",
-  line1: "", line2: "", district: "", city: "", country: "",
-  lineItems: [{
-    title: "", priceList: "", priceOffer: "", priceNet: "", currency: "",
-    productValue: "", condition: "", image: "", caption: "", notes: "",
-    quantity: 1, options: [], selectedOptions: [], selectedMakeId: "", selectedVariantId: "",
-  }],
-  vatRate: 20, showVat: true, showTotals: true,
+  docType: "Teklif",
+  search: "",
+  companyId: "",
+  contactId: "",
+  contactName: "",
+  contactPhone: "",
+  contactEmail: "",
+  title: "",
+  vatTitle: "",
+  email: "",
+  domain: "",
+  line1: "",
+  line2: "",
+  district: "",
+  city: "",
+  country: "",
+  lineItems: [
+    {
+      title: "",
+      priceList: "",
+      priceOffer: "",
+      priceNet: "",
+      currency: "",
+      productValue: "",
+      condition: "",
+      image: "",
+      caption: "",
+      notes: "",
+      quantity: 1,
+      options: [],
+      selectedOptions: [],
+      selectedMakeId: "",
+      selectedVariantId: "",
+    },
+  ],
+  vatRate: 20,
+  showVat: true,
+  showTotals: true,
   offerTerms: [],
 };
 
@@ -49,32 +82,59 @@ function mapOfferToForm(offer) {
   const co = offer.company || {};
   const addr = co.addresses?.[0] || {};
   return {
-    _id: offer._id, docType: lastVersion?.docType || "Teklif", search: "",
-    companyId: co._id || "", title: co.title || "", vatTitle: co.vatTitle || "",
-    email: co.emails?.[0] || "", domain: co.domains?.[0] || "",
-    line1: addr.line1 || "", line2: addr.line2 || "",
-    district: addr.district || "", city: addr.city || "", country: addr.country || "",
-    contactId: offer.contact?._id || "", contactName: offer.contact?.name || "",
-    contactPhone: offer.contact?.phones?.[0] || "", contactEmail: offer.contact?.emails?.[0] || "",
-    vatRate: lastVersion?.vatRate ?? 20, showVat: lastVersion?.showVat ?? true,
+    _id: offer._id,
+    docType: lastVersion?.docType || "Teklif",
+    search: "",
+    companyId: co._id || "",
+    title: co.title || "",
+    vatTitle: co.vatTitle || "",
+    email: co.emails?.[0] || "",
+    domain: co.domains?.[0] || "",
+    line1: addr.line1 || "",
+    line2: addr.line2 || "",
+    district: addr.district || "",
+    city: addr.city || "",
+    country: addr.country || "",
+    contactId: offer.contact?._id || "",
+    contactName: offer.contact?.name || "",
+    contactPhone: offer.contact?.phones?.[0] || "",
+    contactEmail: offer.contact?.emails?.[0] || "",
+    vatRate: lastVersion?.vatRate ?? 20,
+    showVat: lastVersion?.showVat ?? true,
     showTotals: lastVersion?.showTotals ?? true,
     lineItems: (lastVersion?.lineItems || []).map((item) => ({
-      title: item.title || "", productValue: item.productValue || "",
-      selectedMakeId: "", selectedVariantId: item.variantId || "",
+      title: item.title || "",
+      productValue: item.productValue || "",
+      selectedMakeId: "",
+      selectedVariantId: item.variantId || "",
       options: [],
       selectedOptions: (item.selectedOptions || []).map((o) => ({
-        value: o.optionId, label: o.label || o.title || "",
-        listPrice: o.listPrice, offerPrice: o.offerPrice, netPrice: o.netPrice,
-        currency: o.currency, desc: o.desc, quantity: o.quantity,
+        value: o.optionId,
+        label: o.label || o.title || "",
+        listPrice: o.listPrice,
+        offerPrice: o.offerPrice,
+        netPrice: o.netPrice,
+        currency: o.currency,
+        desc: o.desc,
+        quantity: o.quantity,
+        image: o.image || "",
       })),
-      priceList: item.priceList || "", priceOffer: item.priceOffer || "",
-      priceNet: item.priceNet || "", variantPriceList: item.priceList || 0,
-      variantPriceOffer: item.priceOffer || 0, variantPriceNet: item.priceNet || 0,
-      currency: item.currency || "", quantity: item.quantity || 1,
-      notes: item.notes || "", condition: item.condition || "",
-      image: item.image || "", caption: item.caption || "",
+      priceList: item.priceList || "",
+      priceOffer: item.priceOffer || "",
+      priceNet: item.priceNet || "",
+      variantPriceList: item.priceList || 0,
+      variantPriceOffer: item.priceOffer || 0,
+      variantPriceNet: item.priceNet || 0,
+      currency: item.currency || "",
+      quantity: item.quantity || 1,
+      notes: item.notes || "",
+      condition: item.condition || "",
+      image: item.image || "",
+      caption: item.caption || "",
     })),
-    offerTerms: (offer.versions?.[offer.versions.length - 1]?.offerTerms || []).map(t => ({
+    offerTerms: (
+      offer.versions?.[offer.versions.length - 1]?.offerTerms || []
+    ).map((t) => ({
       key: t.key,
       label: t.label,
       fieldType: t.fieldType,
@@ -99,15 +159,19 @@ export default function NewForm({ offerId }) {
         try {
           const { data } = await axios.get(`/api/offer/${offerId}`);
           if (data.success) setInitialValues(mapOfferToForm(data.record));
-        } catch { setMessage({ type: "error", text: "Teklif yüklenemedi." }); }
-        finally { setLoading(false); }
+        } catch {
+          setMessage({ type: "error", text: "Teklif yüklenemedi." });
+        } finally {
+          setLoading(false);
+        }
       })();
     } else {
-      axiosOrg.get("/me")
+      axiosOrg
+        .get("/me")
         .then(({ data }) => {
-          setInitialValues(prev => ({
+          setInitialValues((prev) => ({
             ...prev,
-            offerTerms: data.offerDefaults || []
+            offerTerms: data.offerDefaults || [],
           }));
         })
         .catch(() => {})
@@ -115,7 +179,12 @@ export default function NewForm({ offerId }) {
     }
   }, [offerId]);
 
-  if (loading) return <div className="text-stone-400 py-12 text-center text-sm">Yükleniyor...</div>;
+  if (loading)
+    return (
+      <div className="text-stone-400 py-12 text-center text-sm">
+        Yükleniyor...
+      </div>
+    );
 
   const validateStep1 = async (validateForm, setTouched, values) => {
     if (values.companyId) return true;
@@ -126,18 +195,27 @@ export default function NewForm({ offerId }) {
 
   return (
     <Formik
-      enableReinitialize initialValues={initialValues}
+      enableReinitialize
+      initialValues={initialValues}
       validationSchema={validationSchema}
       onSubmit={async (values, { setSubmitting }) => {
         setSubmitting(true);
         try {
           const { data } = await axios.post("/api/offer", values);
           if (data.success) {
-            setMessage({ text: data.message || "Başarıyla Kaydedildi", type: "success" });
+            setMessage({
+              text: data.message || "Başarıyla Kaydedildi",
+              type: "success",
+            });
           }
         } catch (err) {
-          setMessage({ type: "error", text: err.response?.data?.message || "Hata oluştu" });
-        } finally { setSubmitting(false); }
+          setMessage({
+            type: "error",
+            text: err.response?.data?.message || "Hata oluştu",
+          });
+        } finally {
+          setSubmitting(false);
+        }
       }}
     >
       {({ isSubmitting, values, validateForm, setTouched }) => (
@@ -148,12 +226,18 @@ export default function NewForm({ offerId }) {
             {currentStep === 0 && (
               <>
                 <StepCompany />
-                <button type="button"
+                <button
+                  type="button"
                   onClick={async () => {
-                    const ok = await validateStep1(validateForm, setTouched, values);
+                    const ok = await validateStep1(
+                      validateForm,
+                      setTouched,
+                      values,
+                    );
                     if (ok) setCurrentStep(1);
                   }}
-                  className="mt-5 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 border border-blue-500 text-sm font-bold text-white transition-colors shadow-lg shadow-blue-900/20">
+                  className="mt-5 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 border border-blue-500 text-sm font-bold text-white transition-colors shadow-lg shadow-blue-900/20"
+                >
                   Ürünlere Geç →
                 </button>
               </>
