@@ -41,7 +41,6 @@ module.exports = {
           headers: { "x-internal-api-key": process.env.INTERNAL_API_KEY },
         },
       );
-
       res.set({
         "Content-Type": "application/pdf",
         "Content-Disposition": `inline; filename="offer-${offer.versions[offer.versions.length - 1].docCode}.pdf"`,
@@ -49,7 +48,7 @@ module.exports = {
       res.send(pdfResponse.data);
     } catch (err) {
       console.error(err);
-      res.status(500).json({ message: "PDF üretilemedi.", success: false });
+      res.status(500).json({ message: err, success: false });
     }
   },
 };
