@@ -1,5 +1,6 @@
 // backend/index.js
 require("dotenv").config();
+require("./utils/keepAlive");
 const express = require("express");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
@@ -11,6 +12,7 @@ connectDB(); // Call the function to establish the connection
 
 const app = express();
 const PORT = process.env.PORT || 3021;
+
 
 // --- Log Allowed CORS Origins ---
 // Log this info early so it's visible during startup
