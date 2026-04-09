@@ -42,6 +42,8 @@ app.get("/", (req, res) => {
 });
 
 // Start server
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`Server running on port ${PORT}`);
+  const { runHealthChecks } = require("./utils/serviceHealthCheck");
+  await runHealthChecks();
 });
