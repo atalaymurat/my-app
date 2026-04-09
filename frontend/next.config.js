@@ -15,7 +15,7 @@ module.exports = {
       },
     ]
   },
-  allowedDevOrigins: ['192.168.1.100'],
+  allowedDevOrigins: ['192.168.1.100', '192.168.1.100:3020'],
   images: {
     remotePatterns: [
       {
