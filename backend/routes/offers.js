@@ -9,6 +9,7 @@ const authenticate = require("../middleware/authenticate");
 router.get("/", authenticate, offersController.index);
 router.get("/:id", authenticate, offersController.show);
 router.post("/", authenticate, offersController.create);
+router.patch("/:id/status", authenticate, offersController.updateStatus);
 router.patch("/:id/offer-terms", authenticate, offersController.update);
 router.delete("/:id", authenticate, offersController.destroy);
 

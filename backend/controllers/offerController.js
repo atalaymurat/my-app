@@ -60,14 +60,32 @@ module.exports = {
 
   update: async (req, res) => {
     try {
-      const { offerTerms } = req.body;
-      const record = await Offer.findOneAndUpdate(
-        { _id: req.params.id, ...req.orgFilter },
-        { offerTerms },
-        { new: true, runValidators: true }
-      );
-      if (!record) return res.status(404).json({ message: "Teklif bulunamadı.", success: false });
-      return res.status(200).json({ message: "Güncellendi.", record, success: true });
+      const userId = req.user?._id;
+      const orgId  = req.user?.orgId || null;
+      if (!userId) return res.status(401).json({ message: "Yetkisiz erişim.", success: false });
+
+      // _id route param'dan gelir, body'ye ekle ki normalizeOfferData edit modunu anlasın
+      req.body._id = req.params.id;
+
+      const { offerData, versionData, needsCompanyCreation, companyData, contactData } =
+        normalizeOfferData(req.body, userId, orgId);
+
+      if (needsCompanyCreation && companyData) {
+        const normalized = normalizeCompanyData(companyData, userId, orgId);
+        const company = await createNewCompany(normalized, companyData);
+        offerData.company = company._id;
+      }
+
+      const contactId = await createOrFindContact({
+        ...contactData,
+        companyId: offerData.company,
+        userId,
+        orgId,
+      });
+      if (contactId) offerData.contact = contactId;
+
+      const record = await createOffer({ ...offerData, ...versionData });
+      return res.status(200).json({ message: "Teklif güncellendi.", record, success: true });
     } catch (error) {
       return res.status(500).json({ message: error.message, success: false });
     }
@@ -98,11 +116,49 @@ module.exports = {
 
   index: async (req, res) => {
     try {
-      const records = await Offer.find(req.orgFilter)
-        .populate("company")
-        .sort({ createdAt: -1 })
-        .exec();
-      return res.status(200).json({ success: true, records });
+      const page  = Math.max(1, parseInt(req.query.page)  || 1);
+      const limit = Math.min(50, parseInt(req.query.limit) || 10);
+      const skip  = (page - 1) * limit;
+
+      const filter = { ...req.orgFilter };
+      if (req.query.status) filter.status = req.query.status;
+
+      const [records, total] = await Promise.all([
+        Offer.find(filter).populate("company").sort({ createdAt: -1 }).skip(skip).limit(limit).exec(),
+        Offer.countDocuments(filter),
+      ]);
+
+      return res.status(200).json({
+        success: true,
+        records,
+        totalPages: Math.ceil(total / limit),
+        total,
+        page,
+      });
+    } catch (error) {
+      return res.status(500).json({ message: error.message, success: false });
+    }
+  },
+
+  updateStatus: async (req, res) => {
+    try {
+      const { status } = req.body;
+      const allowed = ["open", "won", "lost", "cancelled"];
+      if (!allowed.includes(status))
+        return res.status(400).json({ message: "Geçersiz status.", success: false });
+
+      const update = { status };
+      if (status === "won" || status === "lost" || status === "cancelled") update.closedAt = new Date();
+      if (status === "open") update.closedAt = null;
+
+      const record = await Offer.findOneAndUpdate(
+        { _id: req.params.id, ...req.orgFilter },
+        { $set: update },
+        { new: true },
+      ).select("status closedAt");
+
+      if (!record) return res.status(404).json({ message: "Teklif bulunamadı.", success: false });
+      return res.status(200).json({ success: true, record });
     } catch (error) {
       return res.status(500).json({ message: error.message, success: false });
     }

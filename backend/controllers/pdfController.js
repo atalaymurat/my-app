@@ -65,7 +65,7 @@ module.exports = {
         `${process.env.PDF_SERVICE_URL}/generate`,
         {
           template: "quotation",
-          data: { ...offer.toObject(), logoUrl, bankAccounts },
+          data: { ...offer.toObject({ flattenMaps: true }), logoUrl, bankAccounts },
         },
         {
           responseType: "arraybuffer",

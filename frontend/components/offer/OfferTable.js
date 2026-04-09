@@ -1,5 +1,4 @@
 "use client";
-"use client";
 import { useState } from "react";
 import { formPrice, localeDate } from "@/lib/helpers";
 import { useRouter } from "next/navigation";
@@ -19,13 +18,56 @@ const TYPE_BORDER = {
   Sipariş: "border-l-violet-500",
   Sözleşme: "border-l-rose-500",
 };
+const STATUS_STYLE = {
+  open:      "bg-stone-800 text-stone-400 border-stone-600",
+  won:       "bg-emerald-900/40 text-emerald-400 border-emerald-700/50",
+  lost:      "bg-red-900/40 text-red-400 border-red-700/50",
+  cancelled: "bg-stone-900/60 text-stone-500 border-stone-700",
+};
+const STATUS_LABEL = { open: "Açık", won: "Kazanıldı", lost: "Kaybedildi", cancelled: "İptal" };
+
+function TotalsSection({ v }) {
+  if (!v.showTotals || !v.totalsByCurrency) return null;
+  const entries = Object.entries(v.totalsByCurrency);
+
+  return (
+    <div className="px-4 py-2 border-t border-stone-800 flex flex-wrap gap-x-4 gap-y-1 items-center">
+      {entries.map(([currency, totals]) => (
+        <div key={currency} className="flex items-center gap-2 text-xs">
+          <span className="text-stone-600 font-mono text-[10px] uppercase">{currency}</span>
+          <span className="text-stone-500">
+            {formPrice(totals.priceListTotal)}
+          </span>
+          <span className="text-stone-700">›</span>
+          <span className="text-amber-400 font-semibold">
+            {formPrice(totals.priceOfferTotal)}
+          </span>
+          {v.showVat && totals.priceVat > 0 && (
+            <>
+              <span className="text-stone-700">+</span>
+              <span className="text-stone-500">{formPrice(totals.priceVat)} KDV</span>
+            </>
+          )}
+          <span className="text-stone-700">=</span>
+          <span className="text-emerald-400 font-bold">{formPrice(totals.priceGrandTotal)}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
 
 function DocTypeBadge({ type }) {
   return (
-    <span
-      className={`text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full border ${TYPE_STYLE[type] || TYPE_STYLE.Teklif}`}
-    >
+    <span className={`text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full border ${TYPE_STYLE[type] || TYPE_STYLE.Teklif}`}>
       {type}
+    </span>
+  );
+}
+
+function StatusBadge({ status }) {
+  return (
+    <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${STATUS_STYLE[status] || STATUS_STYLE.open}`}>
+      {STATUS_LABEL[status] || status}
     </span>
   );
 }
@@ -69,35 +111,62 @@ export default function OfferTable({ offers: initialOffers }) {
     if (deleted) setOffers((prev) => prev.filter((o) => o._id !== offerId));
   };
 
+  const handleStatusChange = async (offerId, status) => {
+    try {
+      await axios.patch(`/api/offer/${offerId}/status`, { status });
+      setOffers((prev) => prev.map((o) => o._id === offerId ? { ...o, status } : o));
+    } catch {
+      alert("Durum güncellenemedi.");
+    }
+  };
+
   return (
     <div className="space-y-3 py-2">
       {offers?.map((off) => {
         const v = off.versions[off.versions.length - 1];
         const vCount = off.versions.length;
+        const currentDocType = off.currentDocType || v.docType;
+
+        // Versiyonlardan tekrarsız sıralı docType zinciri çıkar
+        const lifecycle = (off.versions || []).reduce((acc, ver) => {
+          if (acc[acc.length - 1] !== ver.docType) acc.push(ver.docType);
+          return acc;
+        }, []);
+        const hasLifecycle = lifecycle.length > 1;
 
         return (
           <div
             key={off._id}
-            className={`rounded-xl border border-stone-700 border-l-4 ${TYPE_BORDER[v.docType] || TYPE_BORDER.Teklif} overflow-hidden bg-stone-950/60`}
+            className={`rounded-xl border border-stone-700 border-l-4 ${TYPE_BORDER[currentDocType] || TYPE_BORDER.Teklif} overflow-hidden bg-stone-950/60`}
           >
             {/* ── Header ── */}
-            <div className="px-4 py-3 flex items-center gap-3 border-b border-stone-800">
-              <span className="font-mono text-sm font-bold text-stone-200 tracking-tight">
-                {v.docCode}
-              </span>
-              <DocTypeBadge type={v.docType} />
-              {vCount > 1 && (
-                <span className="text-[10px] font-semibold text-stone-500 bg-stone-800 border border-stone-700 px-1.5 py-0.5 rounded-full">
-                  v{vCount}
+            <div className="px-4 pt-3 pb-2.5 border-b border-stone-800">
+              {/* Üst satır: docCode, versiyon, status, tarihler */}
+              <div className="flex items-center gap-2">
+                <span className="font-mono text-sm font-bold text-stone-200 tracking-tight">
+                  {v.docCode}
                 </span>
-              )}
-              <div className="ml-auto flex items-center gap-3 text-xs text-stone-500">
-                <span>{localeDate(v.docDate)}</span>
-                {v.validDate && (
-                  <span className="text-stone-600">
-                    → {localeDate(v.validDate)}
+                {vCount > 1 && (
+                  <span className="text-[10px] font-semibold text-stone-500 bg-stone-800 border border-stone-700 px-1.5 py-0.5 rounded-full">
+                    v{vCount}
                   </span>
                 )}
+                <StatusBadge status={off.status || "open"} />
+                <div className="ml-auto flex items-center gap-3 text-xs text-stone-500">
+                  <span>{localeDate(v.docDate)}</span>
+                  {v.validDate && (
+                    <span className="text-stone-600">→ {localeDate(v.validDate)}</span>
+                  )}
+                </div>
+              </div>
+              {/* Alt satır: lifecycle / tek tip */}
+              <div className="flex items-center gap-1 mt-1.5">
+                {lifecycle.map((type, i) => (
+                  <div key={i} className="flex items-center gap-1">
+                    {i > 0 && <span className="text-stone-600 text-[10px]">→</span>}
+                    <DocTypeBadge type={type} />
+                  </div>
+                ))}
               </div>
             </div>
 
@@ -122,7 +191,9 @@ export default function OfferTable({ offers: initialOffers }) {
 
             {/* ── Line Items ── */}
             <div className="divide-y divide-stone-800/60">
-              {v.lineItems?.map((item, idx) => (
+              {[...(v.lineItems || [])].sort((a, b) =>
+                (a.priceOfferTotal?.currency || "").localeCompare(b.priceOfferTotal?.currency || "")
+              ).map((item, idx) => (
                 <div key={idx} className="flex items-center gap-3 px-4 py-2.5">
                   <div className="shrink-0 w-10 h-10 rounded-lg bg-stone-800 border border-stone-700 overflow-hidden flex items-center justify-center">
                     {item.image ? (
@@ -175,61 +246,37 @@ export default function OfferTable({ offers: initialOffers }) {
             </div>
 
             {/* ── Totals ── */}
-            {v.showTotals && (
-              <div className="px-4 py-2.5 border-t border-stone-800 grid grid-cols-4 gap-2">
-                <div className="flex flex-col items-center">
-                  <span className="text-[10px] text-stone-600 uppercase tracking-widest">
-                    Liste
-                  </span>
-                  <span className="text-xs font-semibold text-stone-400">
-                    {formPrice(v.priceListTotal?.value)}{" "}
-                    <span className="text-stone-600 font-normal">
-                      {v.priceListTotal?.currency}
-                    </span>
-                  </span>
-                </div>
-                <div className="flex flex-col items-center">
-                  <span className="text-[10px] text-amber-600 uppercase tracking-widest">
-                    Teklif
-                  </span>
-                  <span className="text-xs font-semibold text-amber-400">
-                    {formPrice(v.priceOfferTotal?.value)}{" "}
-                    <span className="text-amber-700 font-normal">
-                      {v.priceOfferTotal?.currency}
-                    </span>
-                  </span>
-                </div>
-                {v.showVat && v.priceVat?.value > 0 && (
-                  <div className="flex flex-col items-center">
-                    <span className="text-[10px] text-stone-600 uppercase tracking-widest">
-                      KDV %{v.vatRate}
-                    </span>
-                    <span className="text-xs font-semibold text-stone-400">
-                      {formPrice(v.priceVat?.value)}{" "}
-                      <span className="text-stone-600 font-normal">
-                        {v.priceVat?.currency}
-                      </span>
-                    </span>
-                  </div>
-                )}
-                <div
-                  className={`flex flex-col items-center ${!v.showVat || !v.priceVat?.value ? "col-span-2" : ""}`}
-                >
-                  <span className="text-[10px] text-emerald-600 uppercase tracking-widest">
-                    Toplam
-                  </span>
-                  <span className="text-sm font-bold text-emerald-400">
-                    {formPrice(v.priceGrandTotal?.value)}{" "}
-                    <span className="text-emerald-700 font-normal text-xs">
-                      {v.priceGrandTotal?.currency}
-                    </span>
-                  </span>
-                </div>
-              </div>
-            )}
+            <TotalsSection v={v} />
 
             {/* ── Actions ── */}
-            <div className="px-4 py-2 border-t border-stone-800/60 flex gap-8 justify-end items-center">
+            <div className="px-4 py-2.5 border-t border-stone-800/60 flex gap-6 justify-end items-center">
+              {/* Kazanıldı */}
+              {off.status !== "won" && (
+                <button onClick={() => handleStatusChange(off._id, "won")} title="Kazanıldı olarak işaretle"
+                  className="text-stone-400 hover:text-emerald-400 transition-colors cursor-pointer">
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </button>
+              )}
+              {/* Kaybedildi */}
+              {off.status !== "lost" && off.status !== "cancelled" && (
+                <button onClick={() => handleStatusChange(off._id, "lost")} title="Kaybedildi olarak işaretle"
+                  className="text-stone-400 hover:text-red-400 transition-colors cursor-pointer">
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </button>
+              )}
+              {/* Yeniden Aç */}
+              {off.status !== "open" && (
+                <button onClick={() => handleStatusChange(off._id, "open")} title="Yeniden Aç"
+                  className="text-stone-400 hover:text-amber-400 transition-colors cursor-pointer">
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+                  </svg>
+                </button>
+              )}
               {/* Edit */}
               <button
                 onClick={() => router.push(`/shield/offer/${off._id}/edit`)}
@@ -242,7 +289,7 @@ export default function OfferTable({ offers: initialOffers }) {
                   viewBox="0 0 24 24"
                   strokeWidth={1.5}
                   stroke="currentColor"
-                  className="w-4 h-4"
+                  className="w-5 h-5"
                 >
                   <path
                     strokeLinecap="round"
@@ -263,7 +310,7 @@ export default function OfferTable({ offers: initialOffers }) {
                   viewBox="0 0 24 24"
                   strokeWidth={1.5}
                   stroke="currentColor"
-                  className="w-4 h-4"
+                  className="w-5 h-5"
                 >
                   <path
                     strokeLinecap="round"
@@ -284,7 +331,7 @@ export default function OfferTable({ offers: initialOffers }) {
                   viewBox="0 0 24 24"
                   strokeWidth={1.5}
                   stroke="currentColor"
-                  className="w-4 h-4"
+                  className="w-5 h-5"
                 >
                   <path
                     strokeLinecap="round"
@@ -310,7 +357,7 @@ export default function OfferTable({ offers: initialOffers }) {
                   viewBox="0 0 24 24"
                   strokeWidth={1.5}
                   stroke="currentColor"
-                  className="w-4 h-4"
+                  className="w-5 h-5"
                 >
                   <path
                     strokeLinecap="round"
