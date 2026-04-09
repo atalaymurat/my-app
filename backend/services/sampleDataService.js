@@ -7,7 +7,7 @@ const Offer = require("../models/offer/Offer");
 
 const createSampleData = async (organizationId, userId) => {
   const make = await Make.create({
-    name: "Örnek Makine",
+    name: `Örnek Makine (${organizationId.toString().slice(-6)})`,
     nName: "ornek makine",
     country: "Türkiye",
     description: "Örnek marka açıklaması",
