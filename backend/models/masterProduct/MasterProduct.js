@@ -59,6 +59,7 @@ const masterProductSchema = new Schema(
       editableBy: [{ type: Schema.Types.ObjectId, ref: "User" }],
     },
 
+    isSample: { type: Boolean, default: false, index: true },
     organization: { type: Schema.Types.ObjectId, required: true },
     createdBy: { type: Schema.Types.ObjectId, required: true },
   },

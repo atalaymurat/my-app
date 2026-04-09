@@ -31,6 +31,7 @@ const companySchema = new Schema(
     ogImage: String,
     favicon: String,
     description: String,
+    isSample: { type: Boolean, default: false, index: true },
     organization: { type: Schema.Types.ObjectId, required: true },
     createdBy: { type: Schema.Types.ObjectId, required: true },
   },

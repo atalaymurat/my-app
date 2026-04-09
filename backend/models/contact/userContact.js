@@ -8,6 +8,7 @@ const contactSchema = new mongoose.Schema(
     emails: [String],
     image: String,
     company: { type: mongoose.Schema.Types.ObjectId, ref: "Company" },
+    isSample: { type: Boolean, default: false, index: true },
     organization: { type: mongoose.Schema.Types.ObjectId, required: true },
     createdBy: { type: mongoose.Schema.Types.ObjectId, required: true },
   },
