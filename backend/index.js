@@ -48,6 +48,10 @@ app.use(express.json());
 app.use("/api", require("./routes/index"));
 
 app.get("/", (req, res) => res.send("API is running..."));
+app.get("/health", (req, res) => {
+  res.json({ status: "ok", service: "backend" });
+});
+
 
 // Bot/scanner trafiğini sessizce reddet
 app.use((req, res, next) => {
