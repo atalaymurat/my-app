@@ -1,8 +1,12 @@
 const router = require("express").Router();
 const authenticate = require("../middleware/authenticate");
-const adminOnly = require("../middleware/adminOnly");
 const { index, stats, clear } = require("../controllers/logsController");
 const Log = require("../models/Log");
+
+const superAdminOnly = (req, res, next) => {
+  if (req.isSuperAdmin) return next();
+  return res.status(403).json({ error: "Sadece superadmin erişebilir." });
+};
 
 // Internal: diğer servislerden log al (API key ile korunuyor)
 router.post("/ingest", async (req, res) => {
@@ -33,8 +37,8 @@ router.post("/ingest", async (req, res) => {
   }
 });
 
-// Admin: dashboard endpoints
-router.use(authenticate, adminOnly);
+// Superadmin: dashboard endpoints
+router.use(authenticate, superAdminOnly);
 router.get("/stats", stats);
 router.get("/", index);
 router.delete("/", clear);

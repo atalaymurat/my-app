@@ -148,16 +148,58 @@ function Block({ title, count, accent, actions, chart, pills, viewHref }) {
   );
 }
 
+const LEVEL_COLORS = {
+  error: "text-red-400 bg-red-900/30 border-red-800/50",
+  warn:  "text-amber-400 bg-amber-900/30 border-amber-800/50",
+  info:  "text-blue-400 bg-blue-900/30 border-blue-800/50",
+  http:  "text-stone-300 bg-stone-800/60 border-stone-700",
+  debug: "text-stone-400 bg-stone-800/40 border-stone-700",
+};
+
+function LogCard({ log, onClick }) {
+  if (!log) return null;
+  const levelCls = LEVEL_COLORS[log.level] || LEVEL_COLORS.debug;
+  const ts = new Date(log.timestamp).toLocaleString("tr-TR", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" });
+  return (
+    <div
+      onClick={onClick}
+      className="rounded-2xl border border-l-4 border-stone-800 border-l-red-500 bg-stone-950/80 px-4 py-3 cursor-pointer hover:bg-stone-900/60 transition-colors"
+    >
+      <div className="flex items-center justify-between mb-2">
+        <p className="text-xs font-bold uppercase tracking-widest text-stone-500">Son Log</p>
+        <span className={`text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded border ${levelCls}`}>{log.level}</span>
+      </div>
+      <p className="text-sm text-stone-200 font-medium truncate">{log.message}</p>
+      <div className="flex items-center gap-3 mt-2">
+        <span className="text-xs text-stone-500">{log.service}</span>
+        {log.meta?.userId && (
+          <span className="text-xs text-stone-500 font-mono truncate max-w-[120px]">{log.meta.userId}</span>
+        )}
+        <span className="text-xs text-stone-600 ml-auto">{ts}</span>
+      </div>
+    </div>
+  );
+}
+
 export default function Dashboard() {
   const { user } = useAuth();
   const router = useRouter();
   const [stats, setStats] = useState(null);
+  const [lastLog, setLastLog] = useState(null);
+  const isSuperAdmin = user?.roles?.includes("superadmin");
 
   useEffect(() => {
     axios.get("/api/stats")
       .then(({ data }) => { if (data.success) setStats(data.stats); })
       .catch(() => {});
   }, []);
+
+  useEffect(() => {
+    if (!isSuperAdmin) return;
+    axios.get("/api/logs?limit=1")
+      .then(({ data }) => { if (data.logs?.[0]) setLastLog(data.logs[0]); })
+      .catch(() => {});
+  }, [isSuperAdmin]);
 
   const s = stats;
 
@@ -221,7 +263,7 @@ export default function Dashboard() {
       {/* 3-column grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
 
-        {/* Col 1: Teklifler */}
+        {/* Col 1: Teklifler + Log kısayolu (superadmin) */}
         <div className="flex flex-col gap-3">
           <Block
             title="Teklifler"
@@ -232,6 +274,9 @@ export default function Dashboard() {
             pills={offerPills}
             actions={[{ label: "Yeni Teklif", href: "/shield/offer/new" }]}
           />
+          {isSuperAdmin && (
+            <LogCard log={lastLog} onClick={() => router.push("/shield/logs")} />
+          )}
         </div>
 
         {/* Col 2: Markalar + Ürünler + Opsiyonlar */}
