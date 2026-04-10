@@ -156,6 +156,44 @@ const LEVEL_COLORS = {
   debug: "text-stone-400 bg-stone-800/40 border-stone-700",
 };
 
+/* ── user summary card (superadmin only) ── */
+function UserSummaryCard({ summary }) {
+  const roleColor = (roles) => {
+    if (roles?.includes("superadmin")) return "text-red-400 bg-red-900/30 border-red-800/50";
+    if (roles?.includes("admin"))      return "text-amber-400 bg-amber-900/30 border-amber-800/50";
+    if (roles?.includes("premium"))    return "text-violet-400 bg-violet-900/30 border-violet-800/50";
+    return "text-stone-400 bg-stone-800/40 border-stone-700";
+  };
+  return (
+    <div className="rounded-2xl border border-l-4 border-stone-800 border-l-rose-500 bg-stone-950/80 overflow-hidden">
+      <div className="flex items-start justify-between px-4 pt-4 pb-3">
+        <div>
+          <p className="text-xs font-bold uppercase tracking-widest text-stone-500">Kullanıcılar</p>
+          <div className="flex items-baseline gap-2 mt-1">
+            <span className="text-4xl font-black tabular-nums text-rose-400">{summary.total}</span>
+            <span className="text-sm text-stone-600 font-medium">kayıtlı</span>
+          </div>
+        </div>
+        <Ring value={summary.total} max={Math.max(summary.total, 100)} color="#fb7185" />
+      </div>
+      <div className="px-4 pb-4 space-y-2">
+        <p className="text-[10px] font-bold uppercase tracking-widest text-stone-600 mb-1">Son 3 Kayıt</p>
+        {summary.recent.map((u) => (
+          <div key={u._id} className="flex items-center justify-between gap-2">
+            <div className="min-w-0">
+              <p className="text-xs font-semibold text-stone-200 truncate">{u.name}</p>
+              <p className="text-[10px] text-stone-500 truncate">{u.email}</p>
+            </div>
+            <span className={`shrink-0 text-[9px] font-bold uppercase tracking-widest px-1.5 py-0.5 rounded border ${roleColor(u.roles)}`}>
+              {u.roles?.[u.roles.length - 1] ?? "user"}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function LogCard({ log, onClick }) {
   if (!log) return null;
   const levelCls = LEVEL_COLORS[log.level] || LEVEL_COLORS.debug;
@@ -186,6 +224,7 @@ export default function Dashboard() {
   const router = useRouter();
   const [stats, setStats] = useState(null);
   const [lastLog, setLastLog] = useState(null);
+  const [userSummary, setUserSummary] = useState(null);
   const isSuperAdmin = user?.roles?.includes("superadmin");
 
   useEffect(() => {
@@ -198,6 +237,9 @@ export default function Dashboard() {
     if (!isSuperAdmin) return;
     axios.get("/api/logs?limit=1")
       .then(({ data }) => { if (data.logs?.[0]) setLastLog(data.logs[0]); })
+      .catch(() => {});
+    axios.get("/api/auth/users/summary")
+      .then(({ data }) => { if (data.success) setUserSummary(data); })
       .catch(() => {});
   }, [isSuperAdmin]);
 
@@ -304,7 +346,7 @@ export default function Dashboard() {
           />
         </div>
 
-        {/* Col 3: Firmalar + Kişiler */}
+        {/* Col 3: Firmalar + Kişiler + Users (superadmin) */}
         <div className="flex flex-col gap-3">
           <Block
             title="Firmalar"
@@ -320,6 +362,7 @@ export default function Dashboard() {
             viewHref="/shield/contact"
             actions={[{ label: "Yeni Kişi", href: "/shield/contact/new" }]}
           />
+          {isSuperAdmin && userSummary && <UserSummaryCard summary={userSummary} />}
         </div>
 
       </div>

@@ -65,4 +65,11 @@ router.post("/logout",  (req, res) => proxy(req, res, "/api/auth/logout"));
 router.post("/refresh", (req, res) => proxy(req, res, "/api/auth/refresh"));
 router.get("/health",   (req, res) => proxy(req, res, "/api/auth/health"));
 
+// Superadmin only
+const authenticate = require("../middleware/authenticate");
+router.get("/users/summary", authenticate, (req, res) => {
+  if (!req.isSuperAdmin) return res.status(403).json({ error: "Sadece superadmin erişebilir." });
+  proxy(req, res, "/api/auth/users/summary");
+});
+
 module.exports = router;
