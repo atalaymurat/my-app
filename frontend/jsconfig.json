@@ -2,8 +2,7 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./*"],
-      "@/utils/*": ["./utils/*"]  // utils klasörü için alias ekleyin
+      "@/*": ["./*"]
     }
   },
   "exclude": ["node_modules", ".next"],
