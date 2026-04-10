@@ -29,7 +29,7 @@ const corsOptions = {
       return callback(null, true);
     }
 
-    console.warn(`CORS: Denied origin - ${origin}`);
+    require("./logger").warn({ message: "CORS denied origin", origin });
     callback(new Error("Not allowed by CORS"));
   },
   credentials: true,

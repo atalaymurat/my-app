@@ -2,6 +2,7 @@
 
 module.exports = {
   output: 'standalone',
+  allowedDevOrigins: ['192.168.1.100'],
    async headers() {
     return [
       {
@@ -15,7 +16,6 @@ module.exports = {
       },
     ]
   },
-  allowedDevOrigins: ['192.168.1.100', '192.168.1.100:3020'],
   images: {
     remotePatterns: [
       {
@@ -24,6 +24,12 @@ module.exports = {
         port: "",
         pathname: "/*/**",
         search: "",
+      },
+      {
+        protocol: "http",
+        hostname: "192.168.1.100",
+        port: "",
+        pathname: "/**",
       },
     ],
   },

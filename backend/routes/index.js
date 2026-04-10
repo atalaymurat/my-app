@@ -13,6 +13,9 @@ router.use("/stats", require("./stats"));
 router.use("/upload", require("./upload"));
 router.use("/sample-data", require("./sampleData"));
 
+router.use("/logs", require("./logs"));
+router.use("/health", require("./health"));
+
 // Gateway proxy routes — auth & org servisleri
 router.use("/auth", require("./auth-proxy"));
 router.use("/org", require("./org-proxy"));

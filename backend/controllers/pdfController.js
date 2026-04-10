@@ -1,5 +1,6 @@
 const Offer = require("../models/offer/Offer");
 const axios = require("axios");
+const logger = require("../config/logger");
 const axiosRetry = require("axios-retry").default;
 const authAxios = axios.create({ timeout: 15000 });
 
@@ -21,7 +22,7 @@ axiosRetry(pdfAxios, {
   retryCondition: (error) =>
     error.code === "ECONNABORTED" || axiosRetry.isNetworkError(error),
   onRetry: (retryCount) => {
-    console.log(`[pdf-service] retry attempt: ${retryCount}`);
+    logger.info({ message: "pdf-service retry", attempt: retryCount });
   },
 });
 
@@ -44,11 +45,7 @@ module.exports = {
       try {
         const token = req.cookies?.accessToken;
         if (token && process.env.AUTH_SERVICE_URL) {
-          const authBase = process.env.AUTH_SERVICE_URL.replace(
-            /\/api\/auth\/?$/,
-            "",
-          );
-          const orgRes = await authAxios.get(`${authBase}/api/org/me`, {
+          const orgRes = await authAxios.get(`${process.env.AUTH_SERVICE_URL}/api/org/me`, {
             headers: {
               Authorization: `Bearer ${token}`,
               "x-internal-api-key": process.env.INTERNAL_API_KEY,
@@ -82,7 +79,7 @@ module.exports = {
 
       res.send(pdfResponse.data);
     } catch (err) {
-      console.error("[offerPdf] error:", err.message);
+      logger.error({ message: "offerPdf error", error: err.message });
       res.status(500).json({ message: err.message, success: false });
     }
   },

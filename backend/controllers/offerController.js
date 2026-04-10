@@ -7,7 +7,7 @@ const normalizeOfferData = require("./utils/offer/normalizeOfferData");
 const createNewCompany = require("./utils/company/createNewCompany");
 const createOrFindContact = require("./utils/contact/createOrFindContact");
 
-const AUTH_BASE = process.env.AUTH_SERVICE_URL.replace(/\/api\/auth\/?$/, "");
+const AUTH_BASE = process.env.AUTH_SERVICE_URL;
 
 module.exports = {
   create: async (req, res) => {

@@ -189,7 +189,6 @@ const extractAddresses = ($$) => {
         (addr) => addr.raw === line.trim() // Keep the original line with Turkish characters
       );
       if (!alreadyExists) {
-        console.log(`📍 Added Address: ${line.trim()}`); // Log with original Turkish characters
         addresses.push({
           title: "merkez",
           line1: "",

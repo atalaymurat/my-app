@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const authenticate = require("../middleware/authenticate");
+const logger = require("../config/logger");
 const { createSampleData, deleteSampleData } = require("../services/sampleDataService");
 
 // Internal endpoint — auth-service calls this after org creation
@@ -20,7 +21,7 @@ router.post("/init", async (req, res) => {
     await createSampleData(organizationId, userId);
     return res.json({ success: true });
   } catch (err) {
-    console.error("Sample data init error:", err.message);
+    logger.error({ message: "Sample data init error", error: err.message });
     return res.status(500).json({ error: "Sample data oluşturulamadı" });
   }
 });
@@ -31,7 +32,7 @@ router.delete("/", authenticate, async (req, res) => {
     await deleteSampleData(req.user.orgId);
     return res.json({ success: true, message: "Örnek veriler silindi" });
   } catch (err) {
-    console.error("Sample data delete error:", err.message);
+    logger.error({ message: "Sample data delete error", error: err.message });
     return res.status(500).json({ error: "Örnek veriler silinemedi" });
   }
 });

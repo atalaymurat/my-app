@@ -1,11 +1,11 @@
 const Option = require("../../../models/options/Option");
+const logger = require("../../../config/logger");
+
 const createOption = async (data) => {
   try {
-    return await Option.create({
-      ...data,
-    });
+    return await Option.create({ ...data });
   } catch (error) {
-    console.error("Error creating Option:", error);
+    logger.error({ message: "Error creating option", error: error.message });
     throw new Error("Failed to create Option");
   }
 };

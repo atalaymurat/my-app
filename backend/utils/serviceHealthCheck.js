@@ -1,7 +1,9 @@
+const logger = require("../config/logger");
+
 const SERVICES = [
   {
     name: "auth-service",
-    url: `${(process.env.AUTH_SERVICE_URL || "http://localhost:3022/api/auth").replace(/\/api\/auth$/, "")}/api/auth/health`,
+    url: `${process.env.AUTH_SERVICE_URL || "http://localhost:3022"}/api/auth/health`,
   },
   {
     name: "pdf-service",
@@ -11,7 +13,10 @@ const SERVICES = [
 
 const check = async (service) => {
   try {
-    const res = await fetch(service.url, { signal: AbortSignal.timeout(5000) });
+    const res = await fetch(service.url, {
+      signal: AbortSignal.timeout(5000),
+      headers: { "x-internal-api-key": process.env.INTERNAL_API_KEY || "" },
+    });
     const body = await res.json().catch(() => ({}));
     return { name: service.name, ok: res.ok, status: res.status, body };
   } catch (err) {
@@ -20,17 +25,14 @@ const check = async (service) => {
 };
 
 const runHealthChecks = async () => {
-  console.log("--------------------------------");
-  console.log("Service Health Checks:");
   const results = await Promise.all(SERVICES.map(check));
   results.forEach(({ name, ok, status, body, error }) => {
     if (ok) {
-      console.log(`  ✓ ${name} — OK (${status})`, body);
+      logger.info({ message: "Service health OK", name, status, body });
     } else {
-      console.warn(`  ✗ ${name} — FAIL`, error || `HTTP ${status}`);
+      logger.warn({ message: "Service health FAIL", name, error: error || `HTTP ${status}` });
     }
   });
-  console.log("--------------------------------");
 };
 
 module.exports = { runHealthChecks };

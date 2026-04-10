@@ -1,13 +1,14 @@
 const axios = require("axios");
+const logger = require("../config/logger");
 
 const PDF_SERVICE_URL = process.env.PDF_SERVICE_URL;
 
 const pingPdfService = async () => {
   try {
     await axios.get(`${PDF_SERVICE_URL}/health`, { timeout: 5000 });
-    console.log("[keep-alive] pdf-service pinged OK");
+    logger.debug("keep-alive: pdf-service pinged OK");
   } catch (err) {
-    console.log("[keep-alive] pdf-service ping failed:", err.message);
+    logger.warn({ message: "keep-alive: pdf-service ping failed", error: err.message });
   }
 };
 

@@ -1,5 +1,6 @@
 const axios = require("axios");
 const cheerio = require("cheerio");
+const logger = require("../config/logger");
 const {
   findContactPage,
   extractPhone,
@@ -28,7 +29,7 @@ module.exports = {
       // Normalize URL format
       const siteUrl = url.startsWith("http") ? url : `http://${url}`;
 
-      console.log(`Scraping: ${siteUrl}`);
+      logger.debug({ message: "Scraping URL", url: siteUrl });
       const { data: mainHtml } = await axios.get(siteUrl);
       const $ = cheerio.load(mainHtml);
 
@@ -57,7 +58,7 @@ module.exports = {
         address: htmlAddresses,
       });
     } catch (err) {
-      console.error("Scraping Error:", err.message);
+      logger.error({ message: "Scraping error", error: err.message });
       return res.status(500).json({
         error: "Scraping failed",
         details: err.message,
@@ -68,7 +69,7 @@ module.exports = {
   meta: async (req, res) => {
     try {
       const { url } = req.body;
-      console.log("URL ::", new URL(url).hostname);
+      logger.debug({ message: "Meta scrape", hostname: new URL(url).hostname });
       if (!url) {
         return res.status(400).json({ error: "URL is required" });
       }
@@ -153,7 +154,7 @@ module.exports = {
           const jsonData = JSON.parse($(this).text());
           metadata.structuredData.push(jsonData);
         } catch (e) {
-          console.error("Error parsing JSON-LD:", e);
+          logger.warn({ message: "Error parsing JSON-LD", error: e.message });
         }
       });
 
@@ -182,10 +183,10 @@ module.exports = {
         }
       });
 
-      console.log("Extracted Metadata:", metadata);
+      logger.debug({ message: "Extracted metadata", url });
       res.json(metadata);
     } catch (error) {
-      console.error("Scraping error:", error);
+      logger.error({ message: "Meta scraping error", error: error.message });
       res.status(500).json({
         error: "Failed to fetch metadata",
         details: error.message,

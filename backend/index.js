@@ -1,49 +1,62 @@
 // backend/index.js
 require("dotenv").config();
 require("./utils/keepAlive");
+const http = require("http");
 const express = require("express");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
-const connectDB = require("./config/db"); // Import the connectDB function
+const connectDB = require("./config/db");
 const { corsOptions, allowedOrigins } = require("./config/corsOptions");
+const logger = require("./config/logger");
+const requestId = require("./middleware/requestId");
+const requestLogger = require("./middleware/requestLogger");
+const errorHandler = require("./middleware/errorHandler");
+const AppError = require("./utils/AppError");
+const { init: initSocket } = require("./config/socket");
 
-// --- Connect to Database ---
-connectDB(); // Call the function to establish the connection
+if (process.env.SENTRY_DSN) {
+  const Sentry = require("@sentry/node");
+  Sentry.init({ dsn: process.env.SENTRY_DSN, environment: process.env.NODE_ENV });
+}
+
+process.on("uncaughtException", (err) => {
+  logger.error({ message: "uncaughtException", error: err.message, stack: err.stack });
+  process.exit(1);
+});
+
+process.on("unhandledRejection", (reason) => {
+  logger.error({ message: "unhandledRejection", reason: String(reason) });
+  process.exit(1);
+});
+
+connectDB();
 
 const app = express();
+const server = http.createServer(app);
+initSocket(server);
+
 const PORT = process.env.PORT || 3021;
 
+logger.info("Allowed CORS Origins: " + (allowedOrigins?.join(", ") || "(none)"));
 
-// --- Log Allowed CORS Origins ---
-// Log this info early so it's visible during startup
-console.log("--------------------------------");
-console.log("Allowed CORS Origins:");
-if (allowedOrigins && allowedOrigins.length > 0) {
-  allowedOrigins.forEach((origin) => console.log(`- ${origin}`));
-} else {
-  console.log("- (No specific origins defined - Check .env FRONTEND_URL)");
-}
-console.log("--------------------------------");
-
-// Apply CORS Middleware with imported options
-// Place CORS middleware early, especially before routes
+app.use(requestId);
+app.use(requestLogger);
 app.use(cors(corsOptions));
-
-// Middleware
 app.use(cookieParser());
 app.use(express.json());
 
-// Routes
-app.use("/api", require("./routes/index")); // Use the index.js file in routes to handle all routes
+app.use("/api", require("./routes/index"));
 
-// --- Basic Root Route (Optional) ---
-app.get("/", (req, res) => {
-  res.send("API is running...");
+app.get("/", (req, res) => res.send("API is running..."));
+
+app.use((req, res, next) => {
+  next(new AppError(`${req.originalUrl} bulunamadı.`, 404));
 });
 
-// Start server
-app.listen(PORT, async () => {
-  console.log(`Server running on port ${PORT}`);
+app.use(errorHandler);
+
+server.listen(PORT, async () => {
+  logger.info(`Server running on port ${PORT}`);
   const { runHealthChecks } = require("./utils/serviceHealthCheck");
   await runHealthChecks();
 });
