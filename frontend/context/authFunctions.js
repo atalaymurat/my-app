@@ -5,6 +5,8 @@ import { signOut as firebaseSignOut } from "firebase/auth";
 const doVerify = () =>
   axiosAuth.post("/verify", { applicationId: process.env.NEXT_PUBLIC_APPLICATION_ID });
 
+const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+
 export const checkSession = async ({ setUser, setAuthChecked, setLoading }) => {
   setLoading(true);
   try {
@@ -13,9 +15,19 @@ export const checkSession = async ({ setUser, setAuthChecked, setLoading }) => {
       response = await doVerify();
     } catch (verifyError) {
       const status = verifyError.response?.status;
+
+      // 502/503 = backend soğuk, bir kez retry
+      if (status === 502 || status === 503 || !status) {
+        try {
+          await wait(3000);
+          response = await doVerify();
+        } catch {
+          setUser(null);
+          setAuthChecked(true);
+          return null;
+        }
       // 401 = token expired/invalid, 400 = token cookie eksik (silinmiş)
-      // Her iki durumda da refresh dene
-      if (status === 401 || status === 400) {
+      } else if (status === 401 || status === 400) {
         try {
           await axiosAuth.post("/refresh");
           response = await doVerify();
