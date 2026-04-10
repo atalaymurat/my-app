@@ -49,6 +49,15 @@ app.use("/api", require("./routes/index"));
 
 app.get("/", (req, res) => res.send("API is running..."));
 
+// Bot/scanner trafiğini sessizce reddet
+app.use((req, res, next) => {
+  const botPaths = ['.php', '.env', '.git', '.aws', '.s3cfg', 'wp-', 'wordpress', 'admin', '.sql', '.bak'];
+  if (botPaths.some(p => req.path.toLowerCase().includes(p))) {
+    return res.status(404).end();
+  }
+  next();
+});
+
 app.use((req, res, next) => {
   next(new AppError(`${req.originalUrl} bulunamadı.`, 404));
 });
