@@ -19,7 +19,8 @@ export const attachRefreshInterceptor = (instance) => {
       const original = error.config;
 
       const status = error.response?.status;
-      if ((status !== 401 && status !== 403) || original._retry) {
+      // 403 = forbidden (yetki sorunu, token değil) — refresh deneme
+      if (status !== 401 || original._retry) {
         return Promise.reject(error);
       }
 
