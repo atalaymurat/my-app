@@ -36,6 +36,7 @@ const proxy = async (req, res, targetPath) => {
 
 router.post("/create",                  (req, res) => proxy(req, res, "/api/org/create"));
 router.get("/me",                       (req, res) => proxy(req, res, "/api/org/me"));
+router.get("/list",                     (req, res) => proxy(req, res, "/api/org/list"));
 router.post("/invite",                  (req, res) => proxy(req, res, "/api/org/invite"));
 router.patch("/member/:userId/role",    (req, res) => proxy(req, res, `/api/org/member/${req.params.userId}/role`));
 router.patch("/update",                 (req, res) => proxy(req, res, "/api/org/update"));

@@ -13,8 +13,8 @@ const authenticate = (req, res, next) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.user = decoded;
     req.isSuperAdmin = decoded.roles?.includes("superadmin");
-    // Controller'larda kullanılacak organization filtresi
-    req.orgFilter = req.isSuperAdmin ? {} : { organization: decoded.orgId };
+    // Org-scoped kayitlarda superadmin dahil kendi organizasyon filtresi kullanilir.
+    req.orgFilter = decoded.orgId ? { organization: decoded.orgId } : {};
     return next();
   } catch (err) {
     return res.status(401).json({ error: "Invalid token" });
