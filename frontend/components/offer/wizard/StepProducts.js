@@ -5,11 +5,11 @@ import { formPrice } from "@/lib/helpers";
 import ProductForm from "./ProductForm";
 
 const EMPTY_ITEM = {
-  title: "", productValue: "", selectedMakeId: "", selectedVariantId: "",
+  title: "", productValue: "", selectedPriceListId: "", selectedMakeId: "", selectedVariantId: "",
   makeName: "", variantCode: "", variantModel: "",
   variantPriceList: 0, variantPriceOffer: 0, variantPriceNet: 0,
   priceList: "", priceOffer: "", priceNet: "", currency: "",
-  options: [], selectedOptions: [], quantity: 1, notes: "", condition: "",
+  options: [], selectedOptions: [], quantity: 1, notes: "",
 };
 
 function ProductSummaryCard({ item, idx, onEdit, onRemove, canRemove }) {
@@ -72,14 +72,13 @@ export default function StepProducts({ onPrev, onNext }) {
   const activeItem = items[activeIdx];
 
   const getItemError = (item) => {
-    if (!item?.selectedMakeId) return "Marka seçilmedi";
-    if (!item?.productValue)   return "Ürün seçilmedi";
+    if (!item?.selectedPriceListId) return "Fiyat listesi seçilmedi";
+    if (!item?.productValue) return "Ürün seçilmedi";
     if (!item?.selectedVariantId) return "Varyant seçilmedi";
     return null;
   };
 
-  const activeError   = getItemError(activeItem);
-  const isActiveReady = !activeError;
+  const activeError = getItemError(activeItem);
 
   const addProduct = () => {
     if (activeError) { setError(activeError); return; }
@@ -148,7 +147,6 @@ export default function StepProducts({ onPrev, onNext }) {
 
   return (
     <div className="flex flex-col gap-4">
-      {/* Başlık + sub-nav */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <span className="w-7 h-7 rounded-lg bg-amber-500/20 border border-amber-600/30 flex items-center justify-center text-xs font-black text-amber-400">
@@ -178,10 +176,8 @@ export default function StepProducts({ onPrev, onNext }) {
         )}
       </div>
 
-      {/* Ürün formu */}
       <ProductForm idx={activeIdx} />
 
-      {/* Hata */}
       {error && (
         <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-red-950/40 border border-red-800/50">
           <svg className="w-3.5 h-3.5 text-red-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -191,7 +187,6 @@ export default function StepProducts({ onPrev, onNext }) {
         </div>
       )}
 
-      {/* Navigasyon */}
       <div className="mt-auto flex flex-col gap-2 pt-1">
         <button type="button" onClick={addProduct}
           className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-dashed border-stone-600 text-xs font-bold text-stone-400 hover:border-blue-500 hover:text-blue-400 hover:bg-stone-800/30 transition-colors">

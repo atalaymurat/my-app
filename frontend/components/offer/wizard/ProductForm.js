@@ -21,18 +21,23 @@ function RadioDot({ checked }) {
 
 export default function ProductForm({ idx }) {
   const { values, setFieldValue } = useFormikContext();
-  const { items, makes, loading } = useOfferItems();
-  const { handleMakeSelect, handleProductSelect, handleVariantSelect } = useLineItemHandlers(items, makes);
+  const { items, makes, loading, loadingSnapshot, priceLists, selectPriceList, getItemsByPriceList } = useOfferItems();
+  const { handlePriceListSelect, handleProductSelect, handleVariantSelect } = useLineItemHandlers(items, makes, selectPriceList);
 
   const item = values.lineItems[idx];
 
-  // Edit modda: items yüklenince productValue'ya göre makeId'yi otomatik doldur
   useEffect(() => {
-    if (!item || item.selectedMakeId || !item.productValue || !items.length) return;
-    const master = items.find(o => o.value === String(item.productValue));
-    if (master?.makeId) {
-      setFieldValue(`lineItems.${idx}.selectedMakeId`, master.makeId);
-      setFieldValue(`lineItems.${idx}.makeName`, master.makeName || "");
+    if (!item || !items.length || !item.productValue) return;
+    const found = items.find(o => o.value === String(item.productValue));
+    if (!item.selectedPriceListId && found?.priceListId) {
+      setFieldValue(`lineItems.${idx}.selectedPriceListId`, found.priceListId);
+    }
+    if (found?.makeId && !item.selectedMakeId) {
+      setFieldValue(`lineItems.${idx}.selectedMakeId`, found.makeId);
+      setFieldValue(`lineItems.${idx}.makeName`, found.makeName || "");
+    }
+    if (!item.options?.length && found?.options?.length) {
+      setFieldValue(`lineItems.${idx}.options`, found.options);
     }
   }, [items, item?.productValue]);
 
@@ -40,7 +45,8 @@ export default function ProductForm({ idx }) {
 
   if (!item) return null;
 
-  const filteredItems = item.selectedMakeId ? items.filter(p => p.makeId === item.selectedMakeId) : [];
+  const currentPlId = item.selectedPriceListId || "";
+  const filteredItems = currentPlId ? getItemsByPriceList(currentPlId) : [];
   const master = items.find(o => o.value === item.productValue);
   const variants = master?.variants || [];
 
@@ -64,25 +70,55 @@ export default function ProductForm({ idx }) {
 
   return (
     <div className="space-y-4">
-      {/* Marka */}
+      {/* Fiyat Listesi Seç */}
       <div>
-        <SectionLabel>Marka Seç</SectionLabel>
-        <div className="flex flex-wrap gap-2">
-          {makes.map(mk => (
-            <button key={mk.value} type="button" onClick={() => handleMakeSelect(idx, mk.value)}
-              className={`px-3 py-1.5 text-xs font-bold rounded-lg border transition-colors ${
-                item.selectedMakeId === mk.value
-                  ? "bg-blue-600 border-blue-500 text-white shadow-sm shadow-blue-900/50"
-                  : "bg-stone-800 border-stone-600 text-stone-300 hover:border-blue-500 hover:text-white"
-              }`}>
-              {mk.label}
-            </button>
-          ))}
-        </div>
+        <SectionLabel>Fiyat Listesi Seç</SectionLabel>
+        {priceLists.length === 0 && !loading ? (
+          <p className="text-xs text-stone-500 italic">Atanmış fiyat listesi bulunamadı.</p>
+        ) : (
+          <div className="space-y-1.5">
+            {priceLists.map(pl => {
+              const sel = currentPlId === pl.value;
+              return (
+                <button key={pl.value} type="button"
+                  onClick={() => handlePriceListSelect(idx, pl.value)}
+                  className={`w-full flex items-center gap-3 px-3 py-3 rounded-xl border text-left transition-all ${
+                    sel
+                      ? "bg-blue-900/25 border-blue-500 shadow-[0_0_0_1px_rgba(59,130,246,0.3)]"
+                      : "bg-stone-800/60 border-stone-600 hover:border-stone-400"
+                  }`}>
+                  <div className="shrink-0 w-10 h-10 rounded-lg overflow-hidden bg-stone-700/60 border border-stone-600 flex items-center justify-center">
+                    {pl.makeLogo
+                      ? <img src={pl.makeLogo} alt={pl.makeName} className="w-full h-full object-cover" />
+                      : <span className="text-sm font-bold text-stone-400">{pl.makeName?.charAt(0)}</span>
+                    }
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className={`text-sm font-semibold truncate ${sel ? "text-white" : "text-stone-200"}`}>
+                      {pl.label}
+                    </p>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <span className="text-[10px] text-stone-500">{pl.makeName}</span>
+                      <span className="text-[10px] font-mono text-stone-600">{pl.currency}</span>
+                    </div>
+                  </div>
+                  <div className={`shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
+                    sel ? "border-blue-400 bg-blue-500" : "border-stone-500 bg-stone-800"
+                  }`}>
+                    {sel && <div className="w-2 h-2 rounded-full bg-white" />}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        )}
+        {loadingSnapshot && (
+          <p className="text-xs text-stone-500 mt-2">Ürünler yükleniyor...</p>
+        )}
       </div>
 
-      {/* Ürün */}
-      {item.selectedMakeId && (
+      {/* Ürün Seç — sadece liste seçildiyse göster */}
+      {currentPlId && filteredItems.length > 0 && (
         <div>
           <SectionLabel>Ürün Seç</SectionLabel>
           <div className="rounded-xl border border-stone-600 divide-y divide-stone-700 overflow-hidden">
@@ -151,9 +187,14 @@ export default function ProductForm({ idx }) {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className={`text-sm font-medium truncate ${isChecked ? "text-white" : "text-stone-200"}`}>{option.label}</p>
-                      <span className={`text-xs font-semibold ${isChecked ? "text-emerald-400" : "text-stone-500"}`}>+{formPrice(option.listPrice)} {option.currency}</span>
+                      {option.desc && (
+                        <p className="text-xs text-stone-500 mt-0.5 line-clamp-2">{option.desc}</p>
+                      )}
                     </div>
                   </div>
+                  <span className={`shrink-0 text-xs font-semibold whitespace-nowrap ${isChecked ? "text-emerald-400" : "text-stone-500"}`}>
+                    +{formPrice(option.listPrice)} {option.currency}
+                  </span>
                   {isChecked && (
                     <input type="number" min="1" value={selected?.quantity ?? 1}
                       onChange={(e) => {
@@ -180,7 +221,6 @@ export default function ProductForm({ idx }) {
         <div>
           <SectionLabel>Fiyatlandırma</SectionLabel>
           <div className="rounded-xl border border-stone-600 overflow-hidden">
-            {/* Mobile: dikey yığın  |  sm+: 3 kolon */}
             <div className="flex flex-col md:flex-row md:divide-x divide-stone-700 divide-y md:divide-y-0">
               <div className="flex-1 p-3 border-t-2 border-stone-500">
                 <p className="text-[10px] text-stone-500 font-bold uppercase tracking-wider mb-1">Liste</p>
@@ -196,7 +236,6 @@ export default function ProductForm({ idx }) {
               </div>
             </div>
             <div className="grid grid-cols-2 gap-0 border-t border-stone-700 divide-x divide-stone-700">
-              {/* Döviz seçici */}
               <div className="p-3">
                 <p className="text-[10px] text-stone-500 font-bold uppercase tracking-wider mb-2">Döviz</p>
                 <div className="flex gap-1.5 flex-wrap">
@@ -213,7 +252,6 @@ export default function ProductForm({ idx }) {
                   ))}
                 </div>
               </div>
-              {/* Adet stepper */}
               <div className="p-3">
                 <p className="text-[10px] text-stone-500 font-bold uppercase tracking-wider mb-2">Adet</p>
                 <div className="flex items-center gap-2">

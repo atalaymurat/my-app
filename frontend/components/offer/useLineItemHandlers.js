@@ -1,21 +1,22 @@
 import { useFormikContext } from "formik";
-import axios from "@/utils/axios";
 
-export function useLineItemHandlers(items, makes = []) {
+export function useLineItemHandlers(items, makes = [], selectPriceList) {
   const { values, setFieldValue } = useFormikContext();
 
-  const handleMakeSelect = (index, makeId) => {
-    const make = makes.find((m) => m.value === makeId);
-    setFieldValue(`lineItems.${index}.selectedMakeId`, makeId);
-    setFieldValue(`lineItems.${index}.makeName`, make?.label || "");
+  const handlePriceListSelect = async (index, priceListId) => {
+    await selectPriceList(priceListId);
+    setFieldValue(`lineItems.${index}.selectedPriceListId`, priceListId);
     setFieldValue(`lineItems.${index}.productValue`, "");
     setFieldValue(`lineItems.${index}.title`, "");
+    setFieldValue(`lineItems.${index}.selectedMakeId`, "");
+    setFieldValue(`lineItems.${index}.makeName`, "");
     setFieldValue(`lineItems.${index}.options`, []);
     setFieldValue(`lineItems.${index}.selectedOptions`, []);
     setFieldValue(`lineItems.${index}.selectedVariantId`, "");
     setFieldValue(`lineItems.${index}.priceList`, "");
     setFieldValue(`lineItems.${index}.priceOffer`, "");
     setFieldValue(`lineItems.${index}.priceNet`, "");
+    setFieldValue(`lineItems.${index}.currency`, "");
   };
 
   const handleProductSelect = (index, value) => {
@@ -29,8 +30,9 @@ export function useLineItemHandlers(items, makes = []) {
       productDesc: master.desc || "",
       image: master.image || "",
       currency: master.currency,
-
-      options: [],
+      selectedMakeId: master.makeId || "",
+      makeName: master.makeName || "",
+      options: master.options || [],
       selectedOptions: [],
       selectedVariantId: "",
       variantDesc: "",
@@ -41,20 +43,16 @@ export function useLineItemHandlers(items, makes = []) {
       priceOffer: "",
       priceNet: "",
       notes: "",
-      condition: master.condition,
       quantity: 1,
     });
   };
 
-  const handleVariantSelect = async (index, variantId) => {
+  const handleVariantSelect = (index, variantId) => {
     const lineItem = values.lineItems[index];
     const master = items.find((o) => o.value === lineItem.productValue);
     const variant = master?.variants?.find((v) => String(v._id) === variantId);
-    const { data } = await axios.get(`/api/option/list/${lineItem.productValue}`);
-    const optionList = data.list || [];
 
     setFieldValue(`lineItems.${index}.selectedVariantId`, variantId);
-    setFieldValue(`lineItems.${index}.options`, optionList);
     setFieldValue(`lineItems.${index}.selectedOptions`, []);
 
     if (variant) {
@@ -76,5 +74,5 @@ export function useLineItemHandlers(items, makes = []) {
     }
   };
 
-  return { handleMakeSelect, handleProductSelect, handleVariantSelect };
+  return { handlePriceListSelect, handleProductSelect, handleVariantSelect };
 }

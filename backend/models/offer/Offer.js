@@ -7,6 +7,7 @@ const lineItemSchema = new Schema(
     productValue: String, variantId: String, title: String, caption: String,
     productDesc: String, variantDesc: String,
     image: String, priceList: Number, priceOffer: Number, priceNet: Number, currency: String,
+    priceListId: { type: Schema.Types.ObjectId, ref: "PriceList" },
     selectedOptions: [{
       optionId: String, title: String, label: String, quantity: Number,
       listPrice: Number, offerPrice: Number, netPrice: Number, currency: String, desc: String, image: String,
@@ -29,6 +30,8 @@ const offerVersionSchema = new Schema(
       enum: ["Teklif", "Proforma", "Fatura", "Sipariş", "Sözleşme"],
       required: true,
     },
+    priceListId: { type: Schema.Types.ObjectId, ref: "PriceList" },
+    snapshotVersion: Number,
     docDate:  { type: Date, default: Date.now },
     validDate: Date,
 

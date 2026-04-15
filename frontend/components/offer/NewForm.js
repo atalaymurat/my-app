@@ -68,12 +68,15 @@ const DEFAULT_VALUES = {
       options: [],
       selectedOptions: [],
       selectedMakeId: "",
+      selectedPriceListId: "",
       selectedVariantId: "",
     },
   ],
   vatRate: 20,
   showVat: true,
   showTotals: true,
+  priceListId: "",
+  snapshotVersion: null,
   offerTerms: [],
 };
 
@@ -84,6 +87,8 @@ function mapOfferToForm(offer) {
   return {
     _id: offer._id,
     docType: lastVersion?.docType || "Teklif",
+    priceListId: lastVersion?.priceListId || "",
+    snapshotVersion: lastVersion?.snapshotVersion || null,
     search: "",
     companyId: co._id || "",
     title: co.title || "",
@@ -105,6 +110,7 @@ function mapOfferToForm(offer) {
     lineItems: (lastVersion?.lineItems || []).map((item) => ({
       title: item.title || "",
       productValue: item.productValue || "",
+      selectedPriceListId: item.priceListId || lastVersion?.priceListId || "",
       selectedMakeId: "",
       selectedVariantId: item.variantId || "",
       options: [],
@@ -239,58 +245,36 @@ export default function NewForm({ offerId }) {
         }
       }}
     >
-      {({ isSubmitting, values, validateForm, setTouched }) => (
-        <Form autoComplete="off" className="space-y-2">
+      {({ values, isSubmitting, validateForm, setTouched }) => (
+        <Form className="w-full">
           <ProgressBar currentStep={currentStep} />
 
-          <div className="flex flex-col min-h-[60vh] w-full">
-            {currentStep === 0 && (
-              <>
-                <StepCompany />
-                <button
-                  type="button"
-                  onClick={async () => {
-                    const ok = await validateStep1(
-                      validateForm,
-                      setTouched,
-                      values,
-                    );
-                    if (ok) setCurrentStep(1);
-                  }}
-                  className="mt-5 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 border border-blue-500 text-sm font-bold text-white transition-colors shadow-lg shadow-blue-900/20"
-                >
-                  Ürünlere Geç →
-                </button>
-              </>
-            )}
+          {currentStep === 0 && (
+            <StepCompany
+              values={values}
+              setCurrentStep={setCurrentStep}
+              validateStep1={validateStep1}
+              validateForm={validateForm}
+              setTouched={setTouched}
+              onNext={() => setCurrentStep(1)}
+            />
+          )}
+          {currentStep === 1 && (
+            <StepProducts onPrev={() => setCurrentStep(0)} onNext={() => setCurrentStep(2)} />
+          )}
+          {currentStep === 2 && (
+            <StepConditions onPrev={() => setCurrentStep(1)} onNext={() => setCurrentStep(3)} />
+          )}
+          {currentStep === 3 && (
+            <StepSummary onPrev={() => setCurrentStep(2)} message={message} isSubmitting={isSubmitting} />
+          )}
 
-            {currentStep === 1 && (
-              <StepProducts
-                onPrev={() => setCurrentStep(0)}
-                onNext={() => setCurrentStep(2)}
-              />
-            )}
-
-            {currentStep === 2 && (
-              <StepConditions
-                onPrev={() => setCurrentStep(1)}
-                onNext={() => setCurrentStep(3)}
-              />
-            )}
-
-            {currentStep === 3 && (
-              <StepSummary
-                onPrev={() => setCurrentStep(2)}
-                message={message}
-                isSubmitting={isSubmitting}
-              />
-            )}
-          </div>
-
-          {process.env.NODE_ENV !== "production" && (
-            <pre className="mt-6 p-4 rounded-xl bg-stone-900 border border-stone-700 text-xs text-stone-300 overflow-auto max-h-96">
-              {JSON.stringify(values, null, 2)}
-            </pre>
+          {message && (
+            <div className={`mt-4 p-3 rounded-lg text-sm ${
+              message.type === "success" ? "bg-emerald-900/30 text-emerald-400 border border-emerald-800/50" : "bg-red-900/30 text-red-400 border border-red-800/50"
+            }`}>
+              {message.text}
+            </div>
           )}
         </Form>
       )}

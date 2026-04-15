@@ -17,6 +17,7 @@ function shapeLineItems(lineItems = []) {
     variantPriceOffer: Number(item.variantPriceOffer) || 0,
     variantPriceNet:   Number(item.variantPriceNet) || 0,
     formPriceOffer:    Number(item.priceOffer) || 0,
+    priceListId: item.selectedPriceListId || item.priceListId || undefined,
     selectedOptions: (item.selectedOptions || []).map((o) => ({
       optionId:  o.value,
       quantity:  Number(o.quantity) || 1,
@@ -42,6 +43,7 @@ function normalizeOfferData(formData = {}, userId, orgId) {
     docDate: docDateRaw, validDate: validDateRaw,
     offerTerms,
     docType = "Teklif", vatRate,
+    priceListId, snapshotVersion,
   } = formData;
 
   const hasCompanyData = title?.trim() || vatTitle?.trim() || email || domain || city;
@@ -88,6 +90,8 @@ function normalizeOfferData(formData = {}, userId, orgId) {
     vatRate:    vatRate || 0,
     showTotals: showTotals !== undefined ? showTotals : true,
     showVat:    showVat   !== undefined ? showVat   : true,
+    priceListId: priceListId || undefined,
+    snapshotVersion: snapshotVersion || undefined,
     createdAt:  new Date(),
   };
 

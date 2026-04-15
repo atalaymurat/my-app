@@ -1,36 +1,16 @@
-// next.config.js
-
-module.exports = {
-  output: 'standalone',
-  allowedDevOrigins: ['192.168.1.100'],
-   async headers() {
-    return [
-      {
-        source: '/(.*)',
-        headers: [
-          {
-            key: 'Cross-Origin-Opener-Policy',
-            value: 'same-origin-allow-popups',
-          },
-        ],
-      },
-    ]
-  },
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  reactStrictMode: false,
   images: {
     remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "lh3.googleusercontent.com",
-        port: "",
-        pathname: "/*/**",
-        search: "",
-      },
-      {
-        protocol: "http",
-        hostname: "192.168.1.100",
-        port: "",
-        pathname: "/**",
-      },
+      { protocol: "https", hostname: "res.cloudinary.com" },
+      { protocol: "https", hostname: "postiva.com" },
+      { protocol: "https", hostname: "storage.googleapis.com" },
+      { protocol: "https", hostname: "lh3.googleusercontent.com" },
     ],
   },
+  pageExtensions: ["js", "jsx", "ts", "tsx"],
+  allowedDevOrigins: ["192.168.1.100"],
 };
+
+module.exports = nextConfig;

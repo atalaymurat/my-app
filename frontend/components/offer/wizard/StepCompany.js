@@ -33,7 +33,7 @@ function CompanyLinkedCard({ values, onClear }) {
   );
 }
 
-export default function StepCompany() {
+export default function StepCompany({ onNext, validateStep1, validateForm, setTouched }) {
   const [searchResults, setSearchResults] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const { values, setFieldValue } = useFormikContext();
@@ -145,6 +145,19 @@ export default function StepCompany() {
 
       {/* İletişim Kişisi */}
       <ContactFields />
+
+      <div className="mt-2 flex gap-2">
+        <button
+          type="button"
+          onClick={async () => {
+            const ok = await validateStep1(validateForm, setTouched, values);
+            if (ok && onNext) onNext();
+          }}
+          className="flex-1 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 border border-blue-500 text-sm font-bold text-white transition-colors shadow-lg shadow-blue-900/40"
+        >
+          Ürünler →
+        </button>
+      </div>
     </div>
   );
 }
