@@ -1,12 +1,14 @@
+"use client";
+import SuperadminGuard from "@/components/guards/SuperadminGuard";
 import OptionPage from "@/components/option/OptionPage";
 
-const OptionIndex = async () => {
+export default function OptionIndex() {
   return (
-    <div className="text-white">
-      <OptionPage />
-    </div>
+    <SuperadminGuard>
+      <div className="text-white">
+        <OptionPage />
+      </div>
+    </SuperadminGuard>
   );
-};
-
-export default OptionIndex;
+}
 

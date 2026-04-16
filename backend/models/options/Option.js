@@ -14,7 +14,6 @@ const optionsSchema = new Schema(
     priceOffer: Number,
     currency: String,
     isSample: { type: Boolean, default: false, index: true },
-    organization: { type: Schema.Types.ObjectId, required: true },
     createdBy: { type: Schema.Types.ObjectId, required: true },
   },
   { timestamps: true },

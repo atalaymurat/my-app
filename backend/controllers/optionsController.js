@@ -9,8 +9,8 @@ module.exports = {
       const limit = parseInt(req.query.limit) || 30;
       const skip = (page - 1) * limit;
 
-      const totalRecords = await Option.countDocuments(req.orgFilter);
-      const records = await Option.find(req.orgFilter)
+      const totalRecords = await Option.countDocuments({});
+      const records = await Option.find({})
         .populate("make", "name logo")
         .skip(skip)
         .limit(limit)
@@ -29,23 +29,20 @@ module.exports = {
   },
 
   create: async (req, res) => {
-    if (!req.user.orgId) {
-      return res.status(403).json({ success: false, message: "Bu işlem için bir organizasyona bağlı olmanız gerekiyor." });
-    }
     try {
       const { products = [], ...rest } = req.body;
-      const normalized = normalizeOption(rest, req.user._id, req.user.orgId);
+      const normalized = normalizeOption(rest, req.user._id);
       const newOption = await createOption(normalized);
 
       if (products.length > 0) {
         const MasterProduct = require("../models/masterProduct/MasterProduct");
         await MasterProduct.updateMany(
-          { _id: { $in: products }, ...req.orgFilter },
+          { _id: { $in: products } },
           { $addToSet: { options: newOption._id } }
         );
       }
 
-      return res.status(200).json({ success: true, option: newOption });
+      return res.status(201).json({ success: true, option: newOption });
     } catch (error) {
       res.status(500).json({ error: error.message, success: false });
     }
@@ -53,8 +50,7 @@ module.exports = {
 
   show: async (req, res) => {
     try {
-      const option = await Option.findOne({ _id: req.params.id, ...req.orgFilter })
-        .populate("make", "name");
+      const option = await Option.findById(req.params.id).populate("make", "name");
       if (!option) return res.status(404).json({ message: "Option not found" });
       res.status(200).json({ success: true, option });
     } catch (err) {
@@ -65,20 +61,15 @@ module.exports = {
   update: async (req, res) => {
     try {
       const { products = [], ...rest } = req.body;
-      const normalized = normalizeOption(rest, req.user._id, req.user.orgId);
-      const option = await Option.findOneAndUpdate(
-        { _id: req.params.id, ...req.orgFilter },
-        normalized,
-        { new: true }
-      );
+      const normalized = normalizeOption(rest, req.user._id);
+      const option = await Option.findByIdAndUpdate(req.params.id, normalized, { new: true });
       if (!option) return res.status(404).json({ message: "Option not found" });
 
-      // Master product ilişkisini güncelle: önce tümünden çıkar, sonra seçililere ekle
       const MasterProduct = require("../models/masterProduct/MasterProduct");
-      await MasterProduct.updateMany({ ...req.orgFilter, options: option._id }, { $pull: { options: option._id } });
+      await MasterProduct.updateMany({ options: option._id }, { $pull: { options: option._id } });
       if (products.length > 0) {
         await MasterProduct.updateMany(
-          { _id: { $in: products }, ...req.orgFilter },
+          { _id: { $in: products } },
           { $addToSet: { options: option._id } }
         );
       }
@@ -91,7 +82,7 @@ module.exports = {
 
   destroy: async (req, res) => {
     try {
-      const option = await Option.findOneAndDelete({ _id: req.params.id, ...req.orgFilter });
+      const option = await Option.findByIdAndDelete(req.params.id);
       if (!option) return res.status(404).json({ message: "Option not found" });
       res.status(200).json({ success: true, message: "Option deleted" });
     } catch (err) {
@@ -101,7 +92,7 @@ module.exports = {
 
   make: async (req, res) => {
     try {
-      const records = await Option.find({ ...req.orgFilter, make: req.params.id });
+      const records = await Option.find({ make: req.params.id });
       res.status(200).json({ success: true, options: records });
     } catch (err) {
       res.status(500).json({ error: err.message, success: false });
@@ -111,8 +102,7 @@ module.exports = {
   list: async (req, res) => {
     try {
       const MasterProduct = require("../models/masterProduct/MasterProduct");
-      const master = await MasterProduct.findOne({ _id: req.params.id, ...req.orgFilter })
-        .populate("options").lean();
+      const master = await MasterProduct.findById(req.params.id).populate("options").lean();
       if (!master) return res.status(404).json({ success: false, message: "Ürün bulunamadı." });
       const list = (master.options || []).map((opt) => ({
         value: opt._id.toString(),

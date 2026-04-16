@@ -20,21 +20,13 @@ const priceListSchema = new Schema(
       type: String,
       enum: ["draft", "published", "archived"],
       default: "draft",
-      index: true,
     },
 
     description: String,
 
-    accessScope: {
-      type: String,
-      enum: ["all", "selected"],
-      default: "selected",
-    },
-
-    assignedOrganizations: [{ type: Schema.Types.ObjectId, index: true }],
+    assignedOrgs: [{ type: Schema.Types.ObjectId, ref: "Organization", index: true }],
 
     isSample: { type: Boolean, default: false, index: true },
-    organization: { type: Schema.Types.ObjectId, required: true, index: true },
     createdBy: { type: Schema.Types.ObjectId, required: true },
   },
   { timestamps: true }
@@ -46,7 +38,7 @@ priceListSchema.pre("validate", function normalizePriceList(next) {
   next();
 });
 
-priceListSchema.index({ organization: 1, make: 1, title: 1 }, { unique: true });
-priceListSchema.index({ organization: 1, status: 1 });
+priceListSchema.index({ make: 1, title: 1 }, { unique: true });
+priceListSchema.index({ status: 1 });
 
 module.exports = mongoose.model("PriceList", priceListSchema);

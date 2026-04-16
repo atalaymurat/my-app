@@ -286,7 +286,7 @@ export default function PriceListDetail() {
         <UserAssignment
           priceListId={id}
           ownerOrganizationId={priceList.organization}
-          assignedOrganizations={priceList.assignedOrganizations || []}
+          assignedOrganizations={priceList.assignedOrgs || []}
         />
       )}
     </div>

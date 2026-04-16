@@ -1,11 +1,13 @@
+"use client";
+import SuperadminGuard from "@/components/guards/SuperadminGuard";
 import MasterPage from "@/components/master/MasterPage";
 
-const MasterIndex = async () => {
+export default function MasterIndex() {
   return (
-    <div className="text-white">
-      <MasterPage />
-    </div>
+    <SuperadminGuard>
+      <div className="text-white">
+        <MasterPage />
+      </div>
+    </SuperadminGuard>
   );
-};
-
-export default MasterIndex;
+}

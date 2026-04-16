@@ -348,6 +348,7 @@ export default function Dashboard() {
   const [stats, setStats] = useState(null);
   const [lastLog, setLastLog] = useState(null);
   const [userSummary, setUserSummary] = useState(null);
+  const [assignedCount, setAssignedCount] = useState(null);
   const isSuperAdmin = user?.roles?.includes("superadmin");
 
   useEffect(() => {
@@ -373,6 +374,15 @@ export default function Dashboard() {
         if (data.success) setUserSummary(data);
       })
       .catch(() => {});
+  }, [isSuperAdmin]);
+
+  useEffect(() => {
+    if (isSuperAdmin) return;
+    axios.get("/api/price-list/assigned")
+      .then(({ data }) => {
+        setAssignedCount(data.records?.length ?? 0);
+      })
+      .catch(() => setAssignedCount(0));
   }, [isSuperAdmin]);
 
   const s = stats;
@@ -440,7 +450,7 @@ export default function Dashboard() {
           <div className="hidden sm:flex items-center gap-2">
             {[
               { v: s.offers, c: "text-amber-400", label: "Belge" },
-              { v: s.products, c: "text-blue-400", label: "Ürün" },
+              ...(isSuperAdmin ? [{ v: s.products, c: "text-blue-400", label: "Ürün" }] : []),
               { v: s.companies, c: "text-emerald-400", label: "Firma" },
               { v: s.contacts, c: "text-violet-400", label: "Kişi" },
             ].map((x) => (
@@ -505,38 +515,48 @@ export default function Dashboard() {
           )}
         </div>
 
-        {/* Col 2: Markalar + Ürünler + Opsiyonlar */}
+        {/* Col 2: Markalar + Ürünler + Opsiyonlar (superadmin) veya Fiyat Listelerim (user) */}
         <div className="flex flex-col gap-3">
-          <Block
-            title="Master Ürünler"
-            count={s?.products}
-            accent="blue"
-            viewHref="/shield/master"
-            actions={[{ label: "Yeni Ürün", href: "/shield/master/new" }]}
-          />
-          <Block
-            title="Opsiyonlar"
-            count={s?.options}
-            accent="violet"
-            viewHref="/shield/option"
-            actions={[{ label: "Yeni Opsiyon", href: "/shield/option/new" }]}
-          />
-          <Block
-            title="Markalar"
-            count={s?.makes}
-            accent="stone"
-            viewHref="/shield/make"
-            actions={[{ label: "Yeni Marka", href: "/shield/make/new" }]}
-          />
           {isSuperAdmin && (
+            <>
+              <Block
+                title="Master Ürünler"
+                count={s?.products}
+                accent="blue"
+                viewHref="/shield/master"
+                actions={[{ label: "Yeni Ürün", href: "/shield/master/new" }]}
+              />
+              <Block
+                title="Opsiyonlar"
+                count={s?.options}
+                accent="violet"
+                viewHref="/shield/option"
+                actions={[{ label: "Yeni Opsiyon", href: "/shield/option/new" }]}
+              />
+              <Block
+                title="Markalar"
+                count={s?.makes}
+                accent="stone"
+                viewHref="/shield/make"
+                actions={[{ label: "Yeni Marka", href: "/shield/make/new" }]}
+              />
+              <Block
+                title="Fiyat Listeleri"
+                count={null}
+                accent="amber"
+                viewHref="/shield/price-list"
+                actions={[
+                  { label: "Yeni Liste", href: "/shield/price-list/new" },
+                ]}
+              />
+            </>
+          )}
+          {!isSuperAdmin && (
             <Block
-              title="Fiyat Listeleri"
-              count={null}
-              accent="amber"
+              title="Fiyat Listelerim"
+              count={assignedCount}
+              accent="blue"
               viewHref="/shield/price-list"
-              actions={[
-                { label: "Yeni Liste", href: "/shield/price-list/new" },
-              ]}
             />
           )}
         </div>

@@ -72,7 +72,6 @@ const priceListSnapshotSchema = new Schema(
       type: String,
       enum: ["draft", "published", "superseded"],
       default: "draft",
-      index: true,
     },
 
     publishedAt: Date,
@@ -89,7 +88,6 @@ const priceListSnapshotSchema = new Schema(
     },
 
     createdBy: { type: Schema.Types.ObjectId, required: true },
-    organization: { type: Schema.Types.ObjectId, required: true },
   },
   { timestamps: true }
 );

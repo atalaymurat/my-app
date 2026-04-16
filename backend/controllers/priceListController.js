@@ -12,50 +12,33 @@ function calculateSummary(items = []) {
   };
 }
 
-function normalizeOrganizationIds(values) {
-  const list = Array.isArray(values) ? values : values ? [values] : [];
-  return [...new Set(list.map((value) => String(value)).filter(Boolean))];
-}
-
-function getOrganizationAccessFilter(orgId) {
-  return {
-    status: "published",
-    $or: [{ organization: orgId }, { assignedOrganizations: orgId }],
-  };
-}
 
 module.exports = {
   create: async (req, res) => {
     try {
-      if (!req.user.orgId) {
-        return res.status(403).json({ success: false, message: "Bu işlem için bir organizasyona bağlı olmanız gerekiyor." });
-      }
-
-      const { title, makeId, currency, description } = req.body;
+      const { title, makeId, currency, description, assignedOrgs = [] } = req.body;
 
       if (!title || !makeId || !currency) {
         return res.status(400).json({ success: false, message: "title, makeId ve currency zorunludur." });
       }
 
-      const make = await Make.findOne({ _id: makeId, ...req.orgFilter });
+      const make = await Make.findById(makeId);
       if (!make) {
         return res.status(404).json({ success: false, message: "Marka bulunamadı." });
       }
 
-      const ownerOrgId = String(req.user.orgId);
       const record = await PriceList.create({
         title: title.trim(),
         nTitle: title.trim().toLowerCase(),
         make: makeId,
         currency,
         description: description || "",
-        accessScope: "selected",
-        assignedOrganizations: [ownerOrgId],
-        organization: req.user.orgId,
+        assignedOrgs,
+        status: "draft",
         createdBy: req.user._id,
       });
 
-      return res.status(200).json({ success: true, record });
+      return res.status(201).json({ success: true, record });
     } catch (error) {
       return res.status(500).json({ success: false, message: error.message });
     }
@@ -66,7 +49,7 @@ module.exports = {
       const page = parseInt(req.query.page, 10) || 1;
       const limit = parseInt(req.query.limit, 10) || 10;
       const skip = (page - 1) * limit;
-      const filter = { ...req.orgFilter };
+      const filter = {};
 
       if (req.query.status) filter.status = req.query.status;
       if (req.query.makeId) filter.make = req.query.makeId;
@@ -91,7 +74,7 @@ module.exports = {
 
   show: async (req, res) => {
     try {
-      const record = await PriceList.findOne({ _id: req.params.id, ...req.orgFilter }).populate("make", "name logo country");
+      const record = await PriceList.findById(req.params.id).populate("make", "name logo country");
 
       if (!record) {
         return res.status(404).json({ success: false, message: "Kayıt bulunamadı." });
@@ -105,37 +88,27 @@ module.exports = {
 
   update: async (req, res) => {
     try {
-      const record = await PriceList.findOne({ _id: req.params.id, ...req.orgFilter });
-      if (!record) {
-        return res.status(404).json({ success: false, message: "Kayıt bulunamadı." });
-      }
-
-      const allowedFields = ["title", "description", "assignedOrganizations", "currency"];
+      const allowed = ["title", "description", "currency", "status"];
       const updateData = {};
 
-      allowedFields.forEach((field) => {
-        if (req.body[field] !== undefined) {
-          updateData[field] = req.body[field];
-        }
-      });
+      for (const key of allowed) {
+        if (req.body[key] !== undefined) updateData[key] = req.body[key];
+      }
 
       if (updateData.title) {
         updateData.title = updateData.title.trim();
         updateData.nTitle = updateData.title.toLowerCase();
       }
 
-      if (updateData.assignedOrganizations !== undefined) {
-        updateData.assignedOrganizations = normalizeOrganizationIds([
-          ...normalizeOrganizationIds(updateData.assignedOrganizations),
-          String(record.organization),
-        ]);
+      const updatedRecord = await PriceList.findByIdAndUpdate(
+        req.params.id,
+        updateData,
+        { new: true }
+      );
+
+      if (!updatedRecord) {
+        return res.status(404).json({ success: false, message: "Kayıt bulunamadı." });
       }
-
-      updateData.accessScope = "selected";
-
-      const updatedRecord = await PriceList.findOneAndUpdate({ _id: req.params.id, ...req.orgFilter }, updateData, {
-        new: true,
-      });
 
       return res.status(200).json({ success: true, record: updatedRecord });
     } catch (error) {
@@ -145,8 +118,8 @@ module.exports = {
 
   destroy: async (req, res) => {
     try {
-      await PriceListSnapshot.deleteMany({ priceList: req.params.id, ...req.orgFilter });
-      const record = await PriceList.findOneAndDelete({ _id: req.params.id, ...req.orgFilter });
+      await PriceListSnapshot.deleteMany({ priceList: req.params.id });
+      const record = await PriceList.findByIdAndDelete(req.params.id);
 
       if (!record) {
         return res.status(404).json({ success: false, message: "Kayıt bulunamadı." });
@@ -160,13 +133,13 @@ module.exports = {
 
   archive: async (req, res) => {
     try {
-      const priceList = await PriceList.findOne({ _id: req.params.id, ...req.orgFilter });
+      const priceList = await PriceList.findById(req.params.id);
       if (!priceList) {
         return res.status(404).json({ success: false, message: "Kayıt bulunamadı." });
       }
 
       priceList.status = "archived";
-      await PriceListSnapshot.updateMany({ priceList: req.params.id, status: "published", ...req.orgFilter }, { status: "superseded" });
+      await PriceListSnapshot.updateMany({ priceList: req.params.id, status: "published" }, { status: "superseded" });
       await priceList.save();
 
       return res.status(200).json({ success: true, record: priceList });
@@ -177,12 +150,12 @@ module.exports = {
 
   createSnapshot: async (req, res) => {
     try {
-      const priceList = await PriceList.findOne({ _id: req.params.id, ...req.orgFilter });
+      const priceList = await PriceList.findById(req.params.id);
       if (!priceList) {
         return res.status(404).json({ success: false, message: "Kayıt bulunamadı." });
       }
 
-      const products = await MasterProduct.find({ make: priceList.make, ...req.orgFilter }).populate("options");
+      const products = await MasterProduct.find({ make: priceList.make }).populate("options");
 
       if (!products.length) {
         return res.status(400).json({ success: false, message: "Bu markaya ait ürün bulunamadı." });
@@ -200,7 +173,6 @@ module.exports = {
         items,
         summary,
         createdBy: req.user._id,
-        organization: req.user.orgId,
       });
 
       priceList.totalVersions = version;
@@ -214,7 +186,7 @@ module.exports = {
 
   cloneSnapshot: async (req, res) => {
     try {
-      const priceList = await PriceList.findOne({ _id: req.params.id, ...req.orgFilter });
+      const priceList = await PriceList.findById(req.params.id);
       if (!priceList) {
         return res.status(404).json({ success: false, message: "Kayıt bulunamadı." });
       }
@@ -222,7 +194,6 @@ module.exports = {
       const publishedSnapshot = await PriceListSnapshot.findOne({
         priceList: req.params.id,
         status: "published",
-        ...req.orgFilter,
       });
 
       if (!publishedSnapshot) {
@@ -239,7 +210,6 @@ module.exports = {
         items: publishedData.items || [],
         summary: publishedData.summary || {},
         createdBy: req.user._id,
-        organization: req.user.orgId,
       });
 
       priceList.totalVersions = version;
@@ -256,7 +226,6 @@ module.exports = {
       const snapshot = await PriceListSnapshot.findOne({
         _id: req.params.snapshotId,
         priceList: req.params.id,
-        ...req.orgFilter,
       });
 
       if (!snapshot) {
@@ -315,7 +284,6 @@ module.exports = {
       const snapshot = await PriceListSnapshot.findOne({
         _id: req.params.snapshotId,
         priceList: req.params.id,
-        ...req.orgFilter,
       });
 
       if (!snapshot) {
@@ -326,13 +294,13 @@ module.exports = {
         return res.status(400).json({ success: false, message: "Sadece taslak snapshot yayınlanabilir." });
       }
 
-      await PriceListSnapshot.updateMany({ priceList: req.params.id, status: "published", ...req.orgFilter }, { status: "superseded" });
+      await PriceListSnapshot.updateMany({ priceList: req.params.id, status: "published" }, { status: "superseded" });
 
       snapshot.status = "published";
       snapshot.publishedAt = new Date();
       await snapshot.save();
 
-      await PriceList.findOneAndUpdate({ _id: req.params.id, ...req.orgFilter }, { currentVersion: snapshot.version, status: "published" });
+      await PriceList.findByIdAndUpdate(req.params.id, { currentVersion: snapshot.version, status: "published" });
 
       return res.status(200).json({ success: true, record: snapshot });
     } catch (error) {
@@ -342,7 +310,7 @@ module.exports = {
 
   listSnapshots: async (req, res) => {
     try {
-      const records = await PriceListSnapshot.find({ priceList: req.params.id, ...req.orgFilter }).select("-items").sort({ version: -1 });
+      const records = await PriceListSnapshot.find({ priceList: req.params.id }).select("-items").sort({ version: -1 });
       return res.status(200).json({ success: true, records });
     } catch (error) {
       return res.status(500).json({ success: false, message: error.message });
@@ -354,7 +322,6 @@ module.exports = {
       const record = await PriceListSnapshot.findOne({
         _id: req.params.snapshotId,
         priceList: req.params.id,
-        ...req.orgFilter,
       });
 
       if (!record) {
@@ -372,7 +339,6 @@ module.exports = {
       const record = await PriceListSnapshot.findOne({
         priceList: req.params.id,
         status: "published",
-        ...req.orgFilter,
       });
 
       if (!record) {
@@ -385,15 +351,37 @@ module.exports = {
     }
   },
 
-  getAssignedPriceLists: async (req, res) => {
+  setAssignments: async (req, res) => {
     try {
-      if (!req.user.orgId) {
-        return res.status(200).json({ success: true, records: [] });
+      const { orgIds } = req.body;
+      if (!Array.isArray(orgIds)) {
+        return res.status(400).json({ error: "orgIds bir dizi olmalı." });
       }
 
-      const records = await PriceList.find(getOrganizationAccessFilter(req.user.orgId))
+      const priceList = await PriceList.findByIdAndUpdate(
+        req.params.id,
+        { assignedOrgs: orgIds },
+        { new: true }
+      );
+
+      if (!priceList) {
+        return res.status(404).json({ error: "Fiyat listesi bulunamadı." });
+      }
+
+      return res.status(200).json({ success: true, record: priceList });
+    } catch (error) {
+      return res.status(500).json({ message: error.message, success: false });
+    }
+  },
+
+  getAssignedPriceLists: async (req, res) => {
+    try {
+      const records = await PriceList.find({
+        status: "published",
+        assignedOrgs: req.user.orgId,
+      })
         .populate("make", "name logo")
-        .select("-assignedOrganizations")
+        .select("-assignedOrgs")
         .sort({ updatedAt: -1 });
 
       return res.status(200).json({ success: true, records });
@@ -404,13 +392,10 @@ module.exports = {
 
   getAssignedSnapshot: async (req, res) => {
     try {
-      if (!req.user.orgId) {
-        return res.status(403).json({ success: false, message: "Bu listeye erişim yetkiniz yok." });
-      }
-
       const priceList = await PriceList.findOne({
         _id: req.params.id,
-        ...getOrganizationAccessFilter(req.user.orgId),
+        status: "published",
+        assignedOrgs: req.user.orgId,
       }).populate("make", "name logo");
 
       if (!priceList) {

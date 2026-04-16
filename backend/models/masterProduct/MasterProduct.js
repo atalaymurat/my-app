@@ -60,7 +60,6 @@ const masterProductSchema = new Schema(
     },
 
     isSample: { type: Boolean, default: false, index: true },
-    organization: { type: Schema.Types.ObjectId, required: true },
     createdBy: { type: Schema.Types.ObjectId, required: true },
   },
   { timestamps: true },

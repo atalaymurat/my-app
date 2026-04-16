@@ -1,5 +1,10 @@
+import SuperadminGuard from "@/components/guards/SuperadminGuard";
 import PriceListDetail from "@/components/priceList/PriceListDetail";
 
 export default function Page() {
-  return <PriceListDetail />;
+  return (
+    <SuperadminGuard>
+      <PriceListDetail />
+    </SuperadminGuard>
+  );
 }

@@ -8,7 +8,7 @@ const editGuard = (Model) => async (req, res, next) => {
     if (req.isSuperAdmin) return next();
 
     const orgRole = req.user.orgRole; // token'da varsa
-    if (orgRole === "owner" || orgRole === "admin") return next();
+    if (orgRole === "owner") return next();
 
     // member: sadece kendi oluşturduğu kayıtları
     const doc = await Model.findOne({

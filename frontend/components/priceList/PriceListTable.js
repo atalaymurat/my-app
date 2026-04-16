@@ -38,7 +38,7 @@ function ActionButton({ title, onClick, children, tone = "default" }) {
   );
 }
 
-export default function PriceListTable({ priceLists, onDelete }) {
+export default function PriceListTable({ priceLists, onDelete, readOnly = false }) {
   const router = useRouter();
 
   return (
@@ -97,18 +97,20 @@ export default function PriceListTable({ priceLists, onDelete }) {
                     <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
                   </svg>
                 </ActionButton>
-                <ActionButton
-                  title="Sil"
-                  tone="danger"
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    onDelete(pl._id);
-                  }}
-                >
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.7}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 7.5h12m-9.75 0V6a.75.75 0 0 1 .75-.75h6a.75.75 0 0 1 .75.75v1.5m-9 0v9.75A1.5 1.5 0 0 0 9 18.75h6a1.5 1.5 0 0 0 1.5-1.5V7.5m-6 3v4.5m3-4.5v4.5" />
-                  </svg>
-                </ActionButton>
+                {!readOnly && (
+                  <ActionButton
+                    title="Sil"
+                    tone="danger"
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      onDelete(pl._id);
+                    }}
+                  >
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.7}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 7.5h12m-9.75 0V6a.75.75 0 0 1 .75-.75h6a.75.75 0 0 1 .75.75v1.5m-9 0v9.75A1.5 1.5 0 0 0 9 18.75h6a1.5 1.5 0 0 0 1.5-1.5V7.5m-6 3v4.5m3-4.5v4.5" />
+                    </svg>
+                  </ActionButton>
+                )}
               </div>
             </div>
           </div>

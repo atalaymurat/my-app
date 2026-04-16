@@ -2,13 +2,23 @@ import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import axios from "@/utils/axios";
 import { useFormikContext } from "formik";
 
-export function useOfferItems() {
+export function useOfferItems(config = {}) {
   const { values, setFieldValue } = useFormikContext();
   const [priceLists, setPriceLists] = useState([]);
-  const [snapshotCache, setSnapshotCache] = useState({});
+  const [snapshotCache, setSnapshotCache] = useState(
+    () => config.initialSnapshotCache || values.__initialSnapshotCache || {},
+  );
   const [loadingLists, setLoadingLists] = useState(true);
   const [loadingSnapshot, setLoadingSnapshot] = useState(false);
   const initializedRef = useRef(false);
+
+  useEffect(() => {
+    if (!values.__initialSnapshotCache) return;
+    setSnapshotCache((prev) => ({
+      ...values.__initialSnapshotCache,
+      ...prev,
+    }));
+  }, [values.__initialSnapshotCache]);
 
   useEffect(() => {
     (async () => {
@@ -73,7 +83,7 @@ export function useOfferItems() {
     if (plIds.length === 0) return;
 
     plIds.forEach(plId => loadSnapshot(plId));
-  }, [priceLists, loadingLists]);
+  }, [loadSnapshot, priceLists, loadingLists, values.lineItems, values.priceListId]);
 
   const selectPriceList = useCallback(async (plId) => {
     if (!plId) return;
@@ -116,7 +126,7 @@ export function useOfferItems() {
         setFieldValue(`lineItems.${idx}.selectedPriceListId`, found.priceListId);
       }
     });
-  }, [items, values.lineItems]);
+  }, [items, setFieldValue, values.lineItems]);
 
   const getItemsByPriceList = useCallback((plId) => {
     return items.filter(i => i.priceListId === plId);

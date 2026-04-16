@@ -109,9 +109,8 @@ export default function UserAssignment({ priceListId, ownerOrganizationId, assig
   const handleSave = async () => {
     setSaving(true);
     try {
-      const { data } = await axios.patch(`/api/price-list/${priceListId}`, {
-        accessScope: "selected",
-        assignedOrganizations: normalizedOwnerOrgId
+      const { data } = await axios.patch(`/api/price-list/${priceListId}/assignments`, {
+        orgIds: normalizedOwnerOrgId
           ? [...new Set([...assignedOrgIds, normalizedOwnerOrgId])]
           : assignedOrgIds,
       });

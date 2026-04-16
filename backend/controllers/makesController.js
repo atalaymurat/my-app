@@ -3,7 +3,7 @@ const Make = require("../models/Make");
 module.exports = {
   index: async (req, res) => {
     try {
-      const records = await Make.find(req.orgFilter).sort({ name: 1 });
+      const records = await Make.find({}).sort({ name: 1 });
       return res.status(200).json({ success: true, makes: records });
     } catch (error) {
       res.status(500).json({ error: error.message, success: false });
@@ -12,7 +12,7 @@ module.exports = {
 
   show: async (req, res) => {
     try {
-      const make = await Make.findOne({ _id: req.params.id, ...req.orgFilter });
+      const make = await Make.findById(req.params.id);
       if (!make) return res.status(404).json({ success: false, message: "Bulunamadı." });
       res.json({ success: true, make });
     } catch (error) {
@@ -24,10 +24,9 @@ module.exports = {
     try {
       const newMake = await Make.create({
         ...req.body,
-        organization: req.user.orgId,
         createdBy: req.user._id,
       });
-      return res.status(200).json({ success: true, make: newMake });
+      return res.status(201).json({ success: true, make: newMake });
     } catch (error) {
       res.status(500).json({ error: error.message, success: false });
     }
@@ -35,11 +34,7 @@ module.exports = {
 
   update: async (req, res) => {
     try {
-      const make = await Make.findOneAndUpdate(
-        { _id: req.params.id, ...req.orgFilter },
-        req.body,
-        { new: true }
-      );
+      const make = await Make.findByIdAndUpdate(req.params.id, req.body, { new: true });
       if (!make) return res.status(404).json({ success: false, message: "Bulunamadı." });
       res.json({ success: true, make });
     } catch (error) {
@@ -49,7 +44,7 @@ module.exports = {
 
   destroy: async (req, res) => {
     try {
-      const make = await Make.findOneAndDelete({ _id: req.params.id, ...req.orgFilter });
+      const make = await Make.findByIdAndDelete(req.params.id);
       if (!make) return res.status(404).json({ success: false, message: "Bulunamadı." });
 
       if (make.logo) {

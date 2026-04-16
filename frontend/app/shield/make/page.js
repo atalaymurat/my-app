@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "@/utils/axios";
+import SuperadminGuard from "@/components/guards/SuperadminGuard";
 
 export default function MakePage() {
   const router = useRouter();
@@ -32,7 +33,8 @@ export default function MakePage() {
   };
 
   return (
-    <div className="p-6">
+    <SuperadminGuard>
+      <div className="p-6">
       <div className="flex items-center gap-3 mb-6">
         <button onClick={() => router.push("/shield/profile")}
           className="p-1.5 rounded-lg bg-stone-800 hover:bg-stone-700 border border-stone-700 text-stone-400 hover:text-stone-200 transition-colors">
@@ -93,6 +95,7 @@ export default function MakePage() {
           ))}
         </div>
       )}
-    </div>
+      </div>
+    </SuperadminGuard>
   );
 }
