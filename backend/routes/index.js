@@ -7,6 +7,7 @@ router.use("/master", require("./masterProduct"));
 router.use("/option", require("./options"));
 router.use("/make", require("./make"));
 router.use("/scrape", require("./scrape"));
+router.use("/offer/quick", require("./simpleOffer"));
 router.use("/offer", require("./offers"));
 router.use("/price-list", require("./priceList"));
 router.use("/pdf", require("./pdf"));

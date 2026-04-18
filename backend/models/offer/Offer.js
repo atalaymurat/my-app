@@ -71,6 +71,7 @@ const offerSchema = new Schema(
     currentDocType: { type: String, enum: DOC_TYPE_ENUM, default: "Teklif", index: true },
     originDocType:  { type: String, enum: DOC_TYPE_ENUM, default: "Teklif" },
     status:         { type: String, enum: ["open", "won", "lost", "cancelled"], default: "open" },
+    template:       { type: String, enum: ["quotation", "simple"], default: "quotation" },
     isSample: { type: Boolean, default: false, index: true },
     convertedAt:    Date,
     closedAt:       Date,

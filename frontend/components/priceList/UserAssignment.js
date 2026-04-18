@@ -34,7 +34,7 @@ export default function UserAssignment({ priceListId, ownerOrganizationId, assig
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState(null);
 
-  const normalizedOwnerOrgId = normalizeId(ownerOrganizationId || user?.orgId);
+  const normalizedOwnerOrgId = normalizeId(ownerOrganizationId || user?.defaultOrgId);
 
   useEffect(() => {
     const baseIds = (initialAssigned || []).map(normalizeId).filter(Boolean);

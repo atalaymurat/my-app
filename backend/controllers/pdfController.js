@@ -61,7 +61,7 @@ module.exports = {
       const pdfResponse = await pdfAxios.post(
         `${process.env.PDF_SERVICE_URL}/generate`,
         {
-          template: "quotation",
+          template: offer.template || "quotation",
           data: { ...offer.toObject({ flattenMaps: true }), logoUrl, bankAccounts },
         },
         {

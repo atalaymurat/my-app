@@ -471,7 +471,7 @@ export default function Dashboard() {
       </div>
 
       {/* Org card */}
-      {user?.orgId && (
+      {user?.defaultOrgId && (
         <div
           onClick={() => router.push("/shield/organization")}
           className="flex items-center justify-between px-5 py-3 rounded-2xl border border-l-4 border-stone-800 border-l-amber-500 bg-stone-950/80 cursor-pointer hover:bg-stone-900/60 transition-colors"
@@ -505,7 +505,10 @@ export default function Dashboard() {
             viewHref="/shield/offer"
             chart={offerChart}
             pills={offerPills}
-            actions={[{ label: "Yeni Teklif", href: "/shield/offer/new" }]}
+            actions={[
+              ...(isSuperAdmin ? [{ label: "Yeni Teklif", href: "/shield/offer/new" }] : []),
+              { label: "Hızlı Teklif", href: "/shield/offer/quick" },
+            ]}
           />
           {isSuperAdmin && (
             <LogCard
