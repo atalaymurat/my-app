@@ -151,6 +151,15 @@ export default function OfferTable({ offers: initialOffers }) {
                     v{vCount}
                   </span>
                 )}
+                {off.offerType === "simple" ? (
+                  <span className="text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full border bg-stone-800 text-stone-400 border-stone-600">
+                    Serbest Kalem
+                  </span>
+                ) : (
+                  <span className="text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full border bg-indigo-900/40 text-indigo-400 border-indigo-700/50">
+                    Katalog
+                  </span>
+                )}
                 <StatusBadge status={off.status || "open"} />
                 <div className="ml-auto flex items-center gap-3 text-xs text-stone-500">
                   <span>{localeDate(v.docDate)}</span>
@@ -279,7 +288,7 @@ export default function OfferTable({ offers: initialOffers }) {
               )}
               {/* Edit */}
               <button
-                onClick={() => router.push(`/shield/offer/${off._id}/edit`)}
+                onClick={() => router.push(off.offerType === "simple" ? `/shield/offer/${off._id}/edit-quick` : `/shield/offer/${off._id}/edit`)}
                 title="Düzenle"
                 className="text-stone-400 hover:text-blue-400 transition-colors cursor-pointer"
               >

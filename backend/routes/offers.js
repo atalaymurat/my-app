@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const offersController = require("../controllers/offerController");
+const simpleOfferController = require("../controllers/simpleOfferController");
 const authenticate = require("../middleware/authenticate");
 
 // Public routes
@@ -9,6 +10,7 @@ const authenticate = require("../middleware/authenticate");
 router.get("/", authenticate, offersController.index);
 router.get("/:id", authenticate, offersController.show);
 router.post("/", authenticate, offersController.create);
+router.patch("/:id/quick", authenticate, simpleOfferController.update);
 router.patch("/:id/status", authenticate, offersController.updateStatus);
 router.patch("/:id/offer-terms", authenticate, offersController.update);
 router.delete("/:id", authenticate, offersController.destroy);
