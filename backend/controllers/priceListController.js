@@ -16,7 +16,7 @@ function calculateSummary(items = []) {
 module.exports = {
   create: async (req, res) => {
     try {
-      const { title, makeId, currency, description, assignedOrgs = [] } = req.body;
+      const { title, makeId, currency, description, assignedOrgs = [], selectedProducts = [] } = req.body;
 
       if (!title || !makeId || !currency) {
         return res.status(400).json({ success: false, message: "title, makeId ve currency zorunludur." });
@@ -33,7 +33,8 @@ module.exports = {
         make: makeId,
         currency,
         description: description || "",
-        assignedOrgs,
+        assignedOrgs: [...new Set([...(assignedOrgs || []), req.user.orgId])].filter(Boolean),
+        selectedProducts,
         status: "draft",
         createdBy: req.user._id,
       });
@@ -74,7 +75,9 @@ module.exports = {
 
   show: async (req, res) => {
     try {
-      const record = await PriceList.findById(req.params.id).populate("make", "name logo country");
+      const record = await PriceList.findById(req.params.id)
+        .populate("make", "name logo country")
+        .populate("selectedProducts", "title caption image");
 
       if (!record) {
         return res.status(404).json({ success: false, message: "Kayıt bulunamadı." });
@@ -88,7 +91,7 @@ module.exports = {
 
   update: async (req, res) => {
     try {
-      const allowed = ["title", "description", "currency", "status"];
+      const allowed = ["title", "description", "currency", "status", "selectedProducts"];
       const updateData = {};
 
       for (const key of allowed) {
@@ -155,7 +158,11 @@ module.exports = {
         return res.status(404).json({ success: false, message: "Kayıt bulunamadı." });
       }
 
-      const products = await MasterProduct.find({ make: priceList.make }).populate("options");
+      const query = { make: priceList.make };
+      if (priceList.selectedProducts?.length > 0) {
+        query._id = { $in: priceList.selectedProducts };
+      }
+      const products = await MasterProduct.find(query).populate("options");
 
       if (!products.length) {
         return res.status(400).json({ success: false, message: "Bu markaya ait ürün bulunamadı." });

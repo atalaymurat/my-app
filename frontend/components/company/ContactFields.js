@@ -32,18 +32,18 @@ function PhoneInput({ name }) {
   return (
     <div className="flex gap-1">
       <div className="flex items-center">
-        <span className="px-2 py-[6px] bg-gray-100 border border-r-0 border-gray-300 rounded-l-md text-gray-500 text-sm">+</span>
+        <span className="px-2 py-[6px] bg-stone-800 border border-r-0 border-stone-600 rounded-l-md text-stone-500 text-sm">+</span>
         <input
           type="text" value={cc} autoComplete="off"
           onChange={(e) => { const v = e.target.value.replace(/\D/g, "").slice(0, 3); setCc(v); isTyping.current = true; helpers.setValue(v + ":" + localMasked.replace(/\D/g, "")); }}
-          className="w-10 px-1 py-[6px] border border-gray-300 rounded-r-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-transparent text-gray-500"
+          className="w-10 px-1 py-[6px] border border-stone-600 rounded-r-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 text-stone-300 bg-stone-800 transition-colors"
         />
       </div>
       <InputMask
         mask="___ ___ __ __" replacement={{ _: /\d/ }} placeholder="___ ___ __ __"
         value={localMasked} autoComplete="off"
         onChange={(e) => { const v = e.target.value; setLocalMasked(v); isTyping.current = true; helpers.setValue(cc + ":" + v.replace(/\D/g, "")); }}
-        className="flex-1 px-2 py-[6px] border border-gray-300 rounded-md text-sm text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-transparent"
+        className="flex-1 px-2 py-[6px] border border-stone-600 rounded-md text-sm text-stone-300 bg-stone-800 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-colors"
       />
     </div>
   );
@@ -104,39 +104,39 @@ export default function ContactFields() {
   };
 
   return (
-    <div className="rounded-xl border border-stone-700 overflow-hidden mt-4">
-      <div className="px-4 py-2 border-b border-stone-700 bg-stone-900/60 flex items-center justify-between">
-        <p className="text-xs font-semibold uppercase tracking-widest text-stone-500">İletişim Kişisi</p>
+    <div className="rounded-xl border border-stone-700 overflow-hidden">
+      <div className="px-4 py-2.5 border-b border-stone-700 bg-stone-900/70 flex items-center justify-between">
+        <p className="text-xs font-bold uppercase tracking-widest text-stone-400">İletişim Kişisi</p>
         {values.contactId && (
-          <span className="text-xs text-emerald-500 flex items-center gap-1">
+          <span className="text-xs text-emerald-400 flex items-center gap-1">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block" />Bağlı
           </span>
         )}
       </div>
 
-      <div className="p-3 space-y-2">
+      <div className="p-4 sm:p-5 space-y-3">
         {values.contactId ? (
           <LinkedCard values={values} onClear={handleClear} />
         ) : (
           <>
             {/* İsim arama */}
             <div className="relative">
-              <label className="block text-xs font-semibold text-gray-500 mb-1">Kişi Ara / İsim</label>
+              <label className="block text-xs font-semibold uppercase tracking-widest text-stone-500 mb-2">Kişi Ara / İsim</label>
               <input
                 type="text" value={values.contactName} onChange={handleSearchChange} autoComplete="off"
                 onFocus={() => results.length && setShowDropdown(true)}
-                className="w-full px-2 py-[6px] border border-gray-300 rounded text-sm text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-transparent"
+                className="w-full px-3 py-2 rounded-lg border border-stone-600 bg-stone-800 text-sm text-stone-300 placeholder-stone-600 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/50 transition-colors"
               />
               {showDropdown && (
-                <div className="absolute z-20 left-0 right-0 mt-1 rounded-xl border border-stone-700 bg-stone-900 shadow-xl overflow-hidden">
+                <div className="absolute z-20 left-0 right-0 mt-2 rounded-xl border border-stone-700 bg-stone-900 shadow-2xl overflow-hidden max-h-64 overflow-y-auto">
                   {results.map((c) => (
                     <div key={c._id} onClick={() => handleSelect(c)}
-                      className="flex items-center gap-3 px-4 py-2.5 cursor-pointer hover:bg-stone-800 transition-colors">
-                      <div className="w-7 h-7 rounded-full bg-stone-700 flex items-center justify-center shrink-0">
+                      className="flex items-center gap-3 px-4 py-2.5 cursor-pointer hover:bg-stone-800 transition-colors border-b border-stone-800 last:border-0">
+                      <div className="w-7 h-7 rounded-lg bg-stone-700 flex items-center justify-center shrink-0">
                         <span className="text-xs text-stone-300 font-semibold">{c.name?.[0]?.toUpperCase()}</span>
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm text-stone-200 font-medium truncate">{c.name}</p>
+                        <p className="text-sm text-stone-200 font-semibold truncate">{c.name}</p>
                         <p className="text-xs text-stone-500 truncate">{[c.phones?.[0], c.emails?.[0]].filter(Boolean).join(" · ")}</p>
                       </div>
                     </div>
@@ -145,18 +145,18 @@ export default function ContactFields() {
               )}
             </div>
 
-            {/* Telefon + Email tek satır */}
-            <div className="grid md:grid-cols-2 gap-2">
+            {/* Telefon + Email */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-semibold text-gray-500 mb-1">Telefon</label>
+                <label className="block text-xs font-semibold uppercase tracking-widest text-stone-500 mb-2">Telefon</label>
                 <PhoneInput name="contactPhone" />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-gray-500 mb-1">E-posta</label>
+                <label className="block text-xs font-semibold uppercase tracking-widest text-stone-500 mb-2">E-posta</label>
                 <input
                   type="email" value={values.contactEmail} autoComplete="off"
                   onChange={(e) => setFieldValue("contactEmail", e.target.value)}
-                  className="w-full px-2 py-[6px] border border-gray-300 rounded text-sm text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-transparent"
+                  className="w-full px-3 py-2 rounded-lg border border-stone-600 bg-stone-800 text-sm text-stone-300 placeholder-stone-600 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/50 transition-colors"
                 />
               </div>
             </div>

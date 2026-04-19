@@ -15,6 +15,7 @@ const initialValues = {
   makeId: "",
   currency: "EUR",
   description: "",
+  selectedProducts: [],
 };
 
 const validationSchema = Yup.object({
@@ -39,7 +40,28 @@ export default function PriceListForm() {
   const { user } = useAuth();
   const isSuperAdmin = user?.roles?.includes("superadmin");
   const [makes, setMakes] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [productsLoading, setProductsLoading] = useState(false);
+  const [productSearch, setProductSearch] = useState("");
   const [message, setMessage] = useState(null);
+
+  const fetchProductsByMake = async (makeId) => {
+    if (!makeId) {
+      setProducts([]);
+      return;
+    }
+    setProductsLoading(true);
+    try {
+      const { data } = await axios.get(`/api/master/masterbymake/${makeId}`);
+      if (data.success) {
+        setProducts(data.masters || []);
+      }
+    } catch (error) {
+      setProducts([]);
+    } finally {
+      setProductsLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (!isSuperAdmin) return;
@@ -112,7 +134,9 @@ export default function PriceListForm() {
                     type="button"
                     onClick={() => {
                       setFieldValue("makeId", mk.value);
+                      setFieldValue("selectedProducts", []);
                       setFieldTouched("makeId", true, false);
+                      fetchProductsByMake(mk.value);
                     }}
                     className={`group flex flex-col items-center gap-2 px-4 py-3 rounded-xl border transition-all ${
                       values.makeId === mk.value
@@ -159,6 +183,81 @@ export default function PriceListForm() {
                 ))}
               </div>
             </Section>
+
+            {values.makeId && (
+              <Section title="Ürün Seçimi">
+                <div className="space-y-3">
+                  <p className="text-xs text-stone-400 mb-3">
+                    Seçim yapılmazsa tüm ürünler dahil edilir.
+                  </p>
+
+                  <input
+                    type="text"
+                    placeholder="Ürün ara..."
+                    value={productSearch}
+                    onChange={(e) => setProductSearch(e.target.value)}
+                    className="w-full px-3 py-2 text-xs bg-stone-800 border border-stone-700 rounded-lg text-stone-100 placeholder-stone-500 focus:outline-none focus:border-amber-500 transition-colors"
+                  />
+
+                  {productsLoading && <p className="text-xs text-stone-400 py-2">Ürünler yükleniyor...</p>}
+
+                  {!productsLoading && products.length === 0 && values.makeId && (
+                    <p className="text-xs text-stone-400 py-2">Bu markaya ait ürün bulunamadı.</p>
+                  )}
+
+                  {!productsLoading && products.length > 0 && (
+                    <>
+                      <div className="flex flex-wrap gap-2">
+                        {products
+                          .filter((p) => p.title.toLowerCase().includes(productSearch.toLowerCase()))
+                          .map((product) => {
+                            const isSelected = values.selectedProducts.includes(product._id);
+                            return (
+                              <button
+                                key={product._id}
+                                type="button"
+                                onClick={() => {
+                                  const newSelected = isSelected
+                                    ? values.selectedProducts.filter((id) => id !== product._id)
+                                    : [...values.selectedProducts, product._id];
+                                  setFieldValue("selectedProducts", newSelected);
+                                }}
+                                className={`group flex flex-col items-center gap-2 px-4 py-3 rounded-xl border transition-all relative ${
+                                  isSelected
+                                    ? "bg-amber-600/10 border-amber-500 shadow-[0_0_0_1px_rgba(217,119,6,0.4)]"
+                                    : "bg-stone-800/60 border-stone-600 hover:border-stone-400"
+                                }`}
+                              >
+                                {product.image && (
+                                  <div className="w-10 h-10 rounded-lg overflow-hidden shrink-0">
+                                    <img src={product.image} alt={product.title} className="w-full h-full object-cover" />
+                                  </div>
+                                )}
+                                <div className="text-center">
+                                  <span className="text-[11px] font-semibold text-stone-200 block">{product.title}</span>
+                                  {product.caption && <span className="text-[9px] text-stone-500">{product.caption}</span>}
+                                </div>
+                                {isSelected && (
+                                  <div className="absolute top-2 right-2 w-4 h-4 bg-amber-500 rounded border border-amber-400 flex items-center justify-center">
+                                    <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                    </svg>
+                                  </div>
+                                )}
+                              </button>
+                            );
+                          })}
+                      </div>
+                      <p className="text-xs text-stone-400 mt-2">
+                        {values.selectedProducts.length === 0
+                          ? "Tümü dahil"
+                          : `${values.selectedProducts.length} ürün seçildi`}
+                      </p>
+                    </>
+                  )}
+                </div>
+              </Section>
+            )}
 
             <Section title="Açıklama">
               <FormikControl control="textArea" label="Açıklama" name="description" />

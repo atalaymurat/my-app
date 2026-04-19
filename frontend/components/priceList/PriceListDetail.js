@@ -210,6 +210,20 @@ export default function PriceListDetail() {
           </div>
           <InfoRow label="Döviz" value={priceList.currency} />
           <InfoRow label="Açıklama" value={priceList.description} />
+          {priceList.selectedProducts && priceList.selectedProducts.length > 0 ? (
+            <div className="flex items-start justify-between gap-3 py-2 border-b border-stone-800">
+              <span className="text-xs text-stone-500 shrink-0">Seçili Ürünler</span>
+              <div className="flex flex-wrap justify-end gap-1">
+                {priceList.selectedProducts.map((product) => (
+                  <span key={product._id} className="inline-block text-[10px] bg-amber-600/20 text-amber-400 px-2 py-1 rounded border border-amber-600/40">
+                    {product.title}
+                  </span>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <InfoRow label="Ürün Seçimi" value="Tüm ürünler dahil" />
+          )}
           <InfoRow label="Durum" value={<StatusBadge status={priceList.status} />} />
           <InfoRow
             label="Aktif Versiyon"

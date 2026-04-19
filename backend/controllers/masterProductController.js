@@ -154,7 +154,9 @@ module.exports = {
     try {
       if (!req.params.id) return res.status(400).json({ success: false, message: "Make id is required" });
       const masters = await MasterProduct.find({ make: req.params.id })
-        .populate("make", "name").sort({ createdAt: -1 });
+        .select("_id title caption image")
+        .populate("make", "name")
+        .sort({ createdAt: -1 });
       return res.status(200).json({ success: true, masters });
     } catch (error) {
       return res.status(500).json({ success: false, message: "Server error" });

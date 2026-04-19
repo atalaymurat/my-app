@@ -120,7 +120,7 @@ function CompanySearch() {
         <p className="text-xs font-bold uppercase tracking-widest text-stone-400">Firma</p>
         {values.companyId && <span className="text-xs font-semibold text-blue-400">✓ Bağlı</span>}
       </div>
-      <div className="p-3 space-y-3">
+      <div className="p-4 sm:p-5 space-y-3">
         {values.companyId ? (
           <div className="flex items-center gap-3 p-3 bg-blue-950/30 border border-blue-800/40 rounded-xl">
             <div className="shrink-0 w-10 h-10 rounded-xl bg-blue-900/50 border border-blue-700/50 flex items-center justify-center">
@@ -199,44 +199,130 @@ function LineItemsSection() {
       <div className="px-4 py-2.5 bg-stone-900/70 border-b border-stone-700">
         <p className="text-xs font-bold uppercase tracking-widest text-stone-400">Ürünler / Hizmetler</p>
       </div>
-      <div className="p-3 space-y-2">
+      <div className="p-4 sm:p-5 space-y-3">
         <FieldArray name="lineItems">
           {({ push, remove }) => (
             <>
               {values.lineItems.map((item, idx) => (
-                <div key={idx} className="rounded-xl border border-stone-700 bg-stone-900/40 p-3 space-y-2">
-                  <div className="flex items-center gap-2">
-                    <span className="shrink-0 w-6 h-6 rounded-md bg-amber-500/20 border border-amber-600/30 flex items-center justify-center text-[10px] font-black text-amber-400">
-                      {idx + 1}
-                    </span>
-                    <div className="flex-1">
-                      <FormikControl control="input" type="text" label="Ürün / Hizmet Adı" name={`lineItems.${idx}.title`} />
+                <div key={idx} className="rounded-xl border border-stone-700 bg-stone-900/40 overflow-hidden">
+                  {/* Desktop: Two-row layout */}
+                  <div className="hidden sm:block p-4 space-y-3">
+                    {/* Row 1: Number + Product Name + Delete */}
+                    <div className="flex items-center gap-3">
+                      <span className="shrink-0 w-6 h-6 rounded-md bg-amber-500/20 border border-amber-600/30 flex items-center justify-center text-[10px] font-black text-amber-400">
+                        {idx + 1}
+                      </span>
+                      <div className="flex-1">
+                        <FormikControl control="input" type="text" label="" name={`lineItems.${idx}.title`} placeholder="Ürün / Hizmet Adı" />
+                      </div>
+                      {values.lineItems.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => remove(idx)}
+                          className="shrink-0 w-7 h-7 rounded-lg bg-stone-800 hover:bg-red-900/40 text-stone-400 hover:text-red-400 transition-colors flex items-center justify-center text-lg"
+                        >
+                          −
+                        </button>
+                      )}
                     </div>
-                    {values.lineItems.length > 1 && (
-                      <button
-                        type="button"
-                        onClick={() => remove(idx)}
-                        className="shrink-0 w-7 h-7 rounded-lg bg-stone-800 hover:bg-red-900/40 text-stone-400 hover:text-red-400 transition-colors flex items-center justify-center text-lg"
-                      >
-                        −
-                      </button>
-                    )}
-                  </div>
 
-                  <div className="grid grid-cols-3 gap-2">
-                    <FormikControl control="input" type="number" label="Fiyat" name={`lineItems.${idx}.priceOffer`} step="0.01" />
-                    <div>
-                      <p className="text-[10px] text-stone-500 font-bold uppercase mb-1">Döviz</p>
+                    {/* Row 2: Price + Currency + Quantity */}
+                    <div className="grid grid-cols-[1fr_auto_100px] gap-3 items-center">
+                      {/* Fiyat */}
+                      <div>
+                        <label className="text-[10px] text-stone-500 font-bold uppercase mb-1.5 block">Fiyat</label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          value={item.priceOffer}
+                          onChange={(e) => setFieldValue(`lineItems.${idx}.priceOffer`, e.target.value)}
+                          placeholder="0.00"
+                          className="w-full bg-stone-800 border border-stone-700 rounded-lg px-3 py-2 text-sm text-stone-300 placeholder-stone-600 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/50 transition-colors"
+                        />
+                      </div>
+
+                      {/* Döviz */}
                       <div className="flex gap-1">
                         {CURRENCIES.map((cur) => (
                           <button
                             key={cur}
                             type="button"
                             onClick={() => setFieldValue(`lineItems.${idx}.currency`, cur)}
-                            className={`px-2 py-1 rounded-lg text-xs font-bold border transition-colors flex-1 ${
+                            className={`px-2.5 py-1.5 rounded-lg text-[11px] font-bold border transition-colors ${
                               item.currency === cur
                                 ? "bg-blue-600 border-blue-500 text-white"
-                                : "bg-stone-800 border-stone-600 text-stone-400 hover:border-stone-400"
+                                : "bg-stone-800 border-stone-700 text-stone-500 hover:text-stone-300"
+                            }`}
+                          >
+                            {cur}
+                          </button>
+                        ))}
+                      </div>
+
+                      {/* Adet */}
+                      <div>
+                        <label className="text-[10px] text-stone-500 font-bold uppercase mb-1.5 block">Adet</label>
+                        <input
+                          type="number"
+                          min="1"
+                          value={item.quantity}
+                          onChange={(e) => setFieldValue(`lineItems.${idx}.quantity`, e.target.value)}
+                          placeholder="1"
+                          className="w-full bg-stone-800 border border-stone-700 rounded-lg px-3 py-2 text-sm text-stone-300 placeholder-stone-600 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/50 transition-colors"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Row 3: Notes */}
+                    <div className="border-t border-stone-600 pt-3">
+                      <FormikControl control="input" type="text" label="" name={`lineItems.${idx}.notes`} placeholder="Not (opsiyonel)" />
+                    </div>
+                  </div>
+
+                  {/* Mobile: Stacked layout */}
+                  <div className="sm:hidden space-y-2 p-4">
+                    {/* Line: Number + Name + Delete */}
+                    <div className="flex items-center gap-2 mb-3">
+                      <span className="shrink-0 w-6 h-6 rounded-md bg-amber-500/20 border border-amber-600/30 flex items-center justify-center text-[10px] font-black text-amber-400">
+                        {idx + 1}
+                      </span>
+                      <div className="flex-1 min-w-0">
+                        <FormikControl control="input" type="text" label="" name={`lineItems.${idx}.title`} placeholder="Ürün / Hizmet Adı" />
+                      </div>
+                      {values.lineItems.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => remove(idx)}
+                          className="shrink-0 w-7 h-7 rounded-lg bg-stone-800 hover:bg-red-900/40 text-stone-400 hover:text-red-400 transition-colors flex items-center justify-center text-lg"
+                        >
+                          −
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Price + Currency */}
+                    <div className="flex gap-2 items-end">
+                      <div className="flex-1">
+                        <label className="text-[10px] text-stone-500 font-bold uppercase mb-1.5 block">Fiyat</label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          value={item.priceOffer}
+                          onChange={(e) => setFieldValue(`lineItems.${idx}.priceOffer`, e.target.value)}
+                          placeholder="0.00"
+                          className="w-full bg-stone-800 border border-stone-700 rounded-lg px-3 py-2 text-sm text-stone-300 placeholder-stone-600 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/50 transition-colors"
+                        />
+                      </div>
+                      <div className="flex gap-1">
+                        {CURRENCIES.map((cur) => (
+                          <button
+                            key={cur}
+                            type="button"
+                            onClick={() => setFieldValue(`lineItems.${idx}.currency`, cur)}
+                            className={`px-1.5 py-1.5 rounded text-[10px] font-bold border transition-colors ${
+                              item.currency === cur
+                                ? "bg-blue-600 border-blue-500 text-white"
+                                : "bg-stone-800 border-stone-700 text-stone-500 hover:text-stone-300"
                             }`}
                           >
                             {cur}
@@ -244,10 +330,25 @@ function LineItemsSection() {
                         ))}
                       </div>
                     </div>
-                    <FormikControl control="input" type="number" label="Adet" name={`lineItems.${idx}.quantity`} min="1" />
-                  </div>
 
-                  <FormikControl control="input" type="text" label="Not (opsiyonel)" name={`lineItems.${idx}.notes`} />
+                    {/* Quantity */}
+                    <div>
+                      <label className="text-[10px] text-stone-500 font-bold uppercase mb-1.5 block">Adet</label>
+                      <input
+                        type="number"
+                        min="1"
+                        value={item.quantity}
+                        onChange={(e) => setFieldValue(`lineItems.${idx}.quantity`, e.target.value)}
+                        placeholder="1"
+                        className="w-full bg-stone-800 border border-stone-700 rounded-lg px-3 py-2 text-sm text-stone-300 placeholder-stone-600 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/50 transition-colors"
+                      />
+                    </div>
+
+                    {/* Notes */}
+                    <div className="border-t border-stone-600 pt-2">
+                      <FormikControl control="input" type="text" label="" name={`lineItems.${idx}.notes`} placeholder="Not (opsiyonel)" />
+                    </div>
+                  </div>
                 </div>
               ))}
               <button
@@ -276,9 +377,9 @@ function SettingsSection() {
       <div className="px-4 py-2.5 bg-stone-900/70 border-b border-stone-700">
         <p className="text-xs font-bold uppercase tracking-widest text-stone-400">Ayarlar</p>
       </div>
-      <div className="p-3 space-y-3">
+      <div className="p-4 sm:p-5 space-y-4">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-widest text-stone-500 mb-2">Doküman Tipi</p>
+          <p className="text-xs font-semibold uppercase tracking-widest text-stone-500 mb-3">Doküman Tipi</p>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
             {DOC_TYPES.map((type) => (
               <button
@@ -297,32 +398,36 @@ function SettingsSection() {
           </div>
         </div>
 
-        <FormikControl control="input" type="number" label="KDV (%)" name="vatRate" />
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="sm:col-span-1">
+            <FormikControl control="input" type="number" label="KDV (%)" name="vatRate" />
+          </div>
 
-        <div className="flex items-center gap-2">
-          <input
-            type="checkbox"
-            id="showVat"
-            checked={values.showVat}
-            onChange={(e) => setFieldValue("showVat", e.target.checked)}
-            className="w-4 h-4 rounded border-stone-600 cursor-pointer"
-          />
-          <label htmlFor="showVat" className="text-sm text-stone-300 cursor-pointer">
-            KDV'yi Göster
-          </label>
-        </div>
+          <div className="flex items-center gap-2 sm:pt-5">
+            <input
+              type="checkbox"
+              id="showVat"
+              checked={values.showVat}
+              onChange={(e) => setFieldValue("showVat", e.target.checked)}
+              className="w-4 h-4 rounded border-stone-600 cursor-pointer"
+            />
+            <label htmlFor="showVat" className="text-sm text-stone-300 cursor-pointer">
+              KDV'yi Göster
+            </label>
+          </div>
 
-        <div className="flex items-center gap-2">
-          <input
-            type="checkbox"
-            id="showTotals"
-            checked={values.showTotals}
-            onChange={(e) => setFieldValue("showTotals", e.target.checked)}
-            className="w-4 h-4 rounded border-stone-600 cursor-pointer"
-          />
-          <label htmlFor="showTotals" className="text-sm text-stone-300 cursor-pointer">
-            Toplamları Göster
-          </label>
+          <div className="flex items-center gap-2 sm:pt-5">
+            <input
+              type="checkbox"
+              id="showTotals"
+              checked={values.showTotals}
+              onChange={(e) => setFieldValue("showTotals", e.target.checked)}
+              className="w-4 h-4 rounded border-stone-600 cursor-pointer"
+            />
+            <label htmlFor="showTotals" className="text-sm text-stone-300 cursor-pointer">
+              Toplamları Göster
+            </label>
+          </div>
         </div>
       </div>
     </div>
@@ -367,41 +472,48 @@ export default function SimpleOfferForm() {
   };
 
   return (
-    <Formik
-      initialValues={initialValues}
-      validationSchema={validationSchema}
-      onSubmit={handleSubmit}
-      enableReinitialize
-    >
-      {({ isSubmitting, values }) => (
-        <Form className="space-y-4">
-          <div className="flex items-center gap-3 mb-6">
-            <button
-              type="button"
-              onClick={() => router.back()}
-              className="p-1.5 rounded-lg bg-stone-800 hover:bg-stone-700 border border-stone-700 text-stone-400 hover:text-stone-200 transition-colors"
-            >
-              ←
-            </button>
-            <h1 className="text-2xl font-black text-stone-100">Hızlı Teklif</h1>
-          </div>
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6">
+      <Formik
+        initialValues={initialValues}
+        validationSchema={validationSchema}
+        onSubmit={handleSubmit}
+        enableReinitialize
+      >
+        {({ isSubmitting, values }) => (
+          <Form className="space-y-5">
+            <div className="flex items-center gap-3 mb-6">
+              <button
+                type="button"
+                onClick={() => router.back()}
+                className="p-1.5 rounded-lg bg-stone-800 hover:bg-stone-700 border border-stone-700 text-stone-400 hover:text-stone-200 transition-colors"
+              >
+                ←
+              </button>
+              <div>
+                <h1 className="text-2xl font-black text-stone-100">Hızlı Teklif</h1>
+                <p className="text-sm text-stone-500 mt-0.5">Serbest kalem teklif oluşturun</p>
+              </div>
+            </div>
 
-          <CompanySearch />
-          <ContactFields />
-          <LineItemsSection />
-          <SettingsSection />
+            <CompanySearch />
+            <ContactFields />
+            <LineItemsSection />
+            <SettingsSection />
 
-          {message && <MessageBlock message={message} />}
+            {message && <MessageBlock message={message} />}
 
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="w-full py-2.5 px-4 rounded-lg bg-amber-600 hover:bg-amber-500 disabled:opacity-50 border border-amber-500 text-sm font-bold text-white transition-colors"
-          >
-            {isSubmitting ? "Oluşturuluyor..." : "Teklif Oluştur"}
-          </button>
-        </Form>
-      )}
-    </Formik>
+            <div className="flex justify-end pt-2">
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="py-2.5 px-12 rounded-lg bg-amber-600 hover:bg-amber-500 disabled:opacity-50 border border-amber-500 text-sm font-bold text-white transition-colors"
+              >
+                {isSubmitting ? "Oluşturuluyor..." : "Teklif Oluştur"}
+              </button>
+            </div>
+          </Form>
+        )}
+      </Formik>
+    </div>
   );
 }

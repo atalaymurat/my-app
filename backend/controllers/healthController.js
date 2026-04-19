@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const SERVICES = [
   {
     name: "auth-service",
-    url: `${process.env.AUTH_SERVICE_URL || "http://localhost:3022"}/api/auth/health`,
+    url: `${process.env.AUTH_SERVICE_URL || "http://localhost:3022"}/health`,
   },
   {
     name: "pdf-service",

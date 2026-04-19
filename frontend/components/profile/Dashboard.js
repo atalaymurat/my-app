@@ -342,6 +342,32 @@ function LogCard({ log, onClick }) {
   );
 }
 
+function OfferShortcut({ icon, title, description, href, accent }) {
+  const router = useRouter();
+  const borderAccent = {
+    amber: "border-l-amber-500",
+    blue: "border-l-blue-500",
+  };
+  const iconColor = {
+    amber: "text-amber-400",
+    blue: "text-blue-400",
+  };
+  return (
+    <div
+      onClick={() => router.push(href)}
+      className={`rounded-2xl border border-stone-800 border-l-4 ${borderAccent[accent]} bg-stone-950/80 px-4 py-4 cursor-pointer hover:bg-stone-900/60 transition-colors`}
+    >
+      <div
+        className={`w-8 h-8 rounded-lg bg-stone-900 border border-stone-700 flex items-center justify-center mb-2 ${iconColor[accent]}`}
+      >
+        {icon}
+      </div>
+      <p className="text-sm font-bold text-stone-200">{title}</p>
+      <p className="text-xs text-stone-500 mt-1">{description}</p>
+    </div>
+  );
+}
+
 export default function Dashboard() {
   const { user } = useAuth();
   const router = useRouter();
@@ -505,11 +531,64 @@ export default function Dashboard() {
             viewHref="/shield/offer"
             chart={offerChart}
             pills={offerPills}
-            actions={[
-              ...(isSuperAdmin ? [{ label: "Yeni Teklif", href: "/shield/offer/new" }] : []),
-              { label: "Hızlı Teklif", href: "/shield/offer/quick" },
-            ]}
           />
+
+          {/* Teklif Kısayolları */}
+          {(() => {
+            const showPriceListCard =
+              isSuperAdmin || (assignedCount != null && assignedCount > 0);
+            return (
+              <div
+                className={`grid ${showPriceListCard ? "grid-cols-2" : "grid-cols-1"} gap-3`}
+              >
+                <OfferShortcut
+                  icon={
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M13 10V3L4 14h7v7l9-11h-7z"
+                      />
+                    </svg>
+                  }
+                  title="Hızlı Teklif"
+                  description="Ürün seçmeden serbest kalem teklif oluştur"
+                  href="/shield/offer/quick"
+                  accent="amber"
+                />
+                {showPriceListCard && (
+                  <OfferShortcut
+                    icon={
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        strokeWidth={2}
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25z"
+                        />
+                      </svg>
+                    }
+                    title="Listeden Teklif"
+                    description="Fiyat listesindeki ürünlerle teklif hazırla"
+                    href="/shield/offer/new"
+                    accent="blue"
+                  />
+                )}
+              </div>
+            );
+          })()}
+
           {isSuperAdmin && (
             <LogCard
               log={lastLog}

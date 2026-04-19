@@ -27,6 +27,7 @@ const priceListSchema = new Schema(
     assignedOrgs: [{ type: Schema.Types.ObjectId, ref: "Organization", index: true }],
 
     isSample: { type: Boolean, default: false, index: true },
+    selectedProducts: [{ type: Schema.Types.ObjectId, ref: "MasterProduct", default: [] }],
     createdBy: { type: Schema.Types.ObjectId, required: true },
   },
   { timestamps: true }
