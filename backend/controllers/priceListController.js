@@ -7,24 +7,55 @@ const buildSnapshotItems = require("./utils/priceList/buildSnapshotItems");
 function calculateSummary(items = []) {
   return {
     totalProducts: items.length,
-    totalVariants: items.reduce((sum, item) => sum + (item.variants?.length || 0), 0),
-    totalOptions: items.reduce((sum, item) => sum + (item.options?.length || 0), 0),
+    totalVariants: items.reduce(
+      (sum, item) => sum + (item.variants?.length || 0),
+      0,
+    ),
+    totalOptions: items.reduce(
+      (sum, item) => sum + (item.options?.length || 0),
+      0,
+    ),
   };
 }
-
 
 module.exports = {
   create: async (req, res) => {
     try {
-      const { title, makeId, currency, description, assignedOrgs = [], selectedProducts = [] } = req.body;
+      const {
+        title,
+        makeId,
+        description,
+        assignedOrgs = [],
+        selectedProducts = [],
+      } = req.body;
 
-      if (!title || !makeId || !currency) {
-        return res.status(400).json({ success: false, message: "title, makeId ve currency zorunludur." });
+      if (!title || !makeId) {
+        return res
+          .status(400)
+          .json({ success: false, message: "title ve makeId zorunludur." });
       }
 
       const make = await Make.findById(makeId);
       if (!make) {
-        return res.status(404).json({ success: false, message: "Marka bulunamadı." });
+        return res
+          .status(404)
+          .json({ success: false, message: "Marka bulunamadı." });
+      }
+
+      // Currency'yi seçili ürünlerden al
+      console.log("SELECTED PRODUCT", JSON.stringify(selectedProducts));
+      let currency = "EUR";
+      if (selectedProducts.length > 0) {
+        const sampleProduct = await MasterProduct.findById(
+          selectedProducts[0],
+        ).select("currency");
+        console.log("SELECTED PRODUCT", JSON.stringify(sampleProduct));
+        currency = sampleProduct?.currency || "EUR";
+      } else {
+        const sampleProduct = await MasterProduct.findOne({
+          make: makeId,
+        }).select("currency");
+        currency = sampleProduct?.currency || "EUR";
       }
 
       const record = await PriceList.create({
@@ -33,7 +64,9 @@ module.exports = {
         make: makeId,
         currency,
         description: description || "",
-        assignedOrgs: [...new Set([...(assignedOrgs || []), req.user.orgId])].filter(Boolean),
+        assignedOrgs: [
+          ...new Set([...(assignedOrgs || []), req.user.orgId]),
+        ].filter(Boolean),
         selectedProducts,
         status: "draft",
         createdBy: req.user._id,
@@ -80,7 +113,9 @@ module.exports = {
         .populate("selectedProducts", "title caption image");
 
       if (!record) {
-        return res.status(404).json({ success: false, message: "Kayıt bulunamadı." });
+        return res
+          .status(404)
+          .json({ success: false, message: "Kayıt bulunamadı." });
       }
 
       return res.status(200).json({ success: true, record });
@@ -91,7 +126,13 @@ module.exports = {
 
   update: async (req, res) => {
     try {
-      const allowed = ["title", "description", "currency", "status", "selectedProducts"];
+      const allowed = [
+        "title",
+        "description",
+        "currency",
+        "status",
+        "selectedProducts",
+      ];
       const updateData = {};
 
       for (const key of allowed) {
@@ -106,11 +147,13 @@ module.exports = {
       const updatedRecord = await PriceList.findByIdAndUpdate(
         req.params.id,
         updateData,
-        { new: true }
+        { new: true },
       );
 
       if (!updatedRecord) {
-        return res.status(404).json({ success: false, message: "Kayıt bulunamadı." });
+        return res
+          .status(404)
+          .json({ success: false, message: "Kayıt bulunamadı." });
       }
 
       return res.status(200).json({ success: true, record: updatedRecord });
@@ -125,10 +168,17 @@ module.exports = {
       const record = await PriceList.findByIdAndDelete(req.params.id);
 
       if (!record) {
-        return res.status(404).json({ success: false, message: "Kayıt bulunamadı." });
+        return res
+          .status(404)
+          .json({ success: false, message: "Kayıt bulunamadı." });
       }
 
-      return res.status(200).json({ success: true, message: "Fiyat listesi ve tüm versiyonları silindi." });
+      return res
+        .status(200)
+        .json({
+          success: true,
+          message: "Fiyat listesi ve tüm versiyonları silindi.",
+        });
     } catch (error) {
       return res.status(500).json({ success: false, message: error.message });
     }
@@ -138,11 +188,16 @@ module.exports = {
     try {
       const priceList = await PriceList.findById(req.params.id);
       if (!priceList) {
-        return res.status(404).json({ success: false, message: "Kayıt bulunamadı." });
+        return res
+          .status(404)
+          .json({ success: false, message: "Kayıt bulunamadı." });
       }
 
       priceList.status = "archived";
-      await PriceListSnapshot.updateMany({ priceList: req.params.id, status: "published" }, { status: "superseded" });
+      await PriceListSnapshot.updateMany(
+        { priceList: req.params.id, status: "published" },
+        { status: "superseded" },
+      );
       await priceList.save();
 
       return res.status(200).json({ success: true, record: priceList });
@@ -155,7 +210,9 @@ module.exports = {
     try {
       const priceList = await PriceList.findById(req.params.id);
       if (!priceList) {
-        return res.status(404).json({ success: false, message: "Kayıt bulunamadı." });
+        return res
+          .status(404)
+          .json({ success: false, message: "Kayıt bulunamadı." });
       }
 
       const query = { make: priceList.make };
@@ -165,7 +222,9 @@ module.exports = {
       const products = await MasterProduct.find(query).populate("options");
 
       if (!products.length) {
-        return res.status(400).json({ success: false, message: "Bu markaya ait ürün bulunamadı." });
+        return res
+          .status(400)
+          .json({ success: false, message: "Bu markaya ait ürün bulunamadı." });
       }
 
       const items = buildSnapshotItems(products, priceList.currency);
@@ -195,7 +254,9 @@ module.exports = {
     try {
       const priceList = await PriceList.findById(req.params.id);
       if (!priceList) {
-        return res.status(404).json({ success: false, message: "Kayıt bulunamadı." });
+        return res
+          .status(404)
+          .json({ success: false, message: "Kayıt bulunamadı." });
       }
 
       const publishedSnapshot = await PriceListSnapshot.findOne({
@@ -204,7 +265,9 @@ module.exports = {
       });
 
       if (!publishedSnapshot) {
-        return res.status(404).json({ success: false, message: "Yayında snapshot bulunamadı." });
+        return res
+          .status(404)
+          .json({ success: false, message: "Yayında snapshot bulunamadı." });
       }
 
       const publishedData = publishedSnapshot.toObject();
@@ -236,17 +299,28 @@ module.exports = {
       });
 
       if (!snapshot) {
-        return res.status(404).json({ success: false, message: "Kayıt bulunamadı." });
+        return res
+          .status(404)
+          .json({ success: false, message: "Kayıt bulunamadı." });
       }
 
       if (snapshot.status !== "draft") {
-        return res.status(400).json({ success: false, message: "Sadece taslak snapshot düzenlenebilir." });
+        return res
+          .status(400)
+          .json({
+            success: false,
+            message: "Sadece taslak snapshot düzenlenebilir.",
+          });
       }
 
       const payloadItems = Array.isArray(req.body.items) ? req.body.items : [];
 
       payloadItems.forEach((bodyItem) => {
-        const targetItem = snapshot.items.find((item) => String(item.sourceMasterProduct) === String(bodyItem.sourceMasterProduct));
+        const targetItem = snapshot.items.find(
+          (item) =>
+            String(item.sourceMasterProduct) ===
+            String(bodyItem.sourceMasterProduct),
+        );
         if (!targetItem) return;
 
         if (bodyItem.sortOrder !== undefined) {
@@ -255,23 +329,34 @@ module.exports = {
 
         (bodyItem.variants || []).forEach((bodyVariant) => {
           const targetVariant = targetItem.variants.find(
-            (variant) => String(variant.sourceVariantId) === String(bodyVariant.sourceVariantId)
+            (variant) =>
+              String(variant.sourceVariantId) ===
+              String(bodyVariant.sourceVariantId),
           );
 
           if (!targetVariant) return;
 
-          if (bodyVariant.priceList !== undefined) targetVariant.priceList = bodyVariant.priceList;
-          if (bodyVariant.priceOffer !== undefined) targetVariant.priceOffer = bodyVariant.priceOffer;
-          if (bodyVariant.priceNet !== undefined) targetVariant.priceNet = bodyVariant.priceNet;
+          if (bodyVariant.priceList !== undefined)
+            targetVariant.priceList = bodyVariant.priceList;
+          if (bodyVariant.priceOffer !== undefined)
+            targetVariant.priceOffer = bodyVariant.priceOffer;
+          if (bodyVariant.priceNet !== undefined)
+            targetVariant.priceNet = bodyVariant.priceNet;
         });
 
         (bodyItem.options || []).forEach((bodyOption) => {
-          const targetOption = targetItem.options.find((option) => String(option.sourceOption) === String(bodyOption.sourceOption));
+          const targetOption = targetItem.options.find(
+            (option) =>
+              String(option.sourceOption) === String(bodyOption.sourceOption),
+          );
           if (!targetOption) return;
 
-          if (bodyOption.priceList !== undefined) targetOption.priceList = bodyOption.priceList;
-          if (bodyOption.priceOffer !== undefined) targetOption.priceOffer = bodyOption.priceOffer;
-          if (bodyOption.priceNet !== undefined) targetOption.priceNet = bodyOption.priceNet;
+          if (bodyOption.priceList !== undefined)
+            targetOption.priceList = bodyOption.priceList;
+          if (bodyOption.priceOffer !== undefined)
+            targetOption.priceOffer = bodyOption.priceOffer;
+          if (bodyOption.priceNet !== undefined)
+            targetOption.priceNet = bodyOption.priceNet;
         });
       });
 
@@ -294,20 +379,33 @@ module.exports = {
       });
 
       if (!snapshot) {
-        return res.status(404).json({ success: false, message: "Kayıt bulunamadı." });
+        return res
+          .status(404)
+          .json({ success: false, message: "Kayıt bulunamadı." });
       }
 
       if (snapshot.status !== "draft") {
-        return res.status(400).json({ success: false, message: "Sadece taslak snapshot yayınlanabilir." });
+        return res
+          .status(400)
+          .json({
+            success: false,
+            message: "Sadece taslak snapshot yayınlanabilir.",
+          });
       }
 
-      await PriceListSnapshot.updateMany({ priceList: req.params.id, status: "published" }, { status: "superseded" });
+      await PriceListSnapshot.updateMany(
+        { priceList: req.params.id, status: "published" },
+        { status: "superseded" },
+      );
 
       snapshot.status = "published";
       snapshot.publishedAt = new Date();
       await snapshot.save();
 
-      await PriceList.findByIdAndUpdate(req.params.id, { currentVersion: snapshot.version, status: "published" });
+      await PriceList.findByIdAndUpdate(req.params.id, {
+        currentVersion: snapshot.version,
+        status: "published",
+      });
 
       return res.status(200).json({ success: true, record: snapshot });
     } catch (error) {
@@ -317,7 +415,9 @@ module.exports = {
 
   listSnapshots: async (req, res) => {
     try {
-      const records = await PriceListSnapshot.find({ priceList: req.params.id }).select("-items").sort({ version: -1 });
+      const records = await PriceListSnapshot.find({ priceList: req.params.id })
+        .select("-items")
+        .sort({ version: -1 });
       return res.status(200).json({ success: true, records });
     } catch (error) {
       return res.status(500).json({ success: false, message: error.message });
@@ -332,7 +432,9 @@ module.exports = {
       });
 
       if (!record) {
-        return res.status(404).json({ success: false, message: "Kayıt bulunamadı." });
+        return res
+          .status(404)
+          .json({ success: false, message: "Kayıt bulunamadı." });
       }
 
       return res.status(200).json({ success: true, record });
@@ -349,7 +451,9 @@ module.exports = {
       });
 
       if (!record) {
-        return res.status(404).json({ success: false, message: "Yayında snapshot bulunamadı." });
+        return res
+          .status(404)
+          .json({ success: false, message: "Yayında snapshot bulunamadı." });
       }
 
       return res.status(200).json({ success: true, record });
@@ -368,7 +472,7 @@ module.exports = {
       const priceList = await PriceList.findByIdAndUpdate(
         req.params.id,
         { assignedOrgs: orgIds },
-        { new: true }
+        { new: true },
       );
 
       if (!priceList) {
@@ -406,7 +510,9 @@ module.exports = {
       }).populate("make", "name logo");
 
       if (!priceList) {
-        return res.status(403).json({ success: false, message: "Bu listeye erişim yetkiniz yok." });
+        return res
+          .status(403)
+          .json({ success: false, message: "Bu listeye erişim yetkiniz yok." });
       }
 
       const snapshot = await PriceListSnapshot.findOne({
@@ -415,7 +521,9 @@ module.exports = {
       });
 
       if (!snapshot) {
-        return res.status(404).json({ success: false, message: "Yayında snapshot bulunamadı." });
+        return res
+          .status(404)
+          .json({ success: false, message: "Yayında snapshot bulunamadı." });
       }
 
       const list = snapshot.items.map((item) => ({

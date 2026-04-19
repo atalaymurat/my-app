@@ -12,7 +12,7 @@ const priceListSchema = new Schema(
       required: true,
     },
 
-    currency: { type: String, required: true },
+    currency: { type: String, required: false },
     currentVersion: { type: Number, default: 0 },
     totalVersions: { type: Number, default: 0 },
 

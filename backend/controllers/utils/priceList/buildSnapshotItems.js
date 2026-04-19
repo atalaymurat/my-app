@@ -31,9 +31,8 @@ function buildSnapshotItems(masterProducts, defaultCurrency) {
       priceNet: opt.priceNet || 0,
       priceList: opt.priceList || 0,
       priceOffer: opt.priceOffer || 0,
-      currency: opt.currency || defaultCurrency,
+      currency: mp.currency || defaultCurrency,
     })),
   }));
 }
-
 module.exports = buildSnapshotItems;

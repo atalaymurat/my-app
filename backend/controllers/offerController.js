@@ -41,8 +41,8 @@ module.exports = {
             "authorization": req.headers.authorization || "",
           },
         });
-        const offerDefaults = orgRes.data?.record?.offerDefaults?.length
-          ? orgRes.data.record.offerDefaults
+        const offerDefaults = orgRes.data?.offerDefaults?.length
+          ? orgRes.data.offerDefaults
           : offerDefaultsSeed;
 
         const incoming = versionData.offerTerms;

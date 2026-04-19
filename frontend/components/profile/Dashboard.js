@@ -413,30 +413,28 @@ export default function Dashboard() {
 
   const s = stats;
 
-  const offerChart = s
-    ? [
-        {
-          label: "Teklif",
-          value: s.offersByType?.Teklif ?? 0,
-          color: "#f59e0b",
-        },
-        {
-          label: "Proforma",
-          value: s.offersByType?.Proforma ?? 0,
-          color: "#60a5fa",
-        },
-        {
-          label: "Sipariş",
-          value: s.offersByType?.["Sipariş"] ?? 0,
-          color: "#a78bfa",
-        },
-        {
-          label: "Sözleşme",
-          value: s.offersByType?.["Sözleşme"] ?? 0,
-          color: "#c084fc",
-        },
-      ]
-    : null;
+  const offerChart = [
+    {
+      label: "Teklif",
+      value: s?.offersByType?.Teklif ?? 0,
+      color: "#f59e0b",
+    },
+    {
+      label: "Proforma",
+      value: s?.offersByType?.Proforma ?? 0,
+      color: "#60a5fa",
+    },
+    {
+      label: "Sipariş",
+      value: s?.offersByType?.["Sipariş"] ?? 0,
+      color: "#a78bfa",
+    },
+    {
+      label: "Sözleşme",
+      value: s?.offersByType?.["Sözleşme"] ?? 0,
+      color: "#c084fc",
+    },
+  ];
 
   const offerPills = offerChart
     ?.filter((b) => b.value > 0)
@@ -624,7 +622,7 @@ export default function Dashboard() {
               />
               <Block
                 title="Fiyat Listeleri"
-                count={null}
+                count={s?.priceLists}
                 accent="amber"
                 viewHref="/shield/price-list"
                 actions={[
