@@ -23,11 +23,11 @@ const createSampleData = async (organizationId, userId) => {
     phones: ["+90 212 555 0000"],
     emails: ["info@ornek-mobilya.com"],
     domains: ["ornek-mobilya.com"],
-    vd: "Kadıköy",
+    vd: "Kurumlar",
     vatNo: `SMPL-${organizationId.toString().slice(-10)}`,
     addresses: [{
       title: "Merkez",
-      line1: "Örnek Mahallesi, Demo Caddesi No:1",
+      line1: "Örnek Mahallesi, Atatürk Caddesi No:1",
       city: "İstanbul",
       country: "Türkiye",
       zip: "34000",
@@ -41,9 +41,10 @@ const createSampleData = async (organizationId, userId) => {
   // 3. Sample Contact
   const contact = await Contact.create({
     name: "Ahmet Yılmaz",
+    normalizedName: "ahmet yilmaz",
     gender: "male",
     phones: ["+90 532 555 0000"],
-    emails: ["ahmet@ornek-mobilya.com"],
+    emails: ["ahmet@postiva.uk"],
     company: company._id,
     organization: organizationId,
     createdBy: userId,

@@ -7,6 +7,13 @@ function normalizeCompanyData(data = {}, userId, orgId) {
     return !value || value.replace(/[_\s\-\(\)\+]/g, "") === "";
   }
 
+  function normalizeText(text = "") {
+    return transliterate(text)
+      .toLowerCase()
+      .trim()
+      .replace(/\s+/g, " ");
+  }
+
   function normalizePhone(phone) {
     if (!phone) return null;
     const digits = phone.replace(/\D/g, ""); // Remove non-digits
@@ -16,6 +23,10 @@ function normalizeCompanyData(data = {}, userId, orgId) {
   const normalized = {
     title: data.title?.trim()?.toLowerCase() || "",
     vatTitle: data.vatTitle?.trim()?.toLowerCase() || "",
+
+
+    normalizedTitle: normalizeText(data.title),
+    normalizedVatTitle: normalizeText(data.vatTitle),
 
     phones: Array.isArray(data.phones)
       ? [...new Set(data.phones.map((p) => normalizePhone(p)).filter(Boolean))]

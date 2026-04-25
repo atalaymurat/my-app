@@ -1,6 +1,7 @@
 const { normalizeCompanyData } = require("./services/companyServices");
 const Company = require("../models/company/Company");
 const createNewCompany = require("./utils/company/createNewCompany");
+const { transliterate } = require("transliteration");
 
 module.exports = {
   index: async (req, res) => {
@@ -30,10 +31,13 @@ module.exports = {
     const search = req.query.search;
     if (!search) return res.status(400).json({ success: false });
 
-    const normalized = search.trim().toLowerCase();
+    const normalized = transliterate(search)
+      .toLowerCase()
+      .trim()
+      .replace(/\s+/g, " ");
     const companies = await Company.find({
       ...req.orgFilter,
-      title: { $regex: normalized, $options: "i" },
+      normalizedTitle: { $regex: normalized, $options: "i" },
     }).limit(5);
 
     if (!companies.length) return res.json({ success: false, message: "Company not found" });

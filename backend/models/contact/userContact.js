@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const contactSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
+    normalizedName: { type: String, index: true },
     gender: { type: String, enum: ["male", "female", "none"], default: "none" },
     phones: [String],
     emails: [String],
