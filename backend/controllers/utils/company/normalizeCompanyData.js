@@ -22,6 +22,7 @@ function normalizeCompanyData(data = {}, userId, orgId) {
 
   const normalized = {
     title: data.title?.trim()?.toLowerCase() || "",
+    normalizedTitle: normalizeText(data.titlea),
     vatTitle: data.vatTitle?.trim()?.toLowerCase() || "",
 
 

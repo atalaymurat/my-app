@@ -3,6 +3,7 @@ const  Company  = require("../../../models/company/Company");
 const createNewCompany = async (normalizedData, rawData) => {
   return await Company.create({
     title: normalizedData.title,
+    normalizedTitle: normalizedData.normalizedTitle, 
     vatTitle: normalizedData.vatTitle, // full title for vat
     phones: normalizedData.phones,
     emails: normalizedData.emails,
