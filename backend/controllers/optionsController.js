@@ -1,5 +1,5 @@
 const Option = require("../models/options/Option");
-const { normalizeOption } = require("../utils/normalize");
+const { normalizeOption } = require("./utils/normalize");
 const createOption = require("./utils/options/createOption");
 
 module.exports = {

@@ -1,4 +1,4 @@
-const { normalizeMasterProduct: normalizeData } = require("../utils/normalize");
+const { normalizeMasterProduct } = require("./utils/normalize");
 const createMasterProduct = require("./utils/masterProduct/createMasterProduct");
 const MasterProduct = require("../models/masterProduct/MasterProduct");
 const Option = require("../models/options/Option");
@@ -18,7 +18,7 @@ module.exports = {
 
   update: async (req, res) => {
     try {
-      const normalized = normalizeData(req.body, req.user._id);
+      const normalized = normalizeMasterProduct(req.body, req.user._id);
       const product = await MasterProduct.findByIdAndUpdate(
         req.params.id,
         { $set: normalized },
@@ -74,7 +74,7 @@ module.exports = {
 
   create: async (req, res) => {
     try {
-      const normalized = normalizeData(req.body, req.user._id);
+      const normalized = normalizeMasterProduct(req.body, req.user._id);
       const newMasterProduct = await createMasterProduct(normalized);
       return res.status(201).json({ success: true, product: newMasterProduct });
     } catch (error) {

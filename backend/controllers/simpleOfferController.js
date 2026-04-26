@@ -3,8 +3,10 @@ const Offer = require("../models/offer/Offer");
 const offerDefaultsSeed = require("../utils/offerDefaultsSeed");
 const normalizeSimpleOffer = require("./utils/simpleOffer/normalizeSimpleOffer");
 const createSimpleOffer = require("./utils/simpleOffer/createSimpleOffer");
-const { normalizeCompanyData } = require("./services/companyServices");
-const createNewCompany = require("./utils/company/createNewCompany");
+const { normalizeCompany } = require("./utils/normalize");
+const { handleCompanyCreate } = require("./services/companyServices");
+
+
 const createOrFindContact = require("./utils/contact/createOrFindContact");
 
 const AUTH_BASE = process.env.AUTH_SERVICE_URL;
@@ -18,8 +20,8 @@ async function handleOfferFlow(req, res, statusCode, successMessage) {
     normalizeSimpleOffer(req.body, userId, orgId);
 
   if (needsCompanyCreation && companyData) {
-    const normalized = normalizeCompanyData(companyData, userId, orgId);
-    const company = await createNewCompany(normalized, companyData);
+    const normalized = normalizeCompany(companyData, userId, orgId);
+    const company = await handleCompanyCreate(normalized);
     offerData.company = company._id;
   }
 

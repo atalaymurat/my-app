@@ -1,8 +1,8 @@
-const mongoose = require("mongoose");
-const addressSchema = require("./AddressSchema");
-const formatDomain = require("../../controllers/utils/formatDomain"); // Assuming you have a helper function for formatting domains
+const mongoose = require("mongoose")
+const addressSchema = require("./AddressSchema")
+const { formatDomain } = require("../../controllers/utils/normalize") // Assuming you have a helper function for formatting domains
 
-const Schema = mongoose.Schema;
+const Schema = mongoose.Schema
 
 const companySchema = new Schema(
   {
@@ -36,7 +36,7 @@ const companySchema = new Schema(
     createdBy: { type: Schema.Types.ObjectId, required: true },
   },
   { timestamps: true },
-);
+)
 
-const Company = mongoose.model("Company", companySchema);
-module.exports = Company;
+const Company = mongoose.model("Company", companySchema)
+module.exports = Company

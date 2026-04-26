@@ -1,24 +1,7 @@
-const  Company  = require("../../../models/company/Company");
+const Company = require("../../../models/company/Company");
 
-const createNewCompany = async (normalizedData, rawData) => {
-  return await Company.create({
-    title: normalizedData.title,
-    normalizedTitle: normalizedData.normalizedTitle, 
-    vatTitle: normalizedData.vatTitle, // full title for vat
-    phones: normalizedData.phones,
-    emails: normalizedData.emails,
-    domains: normalizedData.domains,
-    vd: normalizedData.vd,
-    vatNo: normalizedData.vatNo ,
-    tcNo: normalizedData.tcNo,
-    addresses: normalizedData.addresses,
-    ogImage: rawData.ogImage || "",
-    favicon: rawData.favicon || "",
-    description: rawData.description || "",
-    tags: rawData.tags || [],
-    createdBy: normalizedData.createdBy,
-    organization: normalizedData.organization,
-  });
+const createNewCompany = async (normalizedData) => {
+  return await Company.create(normalizedData);
 };
 
 module.exports = createNewCompany;

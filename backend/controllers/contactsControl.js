@@ -1,9 +1,9 @@
 const Contact = require("../models/contact/userContact")
 const {
-  normalizeContactData,
+  normalizeContact,
   normalizeText,
-  normalizeContactUpdateData,
-} = require("./utils/contact/normalizeData")
+  normalizeContactUpdate,
+} = require("./utils/normalize")
 
 module.exports = {
   index: async (req, res) => {
@@ -79,7 +79,7 @@ module.exports = {
       })
     }
     try {
-      const contactData = normalizeContactData(
+      const contactData = normalizeContact(
         req.body,
         req.user._id,
         req.user.orgId,
@@ -97,7 +97,7 @@ module.exports = {
 
   update: async (req, res) => {
     try {
-      const updateData = normalizeContactUpdateData(req.body)
+      const updateData = normalizeContactUpdate(req.body)
 
       const contact = await Contact.findOneAndUpdate(
         { _id: req.params.id, ...req.orgFilter },
