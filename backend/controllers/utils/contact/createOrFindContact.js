@@ -1,5 +1,5 @@
-const Contact = require("../../../models/contact/userContact");
-const { normalizeContact } = require("../../utils/normalize");
+const Contact = require("../../../models/contact/Contact");
+const { normalizeContact, splitContactDisplayName } = require("../../utils/normalize");
 
 // contactId varsa doğrula ve döndür, yoksa yeni kayıt oluştur
 async function createOrFindContact({
@@ -20,7 +20,7 @@ async function createOrFindContact({
 
   const normalized = normalizeContact(
     {
-      name: contactName,
+      ...splitContactDisplayName(contactName),
       phones: contactPhone ? [contactPhone] : [],
       emails: contactEmail ? [contactEmail] : [],
       company: companyId,

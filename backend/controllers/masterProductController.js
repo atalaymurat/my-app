@@ -2,6 +2,8 @@ const { normalizeMasterProduct } = require("./utils/normalize");
 const createMasterProduct = require("./utils/masterProduct/createMasterProduct");
 const MasterProduct = require("../models/masterProduct/MasterProduct");
 const Option = require("../models/options/Option");
+const cloudinary = require("../config/cloudinary");
+const { extractCloudinaryPublicId } = require("./utils/cloudinaryPublicId");
 
 module.exports = {
   show: async (req, res) => {
@@ -10,7 +12,7 @@ module.exports = {
         .populate("make", "name")
         .populate("options", "_id title");
       if (!product) return res.status(404).json({ message: "Product not found", success: false });
-      res.status(200).json({ success: true, product });
+      res.status(200).json({ success: true, record: product, product });
     } catch (err) {
       res.status(500).json({ message: "Failed to get product", error: err.message });
     }
@@ -25,7 +27,7 @@ module.exports = {
         { new: true, runValidators: true }
       );
       if (!product) return res.status(404).json({ message: "Product not found", success: false });
-      res.status(200).json({ success: true, message: "Güncellendi", product });
+      res.status(200).json({ success: true, message: "Güncellendi", record: product, product });
     } catch (err) {
       res.status(500).json({ message: "Failed to update product", error: err.message });
     }
@@ -37,9 +39,8 @@ module.exports = {
       if (!product) return res.status(404).json({ message: "Product not found" });
 
       if (product.image) {
-        const cloudinary = require("../config/cloudinary");
-        const match = product.image.match(/\/upload\/(?:v\d+\/)?(.+)\.\w+$/);
-        if (match?.[1]) cloudinary.uploader.destroy(match[1]).catch(() => {});
+        const publicId = extractCloudinaryPublicId(product.image);
+        if (publicId) cloudinary.uploader.destroy(publicId).catch(() => {});
       }
 
       res.status(200).json({ success: true, message: "Product deleted" });
@@ -65,6 +66,7 @@ module.exports = {
         success: true,
         totalPages: limit === 0 ? 1 : Math.ceil(totalRecords / limit),
         currentPage: limit === 0 ? 1 : page,
+        records,
         products: records,
       });
     } catch (error) {
@@ -76,7 +78,7 @@ module.exports = {
     try {
       const normalized = normalizeMasterProduct(req.body, req.user._id);
       const newMasterProduct = await createMasterProduct(normalized);
-      return res.status(201).json({ success: true, product: newMasterProduct });
+      return res.status(201).json({ success: true, record: newMasterProduct, product: newMasterProduct });
     } catch (error) {
       res.status(500).json({ error: error.message, success: false });
     }

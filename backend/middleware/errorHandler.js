@@ -2,6 +2,13 @@ const logger = require("../config/logger");
 const AppError = require("../utils/AppError");
 
 const errorHandler = (err, req, res, next) => {
+  if (err.type === "entity.too.large") {
+    err.statusCode = 413;
+    err.status = "fail";
+    err.isOperational = true;
+    err.message = "Aktarım dosyası çok büyük. Daha küçük bir CSV dosyası seçin veya aktarımı parçalara bölün.";
+  }
+
   err.statusCode = err.statusCode || 500;
   err.status = err.status || "error";
 

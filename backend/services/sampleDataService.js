@@ -1,5 +1,5 @@
 const Company = require("../models/company/Company");
-const Contact = require("../models/contact/userContact");
+const Contact = require("../models/contact/Contact");
 const PriceList = require("../models/priceList/PriceList");
 const logger = require("../config/logger");
 
@@ -40,8 +40,10 @@ const createSampleData = async (organizationId, userId) => {
 
   // 3. Sample Contact
   const contact = await Contact.create({
-    name: "Ahmet Yılmaz",
+    displayName: "Ahmet Yılmaz",
     normalizedName: "ahmet yilmaz",
+    givenName: "Ahmet",
+    familyName: "Yılmaz",
     gender: "male",
     phones: ["+90 532 555 0000"],
     emails: ["ahmet@postiva.uk"],

@@ -10,6 +10,47 @@ const normalizeText = (text = "") => {
   return transliterate(String(text)).toLowerCase().trim().replace(/\s+/g, " ")
 }
 
+const compactParts = (parts = []) =>
+  parts.map((part) => String(part || "").trim()).filter(Boolean)
+
+const splitContactDisplayName = (displayName = "") => {
+  const parts = compactParts(String(displayName).split(/\s+/))
+  if (!parts.length) return {}
+  if (parts.length === 1) return { givenName: parts[0] }
+  if (parts.length === 2) return { givenName: parts[0], familyName: parts[1] }
+
+  return {
+    givenName: parts[0],
+    middleName: parts.slice(1, -1).join(" "),
+    familyName: parts[parts.length - 1],
+  }
+}
+
+const buildContactDisplayName = (data = {}) =>
+  compactParts([data.givenName, data.middleName, data.familyName]).join(" ")
+
+const normalizeContactNameParts = (data = {}) => {
+  const parts = {
+    givenName: data.givenName?.trim() || undefined,
+    middleName: data.middleName?.trim() || undefined,
+    familyName: data.familyName?.trim() || undefined,
+  }
+
+  if (parts.givenName || parts.middleName || parts.familyName) return parts
+
+  return {}
+}
+
+const normalizeEmailList = (emails = []) =>
+  Array.isArray(emails)
+    ? [...new Set(emails.map((e) => String(e || "").trim().toLowerCase()).filter(Boolean))]
+    : []
+
+const normalizePhoneList = (phones = []) =>
+  Array.isArray(phones)
+    ? [...new Set(phones.map((phone) => String(phone || "").trim()).filter(Boolean))]
+    : []
+
 const normalizeAddress = (address = {}) => ({
   ...address,
   normalizedLine1: normalizeText(address.line1),
@@ -103,34 +144,53 @@ const normalizeMasterProduct = (data = {}, userId) => ({
   createdBy: userId,
 })
 
-const normalizeContact = (data = {}, userId, orgId) => ({
-  name: data.name?.trim() || "",
-  normalizedName: normalizeText(data.name),
+const normalizeContact = (data = {}, userId, orgId) => {
+  const nameParts = normalizeContactNameParts(data)
+  const displayName = buildContactDisplayName(nameParts)
+  const phoneSource = Array.isArray(data.formattedPhones) ? data.formattedPhones : data.phones
 
-  gender: data.gender || "none",
+  return {
+    displayName,
+    normalizedName: normalizeText(displayName),
+    givenName: nameParts.givenName,
+    middleName: nameParts.middleName,
+    familyName: nameParts.familyName,
 
-  phones: Array.isArray(data.formattedPhones)
-    ? data.formattedPhones.filter(Boolean)
-    : Array.isArray(data.phones)
-      ? data.phones.filter(Boolean)
+    gender: data.gender || "none",
+
+    phones: normalizePhoneList(phoneSource),
+    emails: normalizeEmailList(data.emails),
+    googleLabels: Array.isArray(data.googleLabels)
+      ? data.googleLabels.map((label) => String(label || "").trim()).filter(Boolean)
       : [],
 
-  emails: Array.isArray(data.emails)
-    ? data.emails.map((e) => e.trim().toLowerCase()).filter(Boolean)
-    : [],
+    company: data.company || undefined,
+    source: data.source || "manual",
+    sourceType: data.sourceType || "manual",
+    sourceRowHash: data.sourceRowHash || undefined,
+    importedAt: data.importedAt || undefined,
 
-  company: data.company || undefined,
-
-  createdBy: userId,
-  organization: orgId,
-})
+    createdBy: userId,
+    organization: orgId,
+  }
+}
 
 const normalizeContactUpdate = (data = {}) => {
   const updateData = {}
 
-  if (data.name !== undefined) {
-    updateData.name = data.name.trim()
-    updateData.normalizedName = normalizeText(data.name)
+  if (
+    data.givenName !== undefined ||
+    data.middleName !== undefined ||
+    data.familyName !== undefined
+  ) {
+    const nameParts = normalizeContactNameParts(data)
+    const displayName = buildContactDisplayName(nameParts)
+
+    updateData.displayName = displayName
+    updateData.normalizedName = normalizeText(displayName)
+    updateData.givenName = nameParts.givenName
+    updateData.middleName = nameParts.middleName
+    updateData.familyName = nameParts.familyName
   }
 
   if (data.gender !== undefined) {
@@ -138,21 +198,39 @@ const normalizeContactUpdate = (data = {}) => {
   }
 
   if (data.emails !== undefined) {
-    updateData.emails = Array.isArray(data.emails)
-      ? data.emails.map((e) => e.trim().toLowerCase()).filter(Boolean)
-      : []
+    updateData.emails = normalizeEmailList(data.emails)
   }
 
   if (data.formattedPhones !== undefined || data.phones !== undefined) {
     const phoneSource = data.formattedPhones || data.phones
 
-    updateData.phones = Array.isArray(phoneSource)
-      ? phoneSource.filter(Boolean)
-      : []
+    updateData.phones = normalizePhoneList(phoneSource)
   }
 
   if (data.company !== undefined) {
     updateData.company = data.company || undefined
+  }
+
+  if (data.source !== undefined) {
+    updateData.source = data.source || "manual"
+  }
+
+  if (data.sourceType !== undefined) {
+    updateData.sourceType = data.sourceType || "manual"
+  }
+
+  if (data.sourceRowHash !== undefined) {
+    updateData.sourceRowHash = data.sourceRowHash || undefined
+  }
+
+  if (data.importedAt !== undefined) {
+    updateData.importedAt = data.importedAt || undefined
+  }
+
+  if (data.googleLabels !== undefined) {
+    updateData.googleLabels = Array.isArray(data.googleLabels)
+      ? data.googleLabels.map((label) => String(label || "").trim()).filter(Boolean)
+      : []
   }
 
   return updateData
@@ -166,6 +244,8 @@ module.exports = {
   normalizeMasterProduct,
   normalizePhone,
   normalizeText,
+  buildContactDisplayName,
+  splitContactDisplayName,
   normalizeAddress,
   formatDomain,
 }

@@ -168,7 +168,7 @@ const NewForm = ({ masterId }) => {
 
       const payload = { ...values, image: imageUrl };
       const { data } = masterId
-        ? await axios.put(`/api/master/${masterId}`, payload)
+        ? await axios.patch(`/api/master/${masterId}`, payload)
         : await axios.post("/api/master", payload);
 
       if (data.success) {

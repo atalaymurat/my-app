@@ -39,7 +39,7 @@ export default function SimpleOfferEditForm({ offerId }) {
           city: addr.city || "",
           country: addr.country || "",
           contactId: contact._id || "",
-          contactName: contact.name || "",
+          contactName: contact.displayName || "",
           contactPhone: contact.phones?.[0] || "",
           contactEmail: contact.emails?.[0] || "",
           docType: lastVersion.docType || "Teklif",

@@ -69,6 +69,10 @@ function LinkedCard({ values, onClear }) {
   );
 }
 
+function getContactDisplayName(contact = {}) {
+  return contact.displayName || "";
+}
+
 export default function ContactFields() {
   const { values, setFieldValue } = useFormikContext();
   const [results, setResults] = useState([]);
@@ -90,8 +94,10 @@ export default function ContactFields() {
   };
 
   const handleSelect = (contact) => {
+    const displayName = getContactDisplayName(contact);
+
     setFieldValue("contactId", contact._id);
-    setFieldValue("contactName", contact.name);
+    setFieldValue("contactName", displayName);
     setFieldValue("contactPhone", contact.phones?.[0] || "");
     setFieldValue("contactEmail", contact.emails?.[0] || "");
     setShowDropdown(false); setResults([]);
@@ -133,10 +139,10 @@ export default function ContactFields() {
                     <div key={c._id} onClick={() => handleSelect(c)}
                       className="flex items-center gap-3 px-4 py-2.5 cursor-pointer hover:bg-stone-800 transition-colors border-b border-stone-800 last:border-0">
                       <div className="w-7 h-7 rounded-lg bg-stone-700 flex items-center justify-center shrink-0">
-                        <span className="text-xs text-stone-300 font-semibold">{c.name?.[0]?.toUpperCase()}</span>
+                        <span className="text-xs text-stone-300 font-semibold">{getContactDisplayName(c)?.[0]?.toUpperCase()}</span>
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm text-stone-200 font-semibold truncate">{c.name}</p>
+                        <p className="text-sm text-stone-200 font-semibold truncate">{getContactDisplayName(c)}</p>
                         <p className="text-xs text-stone-500 truncate">{[c.phones?.[0], c.emails?.[0]].filter(Boolean).join(" · ")}</p>
                       </div>
                     </div>

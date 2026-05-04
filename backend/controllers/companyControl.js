@@ -24,6 +24,7 @@ module.exports = {
 
       res.json({
         success: true,
+        records: companies,
         companies,
         totalPages: Math.ceil(totalCompanies / limit),
         currentPage: page,
@@ -38,7 +39,7 @@ module.exports = {
       const { search = "" } = req.query;
 
       if (search.trim().length < 2) {
-        return res.json({ success: true, companies: [] });
+        return res.json({ success: true, records: [], companies: [] });
       }
 
       const normalized = normalizeText(search);
@@ -52,9 +53,7 @@ module.exports = {
           "title vatTitle domains emails addresses normalizedTitle normalizedVatTitle"
         );
 
-      return res.json({
-        success: true,
-        companies: companies.map((company) => ({
+      const records = companies.map((company) => ({
           id: company._id,
           title: company.title,
           vatTitle: company.vatTitle,
@@ -65,8 +64,9 @@ module.exports = {
           city: company.addresses?.[0]?.city || "",
           country: company.addresses?.[0]?.country || "",
           district: company.addresses?.[0]?.district || "",
-        })),
-      });
+      }));
+
+      return res.json({ success: true, records, companies: records });
     } catch (err) {
       return res.status(500).json({
         success: false,
@@ -90,7 +90,7 @@ module.exports = {
         });
       }
 
-      res.status(200).json({ success: true, company });
+      res.status(200).json({ success: true, record: company, company });
     } catch (err) {
       res.status(500).json({
         success: false,
@@ -121,7 +121,7 @@ module.exports = {
         });
       }
 
-      res.status(200).json({ success: true, company });
+      res.status(200).json({ success: true, record: company, company });
     } catch (err) {
       res.status(400).json({
         success: false,
@@ -181,6 +181,7 @@ module.exports = {
       return res.status(200).json({
         success: true,
         record,
+        company: record,
       });
     } catch (err) {
       return res.status(500).json({

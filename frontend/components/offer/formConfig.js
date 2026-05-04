@@ -101,7 +101,7 @@ export function mapOfferToForm(offer) {
     city: addr.city || "",
     country: addr.country || "",
     contactId: offer.contact?._id || "",
-    contactName: offer.contact?.name || "",
+    contactName: offer.contact?.displayName || "",
     contactPhone: offer.contact?.phones?.[0] || "",
     contactEmail: offer.contact?.emails?.[0] || "",
     vatRate: lastVersion?.vatRate ?? 20,

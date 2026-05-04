@@ -1,4 +1,5 @@
 const cloudinary = require("../config/cloudinary");
+const { extractCloudinaryPublicId } = require("./utils/cloudinaryPublicId");
 
 // Genel upload fonksiyonu — buffer'dan Cloudinary'e yükler
 const uploadToCloudinary = (buffer, folder = "postiva") => {
@@ -36,13 +37,13 @@ const deleteImage = async (req, res) => {
   try {
     const { url } = req.body;
     if (!url) return res.status(400).json({ success: false, message: "URL gerekli." });
-    const match = url.match(/\/upload\/(?:v\d+\/)?(.+)\.\w+$/);
-    if (!match) return res.status(400).json({ success: false, message: "Geçersiz URL." });
-    await cloudinary.uploader.destroy(match[1]);
+    const publicId = extractCloudinaryPublicId(url);
+    if (!publicId) return res.status(400).json({ success: false, message: "Geçersiz URL." });
+    await cloudinary.uploader.destroy(publicId);
     res.json({ success: true });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
 };
 
-module.exports = { uploadImage, uploadToCloudinary, deleteImage };
+module.exports = { uploadImage, deleteImage };

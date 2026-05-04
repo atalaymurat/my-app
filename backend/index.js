@@ -36,6 +36,7 @@ const server = http.createServer(app);
 initSocket(server);
 
 const PORT = process.env.PORT || 3021;
+const BODY_LIMIT = process.env.BODY_LIMIT || "25mb";
 
 logger.info("Allowed CORS Origins: " + (allowedOrigins?.join(", ") || "(none)"));
 
@@ -43,8 +44,8 @@ app.use(requestId);
 app.use(requestLogger);
 app.use(cors(corsOptions));
 app.use(cookieParser());
-app.use(express.json({ limit: "5mb" }));
-app.use(express.urlencoded({ extended: true, limit: "5mb" }));
+app.use(express.json({ limit: BODY_LIMIT }));
+app.use(express.urlencoded({ extended: true, limit: BODY_LIMIT }));
 
 app.use("/api", require("./routes/index"));
 

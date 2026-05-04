@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "nodemon index.js",
     "start": "node index.js",
-    "test": "jest --env=node"
+    "migrate:contact-display-name": "node scripts/migrations/contactDisplayName.js",
+    "test": "jest --env=node --passWithNoTests"
   },
   "compilerOptions": {
     "module": "CommonJS"
@@ -35,6 +36,7 @@
   },
   "devDependencies": {
     "@types/jest": "^29.5.14",
+    "jest": "^30.3.0",
     "mongodb-memory-server": "^10.1.4",
     "nodemon": "^3.1.10",
     "prettier": "3.5.3",

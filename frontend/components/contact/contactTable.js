@@ -9,17 +9,20 @@ const genderIcon = (gender) => {
 const ContactTable = ({ contacts, onEdit, onDelete }) => {
   return (
     <div className="px-2 py-2 grid grid-cols-1 lg:grid-cols-2 gap-3">
-      {contacts && contacts.map((co, index) => (
+      {contacts && contacts.map((co, index) => {
+        const displayName = co.displayName || "-";
+
+        return (
         <div key={index} className="border border-stone-600 rounded-lg overflow-hidden text-stone-300">
 
           {/* Başlık */}
           <div className="bg-stone-700 px-3 py-2 flex items-center justify-between">
             <span className="font-bold text-white capitalize">
-              {genderIcon(co.gender)} {co.name}
+              {genderIcon(co.gender)} {displayName}
             </span>
             <div className="flex items-center gap-2">
               {co.image && (
-                <img src={co.image} alt={co.name} className="w-8 h-8 rounded-full object-cover" />
+                <img src={co.image} alt={displayName} className="w-8 h-8 rounded-full object-cover" />
               )}
               <button onClick={() => onEdit?.(co)} className="text-stone-400 hover:text-blue-400 transition cursor-pointer">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
@@ -55,7 +58,8 @@ const ContactTable = ({ contacts, onEdit, onDelete }) => {
 
           </div>
         </div>
-      ))}
+        );
+      })}
     </div>
   );
 };

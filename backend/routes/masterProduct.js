@@ -16,7 +16,7 @@ router.get("/byoption/:optionId", authenticate, superadminOnly, masterProductCon
 router.get("/make", authenticate, superadminOnly, masterProductController.makeList);
 router.post("/", authenticate, superadminOnly, masterProductController.create);
 router.get("/:id", authenticate, superadminOnly, masterProductController.show);
-router.put("/:id", authenticate, superadminOnly, masterProductController.update);
+router.patch("/:id", authenticate, superadminOnly, masterProductController.update);
 router.delete("/:id", authenticate, superadminOnly, masterProductController.destroy);
 
 module.exports = router;

@@ -42,14 +42,11 @@ module.exports = {
           .json({ success: false, message: "Marka bulunamadı." });
       }
 
-      // Currency'yi seçili ürünlerden al
-      console.log("SELECTED PRODUCT", JSON.stringify(selectedProducts));
       let currency = "EUR";
       if (selectedProducts.length > 0) {
         const sampleProduct = await MasterProduct.findById(
           selectedProducts[0],
         ).select("currency");
-        console.log("SELECTED PRODUCT", JSON.stringify(sampleProduct));
         currency = sampleProduct?.currency || "EUR";
       } else {
         const sampleProduct = await MasterProduct.findOne({

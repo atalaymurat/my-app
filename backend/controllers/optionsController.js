@@ -21,6 +21,7 @@ module.exports = {
         totalPages: Math.ceil(totalRecords / limit),
         currentPage: page,
         total: totalRecords,
+        records,
         options: records,
       });
     } catch (error) {
@@ -42,7 +43,7 @@ module.exports = {
         );
       }
 
-      return res.status(201).json({ success: true, option: newOption });
+      return res.status(201).json({ success: true, record: newOption, option: newOption });
     } catch (error) {
       res.status(500).json({ error: error.message, success: false });
     }
@@ -52,7 +53,7 @@ module.exports = {
     try {
       const option = await Option.findById(req.params.id).populate("make", "name");
       if (!option) return res.status(404).json({ message: "Option not found" });
-      res.status(200).json({ success: true, option });
+      res.status(200).json({ success: true, record: option, option });
     } catch (err) {
       res.status(500).json({ message: "Failed to fetch option", error: err.message });
     }
@@ -74,7 +75,7 @@ module.exports = {
         );
       }
 
-      res.status(200).json({ success: true, option });
+      res.status(200).json({ success: true, record: option, option });
     } catch (err) {
       res.status(400).json({ message: "Failed to update option", error: err.message });
     }
@@ -93,7 +94,7 @@ module.exports = {
   make: async (req, res) => {
     try {
       const records = await Option.find({ make: req.params.id });
-      res.status(200).json({ success: true, options: records });
+      res.status(200).json({ success: true, records, options: records });
     } catch (err) {
       res.status(500).json({ error: err.message, success: false });
     }
