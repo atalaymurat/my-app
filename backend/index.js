@@ -1,6 +1,5 @@
 // backend/index.js
 require("dotenv").config();
-require("./utils/keepAlive");
 const http = require("http");
 const express = require("express");
 const cors = require("cors");

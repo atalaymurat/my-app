@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const axios = require("axios");
 const logger = require("../config/logger");
+const { warmPdfService } = require("../utils/serviceWarmer");
 
 const AUTH_BASE = process.env.AUTH_SERVICE_URL;
 
@@ -35,6 +36,7 @@ const proxy = async (req, res, targetPath) => {
         success: response.data?.success,
         duration,
       });
+      warmPdfService();
     } else if (targetPath.includes("/logout")) {
       logger.info({
         message: "User logout",
