@@ -6,6 +6,6 @@ const authenticate = require("../middleware/authenticate");
 // Public routes
 
 // Protected routes
-router.get("/:id", pdfController.offerPdf);
+router.get("/:id", authenticate, pdfController.offerPdf);
 
 module.exports = router;

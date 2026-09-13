@@ -26,6 +26,29 @@ axiosRetry(pdfAxios, {
   },
 });
 
+const pickOrganizationForPdf = (org = {}) => ({
+  _id: org._id,
+  name: org.name || "",
+  logo: org.logo || "",
+  phone: org.phone || "",
+  email: org.email || "",
+  address: org.address || "",
+  website: org.website || "",
+  taxNo: org.taxNo || "",
+  bankAccounts: Array.isArray(org.bankAccounts) ? org.bankAccounts : [],
+});
+
+const pickUserForPdf = (user = {}) => ({
+  _id: user._id,
+  name: user.name || "",
+  email: user.email || "",
+  profilePicture: user.profilePicture || "",
+  roles: Array.isArray(user.roles) ? user.roles : [],
+  orgId: user.orgId || user.defaultOrgId || null,
+  orgRole: user.orgRole || null,
+  applicationId: user.applicationId || "",
+});
+
 module.exports = {
   offerPdf: async (req, res) => {
     try {
@@ -39,9 +62,10 @@ module.exports = {
           .status(404)
           .json({ message: "Teklif bulunamadı.", success: false });
 
-      // Organizasyon logosunu ve banka hesaplarını auth-service'ten çek
+      // Organizasyon bilgisini auth-service'ten çek
       let logoUrl = null;
       let bankAccounts = [];
+      let organization = null;
       try {
         const token = req.cookies?.accessToken;
         if (token && process.env.AUTH_SERVICE_URL) {
@@ -51,18 +75,49 @@ module.exports = {
               "x-internal-api-key": process.env.INTERNAL_API_KEY,
             },
           });
-          logoUrl = orgRes.data?.logo || null;
-          bankAccounts = orgRes.data?.bankAccounts || [];
+          organization = pickOrganizationForPdf(orgRes.data || {});
+          logoUrl = organization.logo || null;
+          bankAccounts = organization.bankAccounts;
         }
       } catch {
         // org verisi alınamazsa devam et
+      }
+
+      const user = pickUserForPdf(req.user || {});
+      const offerObject = offer.toObject({ flattenMaps: true });
+      let createdByUser = { _id: offerObject.createdBy || null };
+
+      if (offerObject.createdBy?.toString?.() === user._id?.toString?.()) {
+        createdByUser = user;
+      } else if (offerObject.createdBy && process.env.AUTH_SERVICE_URL) {
+        try {
+          const creatorRes = await authAxios.get(
+            `${process.env.AUTH_SERVICE_URL}/api/auth/users/${offerObject.createdBy}`,
+            {
+              params: user.applicationId ? { applicationId: user.applicationId } : undefined,
+              headers: { "x-internal-api-key": process.env.INTERNAL_API_KEY },
+            },
+          );
+          if (creatorRes.data?.user) {
+            createdByUser = pickUserForPdf(creatorRes.data.user);
+          }
+        } catch {
+          // creator bilgisi alınamazsa id ile devam et
+        }
       }
 
       const pdfResponse = await pdfAxios.post(
         `${process.env.PDF_SERVICE_URL}/generate`,
         {
           template: offer.template || "quotation",
-          data: { ...offer.toObject({ flattenMaps: true }), logoUrl, bankAccounts },
+          data: {
+            ...offerObject,
+            logoUrl,
+            bankAccounts,
+            organization,
+            user,
+            createdByUser,
+          },
         },
         {
           responseType: "arraybuffer",

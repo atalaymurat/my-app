@@ -11,7 +11,7 @@ services:
       - ./frontend:/usr/src/app
       - /usr/src/app/node_modules
     env_file:
-      - ./frontend/.env.local
+      - ./frontend/.env
     depends_on:
       - backend
 
@@ -27,18 +27,18 @@ services:
     env_file:
       - ./backend/.env
     environment:
-      - AUTH_SERVICE_URL=http://auth-service:3022/api/auth
+      - AUTH_SERVICE_URL=http://auth-service:3022
     depends_on:
       - auth-service
 
   auth-service:
     build:
-      context: ./auth-service
+      context: ../auth-service
       dockerfile: Dockerfile.dev
     ports:
       - "3022:3022"
     volumes:
-      - ./auth-service:/usr/src/app
+      - ../auth-service:/usr/src/app
       - /usr/src/app/node_modules
     env_file:
-      - ./auth-service/.env
+      - ../auth-service/.env
