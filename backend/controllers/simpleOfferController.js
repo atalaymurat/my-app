@@ -5,7 +5,7 @@ const normalizeSimpleOffer = require("./utils/simpleOffer/normalizeSimpleOffer")
 const createSimpleOffer = require("./utils/simpleOffer/createSimpleOffer");
 const { normalizeCompany } = require("./utils/normalize");
 const { handleCompanyCreate } = require("./services/companyServices");
-
+const logger = require("../config/logger");
 
 const createOrFindContact = require("./utils/contact/createOrFindContact");
 
@@ -16,8 +16,12 @@ async function handleOfferFlow(req, res, statusCode, successMessage) {
   const orgId  = req.user?.orgId || null;
   if (!userId) return res.status(401).json({ message: "Yetkisiz erişim.", success: false });
 
+  logger.info({ message: "Simple offer request", userId, orgId, body: req.body });
+
   const { offerData, versionData, needsCompanyCreation, companyData, contactData } =
     normalizeSimpleOffer(req.body, userId, orgId);
+
+  logger.info({ message: "Normalized offer data", offerData, versionData });
 
   if (needsCompanyCreation && companyData) {
     const normalized = normalizeCompany(companyData, userId, orgId);
@@ -51,6 +55,8 @@ async function handleOfferFlow(req, res, statusCode, successMessage) {
       : offerDefaults;
   }
 
+  logger.info({ message: "Creating simple offer", offerData, versionData });
+
   const record = await createSimpleOffer({ ...offerData, ...versionData });
   return res.status(statusCode).json({ message: successMessage, record, success: true });
 }
@@ -60,6 +66,7 @@ module.exports = {
     try {
       return await handleOfferFlow(req, res, 201, "Basit teklif oluşturuldu.");
     } catch (error) {
+      logger.error({ message: "Simple offer create error", error: error.message, stack: error.stack });
       return res.status(500).json({ message: error.message, success: false });
     }
   },
@@ -74,6 +81,7 @@ module.exports = {
       req.body._id = req.params.id;
       return await handleOfferFlow(req, res, 200, "Basit teklif güncellendi.");
     } catch (error) {
+      logger.error({ message: "Simple offer update error", error: error.message, stack: error.stack });
       return res.status(500).json({ message: error.message, success: false });
     }
   },
