@@ -6,7 +6,7 @@ const authAxios = axios.create({ timeout: 15000 });
 
 // PDF service için ayrı axios instance
 const pdfAxios = axios.create({
-  timeout: 35000,
+  timeout: 60000,
 });
 
 axiosRetry(authAxios, {
@@ -17,8 +17,8 @@ axiosRetry(authAxios, {
 });
 
 axiosRetry(pdfAxios, {
-  retries: 2,
-  retryDelay: (retryCount) => retryCount * 3000,
+  retries: 3,
+  retryDelay: (retryCount) => retryCount * 5000,
   retryCondition: (error) =>
     error.code === "ECONNABORTED" || axiosRetry.isNetworkError(error),
   onRetry: (retryCount) => {

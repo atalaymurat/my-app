@@ -73,4 +73,8 @@ server.listen(PORT, async () => {
   logger.info(`Server running on port ${PORT}`);
   const { runHealthChecks } = require("./utils/serviceHealthCheck");
   await runHealthChecks();
+
+  // Warm-up pdf-service on backend startup
+  const { warmPdfService } = require("./utils/serviceWarmer");
+  warmPdfService();
 });
