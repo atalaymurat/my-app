@@ -46,15 +46,15 @@ export default function LineItemsSection() {
                       </div>
                       <div>
                         <label className="block text-xs font-semibold uppercase tracking-widest text-stone-500 mb-2">Para Birimi</label>
-                        <div className="flex gap-2">
+                        <select
+                          value={item.currency}
+                          onChange={(e) => setFieldValue(`lineItems.${idx}.currency`, e.target.value)}
+                          className="w-full px-4 py-3 rounded-xl bg-stone-800/50 border border-stone-700 text-sm text-stone-300 focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 transition-all"
+                        >
                           {CURRENCIES.map((cur) => (
-                            <button key={cur} type="button"
-                              onClick={() => setFieldValue(`lineItems.${idx}.currency`, cur)}
-                              className={`flex-1 px-3 py-3 rounded-xl text-xs font-bold border transition-all ${item.currency === cur ? "bg-amber-600 border-amber-500 text-white" : "bg-stone-800 border-stone-700 text-stone-500 hover:text-stone-300"}`}>
-                              {cur}
-                            </button>
+                            <option key={cur} value={cur}>{cur}</option>
                           ))}
-                        </div>
+                        </select>
                       </div>
                       <div>
                         <label className="block text-xs font-semibold uppercase tracking-widest text-stone-500 mb-2">Adet</label>
