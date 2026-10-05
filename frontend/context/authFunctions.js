@@ -16,8 +16,8 @@ export const checkSession = async ({ setUser, setAuthChecked, setLoading }) => {
     } catch (verifyError) {
       const status = verifyError.response?.status;
 
-      // 502/503 = backend soğuk, bir kez retry
-      if (status === 502 || status === 503 || !status) {
+      // 502/503/429 = backend soğuk veya rate limit, bir kez retry
+      if (status === 502 || status === 503 || status === 429 || !status) {
         try {
           await wait(3000);
           response = await doVerify();
@@ -70,10 +70,30 @@ export const checkSession = async ({ setUser, setAuthChecked, setLoading }) => {
 export const login = async ({ idToken, setUser, setLoading }) => {
   setLoading(true);
   try {
-    const response = await axiosAuth.post("/login", {
-      idToken,
-      applicationId: process.env.NEXT_PUBLIC_APPLICATION_ID,
-    });
+    let response;
+    try {
+      response = await axiosAuth.post("/login", {
+        idToken,
+        applicationId: process.env.NEXT_PUBLIC_APPLICATION_ID,
+      });
+    } catch (loginError) {
+      const status = loginError.response?.status;
+
+      // 502/503/429 = backend soğuk veya rate limit, bir kez retry
+      if (status === 502 || status === 503 || status === 429 || !status) {
+        try {
+          await wait(3000);
+          response = await axiosAuth.post("/login", {
+            idToken,
+            applicationId: process.env.NEXT_PUBLIC_APPLICATION_ID,
+          });
+        } catch {
+          throw loginError;
+        }
+      } else {
+        throw loginError;
+      }
+    }
 
     if (response.data?.success && response.data.user) {
       setUser(response.data.user);

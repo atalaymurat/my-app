@@ -6,7 +6,9 @@ const { warmPdfService } = require("../utils/serviceWarmer");
 
 const AUTH_BASE = process.env.AUTH_SERVICE_URL;
 
-const proxy = async (req, res, targetPath) => {
+const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+
+const proxy = async (req, res, targetPath, retryCount = 0) => {
   const start = Date.now();
   const url = `${AUTH_BASE}${targetPath}`;
 
@@ -21,6 +23,7 @@ const proxy = async (req, res, targetPath) => {
         "content-type": req.headers["content-type"] || "application/json",
         "authorization": req.headers["authorization"] || "",
       },
+      timeout: 30000,
       validateStatus: () => true,
     });
 
@@ -52,6 +55,20 @@ const proxy = async (req, res, targetPath) => {
 
     res.status(response.status).json(response.data);
   } catch (err) {
+    const isTimeout = err.code === "ECONNABORTED" || err.message.includes("timeout");
+    const isRetryable = isTimeout || err.code === "ECONNRESET";
+
+    if (isRetryable && retryCount < 2) {
+      logger.warn({
+        message: "Auth proxy retry",
+        targetPath,
+        retryCount: retryCount + 1,
+        error: err.message,
+      });
+      await wait(2000);
+      return proxy(req, res, targetPath, retryCount + 1);
+    }
+
     logger.error({
       message: "Auth proxy error",
       targetPath,
