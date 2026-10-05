@@ -14,8 +14,9 @@ export default function LineItemsSection() {
   };
 
   const handlePriceChange = (idx, e) => {
-    const rawValue = e.target.value.replace(/\./g, "").replace(",", ".");
-    const num = parseFloat(rawValue);
+    let value = e.target.value.replace(/\./g, "").replace(",", ".");
+    value = value.replace(/[^0-9.]/g, "");
+    const num = parseFloat(value);
     setFieldValue(`lineItems.${idx}.priceOffer`, isNaN(num) ? "" : num);
   };
 
