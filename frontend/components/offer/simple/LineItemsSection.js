@@ -35,6 +35,46 @@ export default function LineItemsSection() {
                       )}
                     </div>
 
+                    <div>
+                      <label className="block text-xs font-semibold uppercase tracking-widest text-stone-500 mb-2">Ürün Fotoğrafı</label>
+                      <div className="flex items-center gap-3">
+                        {item.image ? (
+                          <div className="relative w-20 h-20 rounded-lg overflow-hidden border border-stone-700">
+                            <img src={item.image} alt="Ürün" className="w-full h-full object-cover" />
+                            <button
+                              type="button"
+                              onClick={() => setFieldValue(`lineItems.${idx}.image`, "")}
+                              className="absolute top-1 right-1 w-6 h-6 rounded-full bg-red-900/80 text-white flex items-center justify-center text-xs hover:bg-red-800 transition-colors"
+                            >
+                              ✕
+                            </button>
+                          </div>
+                        ) : (
+                          <label className="w-20 h-20 rounded-lg border-2 border-dashed border-stone-700 flex items-center justify-center cursor-pointer hover:border-stone-600 transition-colors">
+                            <input
+                              type="file"
+                              accept="image/*"
+                              className="hidden"
+                              onChange={(e) => {
+                                const file = e.target.files[0];
+                                if (file) {
+                                  const reader = new FileReader();
+                                  reader.onloadend = () => {
+                                    setFieldValue(`lineItems.${idx}.image`, reader.result);
+                                  };
+                                  reader.readAsDataURL(file);
+                                }
+                              }}
+                            />
+                            <svg className="w-6 h-6 text-stone-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                            </svg>
+                          </label>
+                        )}
+                        <p className="text-xs text-stone-500">Opsiyonel - PDF'te gösterilir</p>
+                      </div>
+                    </div>
+
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                       <div>
                         <label className="block text-xs font-semibold uppercase tracking-widest text-stone-500 mb-2">Fiyat</label>
@@ -73,7 +113,7 @@ export default function LineItemsSection() {
                 </div>
               ))}
               <button type="button"
-                onClick={() => push({ title: "", priceOffer: "", currency: "EUR", quantity: 1, notes: "" })}
+                onClick={() => push({ title: "", priceOffer: "", currency: "EUR", quantity: 1, notes: "", image: "" })}
                 className="w-full py-3 px-4 rounded-xl border border-dashed border-stone-700 text-sm font-semibold text-stone-400 hover:border-stone-600 hover:text-stone-300 transition-colors">
                 + Ürün/Hizmet Ekle
               </button>

@@ -8,7 +8,7 @@ function shapeSimpleLineItems(lineItems = []) {
     caption: "",
     productDesc: "",
     variantDesc: "",
-    image: "",
+    image: item.image || "",
     currency: item.currency || "TRY",
     quantity: Number(item.quantity) || 1,
     condition: "",
