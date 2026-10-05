@@ -6,6 +6,20 @@ import { CURRENCIES } from "./constants";
 export default function LineItemsSection() {
   const { values, setFieldValue, errors, touched } = useFormikContext();
 
+  const formatPrice = (value) => {
+    if (!value) return "";
+    const numStr = value.toString().replace(/\./g, "");
+    const num = parseInt(numStr, 10);
+    if (isNaN(num)) return value;
+    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  };
+
+  const handlePriceChange = (idx, e) => {
+    const rawValue = e.target.value.replace(/\./g, "");
+    const num = parseInt(rawValue, 10);
+    setFieldValue(`lineItems.${idx}.priceOffer`, isNaN(num) ? "" : num);
+  };
+
   return (
     <div className="rounded-2xl border border-stone-800 bg-stone-950/50 overflow-hidden">
       <div className="px-5 py-3.5 bg-stone-900/40 border-b border-stone-800">
@@ -78,9 +92,9 @@ export default function LineItemsSection() {
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                       <div>
                         <label className="block text-xs font-semibold uppercase tracking-widest text-stone-500 mb-2">Fiyat</label>
-                        <input type="number" step="0.01" value={item.priceOffer}
-                          onChange={(e) => setFieldValue(`lineItems.${idx}.priceOffer`, e.target.value)}
-                          placeholder="0.00"
+                        <input type="text" value={formatPrice(item.priceOffer)}
+                          onChange={(e) => handlePriceChange(idx, e)}
+                          placeholder="0"
                           className="w-full px-4 py-3 rounded-xl bg-stone-800/50 border border-stone-700 text-sm text-stone-300 placeholder-stone-600 focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 transition-all"
                         />
                       </div>
