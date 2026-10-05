@@ -53,7 +53,7 @@ export default function LineItemsSection() {
                           <label className="w-20 h-20 rounded-lg border-2 border-dashed border-stone-700 flex items-center justify-center cursor-pointer hover:border-stone-600 transition-colors">
                             <input
                               type="file"
-                              accept="image/*"
+                              accept="image/png, image/jpeg, image/jpg"
                               className="hidden"
                               onChange={(e) => {
                                 const file = e.target.files[0];
