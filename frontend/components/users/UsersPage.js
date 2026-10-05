@@ -43,6 +43,36 @@ const UsersPage = () => {
     router.push(`/shield/users?page=${page}`);
   };
 
+  const handleActivate = async (userId) => {
+    if (!confirm("Bu kullanıcıyı aktifleştirmek istediğinize emin misiniz?")) return;
+    try {
+      await axios.patch(`/api/auth/users/${userId}/activate`);
+      setUsers((prev) => prev.map((u) => (u._id === userId ? { ...u, isActive: true } : u)));
+    } catch (error) {
+      alert("Aktifleştirme başarısız.");
+    }
+  };
+
+  const handleDeactivate = async (userId) => {
+    if (!confirm("Bu kullanıcıyı pasif duruma getirmek istediğinize emin misiniz? Kullanıcı sisteme giriş yapamayacak.")) return;
+    try {
+      await axios.patch(`/api/auth/users/${userId}/deactivate`);
+      setUsers((prev) => prev.map((u) => (u._id === userId ? { ...u, isActive: false } : u)));
+    } catch (error) {
+      alert("Pasifleştirme başarısız.");
+    }
+  };
+
+  const handleDelete = async (userId, name) => {
+    if (!confirm(`"${name}" kullanıcısını silmek istediğinize emin misiniz? Bu işlem geri alınamaz.`)) return;
+    try {
+      await axios.delete(`/api/auth/users/${userId}`);
+      setUsers((prev) => prev.filter((u) => u._id !== userId));
+    } catch (error) {
+      alert("Silme başarısız.");
+    }
+  };
+
   const getRoleColor = (roles) => {
     if (roles?.includes("superadmin"))
       return "text-red-400 bg-red-900/30 border-red-800/50";
@@ -103,7 +133,10 @@ const UsersPage = () => {
                       Durum
                     </th>
                     <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-widest text-stone-500">
-                      Org ID
+                      Organizasyon
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-widest text-stone-500">
+                      İşlemler
                     </th>
                   </tr>
                 </thead>
@@ -136,7 +169,32 @@ const UsersPage = () => {
                         </span>
                       </td>
                       <td className="px-4 py-3">
-                        <p className="text-xs text-stone-500 font-mono">{u.defaultOrgId || "—"}</p>
+                        <p className="text-sm text-stone-300">{u.organizationName || "—"}</p>
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex gap-2">
+                          {u.isActive ? (
+                            <button
+                              onClick={() => handleDeactivate(u._id)}
+                              className="text-[9px] font-bold uppercase tracking-widest px-2 py-1 rounded border border-amber-800/50 text-amber-400 bg-amber-900/20 hover:bg-amber-900/40 transition-colors"
+                            >
+                              Pasif Yap
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => handleActivate(u._id)}
+                              className="text-[9px] font-bold uppercase tracking-widest px-2 py-1 rounded border border-emerald-800/50 text-emerald-400 bg-emerald-900/20 hover:bg-emerald-900/40 transition-colors"
+                            >
+                              Aktif Yap
+                            </button>
+                          )}
+                          <button
+                            onClick={() => handleDelete(u._id, u.name)}
+                            className="text-[9px] font-bold uppercase tracking-widest px-2 py-1 rounded border border-red-800/50 text-red-400 bg-red-900/20 hover:bg-red-900/40 transition-colors"
+                          >
+                            Sil
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}

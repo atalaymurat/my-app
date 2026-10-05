@@ -95,5 +95,17 @@ router.get("/users/summary", authenticate, (req, res) => {
   if (!req.isSuperAdmin) return res.status(403).json({ error: "Sadece superadmin erişebilir." });
   proxy(req, res, "/api/auth/users/summary");
 });
+router.patch("/users/:id/activate", authenticate, (req, res) => {
+  if (!req.isSuperAdmin) return res.status(403).json({ error: "Sadece superadmin erişebilir." });
+  proxy(req, res, `/api/auth/users/${req.params.id}/activate`);
+});
+router.patch("/users/:id/deactivate", authenticate, (req, res) => {
+  if (!req.isSuperAdmin) return res.status(403).json({ error: "Sadece superadmin erişebilir." });
+  proxy(req, res, `/api/auth/users/${req.params.id}/deactivate`);
+});
+router.delete("/users/:id", authenticate, (req, res) => {
+  if (!req.isSuperAdmin) return res.status(403).json({ error: "Sadece superadmin erişebilir." });
+  proxy(req, res, `/api/auth/users/${req.params.id}`);
+});
 
 module.exports = router;
