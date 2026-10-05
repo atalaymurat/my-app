@@ -22,4 +22,7 @@ router.use("/health", require("./health"));
 router.use("/auth", require("./auth-proxy"));
 router.use("/org", require("./org-proxy"));
 
+// Internal service routes
+router.use("/content", require("./contentCleanup"));
+
 module.exports = router;
