@@ -44,14 +44,16 @@ export default function SimpleOfferForm() {
   };
 
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6">
       <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={handleSubmit} enableReinitialize>
         {({ isSubmitting }) => (
-          <Form className="space-y-5">
+          <Form className="space-y-6">
             <div className="flex items-center gap-3 mb-6">
               <button type="button" onClick={() => router.back()}
-                className="p-1.5 rounded-lg bg-stone-800 hover:bg-stone-700 border border-stone-700 text-stone-400 hover:text-stone-200 transition-colors">
-                ←
+                className="p-2 rounded-xl bg-stone-800 hover:bg-stone-700 border border-stone-700 text-stone-400 hover:text-stone-200 transition-colors">
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                </svg>
               </button>
               <div>
                 <h1 className="text-2xl font-black text-stone-100">Hızlı Teklif</h1>
@@ -69,7 +71,7 @@ export default function SimpleOfferForm() {
 
             <div className="flex justify-end pt-2">
               <button type="submit" disabled={isSubmitting}
-                className="py-2.5 px-12 rounded-lg bg-amber-600 hover:bg-amber-500 disabled:opacity-50 border border-amber-500 text-sm font-bold text-white transition-colors">
+                className="py-3 px-8 rounded-xl bg-amber-600 hover:bg-amber-500 disabled:opacity-50 border border-amber-500 text-sm font-bold text-white transition-colors">
                 {isSubmitting ? "Oluşturuluyor..." : "Teklif Oluştur"}
               </button>
             </div>
