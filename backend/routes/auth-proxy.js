@@ -17,6 +17,7 @@ const proxy = async (req, res, targetPath, retryCount = 0) => {
       method: req.method,
       url,
       data: req.body,
+      params: req.query,
       headers: {
         "x-internal-api-key": process.env.INTERNAL_API_KEY,
         "cookie": req.headers.cookie || "",

@@ -249,6 +249,7 @@ const LEVEL_COLORS = {
 
 /* ── user summary card (superadmin only) ── */
 function UserSummaryCard({ summary }) {
+  const router = useRouter();
   const roleColor = (roles) => {
     if (roles?.includes("superadmin"))
       return "text-red-400 bg-red-900/30 border-red-800/50";
@@ -259,7 +260,10 @@ function UserSummaryCard({ summary }) {
     return "text-stone-400 bg-stone-800/40 border-stone-700";
   };
   return (
-    <div className="rounded-2xl border border-l-4 border-stone-800 border-l-rose-500 bg-stone-950/80 overflow-hidden">
+    <div
+      onClick={() => router.push("/shield/users")}
+      className="rounded-2xl border border-l-4 border-stone-800 border-l-rose-500 bg-stone-950/80 overflow-hidden cursor-pointer hover:bg-stone-900/60 transition-colors"
+    >
       <div className="flex items-start justify-between px-4 pt-4 pb-3">
         <div>
           <p className="text-xs font-bold uppercase tracking-widest text-stone-500">
