@@ -52,6 +52,7 @@ export default function SimpleOfferEditForm({ offerId }) {
             currency: item.currency || "EUR",
             quantity: item.quantity || 1,
             notes: item.notes || "",
+            image: item.image || "",
           })),
           offerTerms: lastVersion.offerTerms || [],
         });
