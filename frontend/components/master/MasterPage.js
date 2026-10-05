@@ -27,7 +27,7 @@ const BasePage = () => {
   }, [currentPage]);
 
   const handlePageChange = (newPage) => {
-    router.push(`/shield/base?page=${newPage}`);
+    router.push(`/shield/master?page=${newPage}`);
   };
 
   const handleDelete = async (item) => {
