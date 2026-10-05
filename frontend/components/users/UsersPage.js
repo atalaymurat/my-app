@@ -46,30 +46,45 @@ const UsersPage = () => {
   const handleActivate = async (userId) => {
     if (!confirm("Bu kullanıcıyı aktifleştirmek istediğinize emin misiniz?")) return;
     try {
-      await axios.patch(`/api/auth/users/${userId}/activate`);
-      setUsers((prev) => prev.map((u) => (u._id === userId ? { ...u, isActive: true } : u)));
+      const { data } = await axios.patch(`/api/auth/users/${userId}/activate`);
+      if (data.success) {
+        setUsers((prev) => prev.map((u) => (u._id === userId ? { ...u, isActive: true } : u)));
+      } else {
+        alert(`Aktifleştirme başarısız: ${data.message}`);
+      }
     } catch (error) {
-      alert("Aktifleştirme başarısız.");
+      console.error("Activate error:", error);
+      alert(`Aktifleştirme başarısız: ${error.response?.data?.message || error.message}`);
     }
   };
 
   const handleDeactivate = async (userId) => {
     if (!confirm("Bu kullanıcıyı pasif duruma getirmek istediğinize emin misiniz? Kullanıcı sisteme giriş yapamayacak.")) return;
     try {
-      await axios.patch(`/api/auth/users/${userId}/deactivate`);
-      setUsers((prev) => prev.map((u) => (u._id === userId ? { ...u, isActive: false } : u)));
+      const { data } = await axios.patch(`/api/auth/users/${userId}/deactivate`);
+      if (data.success) {
+        setUsers((prev) => prev.map((u) => (u._id === userId ? { ...u, isActive: false } : u)));
+      } else {
+        alert(`Pasifleştirme başarısız: ${data.message}`);
+      }
     } catch (error) {
-      alert("Pasifleştirme başarısız.");
+      console.error("Deactivate error:", error);
+      alert(`Pasifleştirme başarısız: ${error.response?.data?.message || error.message}`);
     }
   };
 
   const handleDelete = async (userId, name) => {
     if (!confirm(`"${name}" kullanıcısını silmek istediğinize emin misiniz? Bu işlem geri alınamaz.`)) return;
     try {
-      await axios.delete(`/api/auth/users/${userId}`);
-      setUsers((prev) => prev.filter((u) => u._id !== userId));
+      const { data } = await axios.delete(`/api/auth/users/${userId}`);
+      if (data.success) {
+        setUsers((prev) => prev.filter((u) => u._id !== userId));
+      } else {
+        alert(`Silme başarısız: ${data.message}`);
+      }
     } catch (error) {
-      alert("Silme başarısız.");
+      console.error("Delete error:", error);
+      alert(`Silme başarısız: ${error.response?.data?.message || error.message}`);
     }
   };
 

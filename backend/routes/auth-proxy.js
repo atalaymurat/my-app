@@ -52,6 +52,13 @@ const proxy = async (req, res, targetPath, retryCount = 0) => {
         status: response.status,
         duration,
       });
+    } else if (response.status >= 400) {
+      logger.warn({
+        message: "Auth proxy error response",
+        targetPath,
+        status: response.status,
+        data: response.data,
+      });
     }
 
     res.status(response.status).json(response.data);
