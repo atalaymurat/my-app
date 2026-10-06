@@ -6,6 +6,12 @@ const SERVICE_LABELS = {
   "pdf-service": "PDF Service",
 };
 
+const SERVICE_URLS = {
+  backend: "https://api.postiva.uk",
+  "auth-service": "https://auth.postiva.uk",
+  "pdf-service": "https://pdf-service-xxtt.onrender.com",
+};
+
 function StatusDot({ healthy }) {
   return (
     <span className="relative flex h-2.5 w-2.5">
@@ -23,6 +29,7 @@ function StatusDot({ healthy }) {
 
 export default function ServiceStatus({ service }) {
   const healthy = service.status === "healthy";
+  const serviceUrl = SERVICE_URLS[service.name];
 
   return (
     <div className="bg-stone-800 border border-stone-700 rounded-xl p-4 flex flex-col gap-2">
@@ -32,6 +39,18 @@ export default function ServiceStatus({ service }) {
         </span>
         <StatusDot healthy={healthy} />
       </div>
+
+      {serviceUrl && (
+        <a
+          href={serviceUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-xs text-amber-400 hover:text-amber-300 transition-colors truncate"
+          title={serviceUrl}
+        >
+          {serviceUrl}
+        </a>
+      )}
 
       <div className="flex items-center gap-3 text-xs text-stone-500">
         <span className={healthy ? "text-green-400" : "text-red-400"}>
